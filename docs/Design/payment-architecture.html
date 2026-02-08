@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enterprise Payment Processing Platform — Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#08090d;--bg2:#0f1118;--bg3:#151822;--bg4:#1a1e2e;--bdr:#1f2438;--bdr2:#2a3050;--t1:#e8eaf0;--t2:#8b90a0;--t3:#555a6e;--blue:#3b82f6;--cyan:#06b6d4;--green:#10b981;--amber:#f59e0b;--rose:#f43f5e;--violet:#8b5cf6;--orange:#f97316;--kafka:#e8523f;--r:10px;--tr:0.3s cubic-bezier(0.4,0,0.2,1);--fd:'Outfit',sans-serif;--fm:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:var(--fd);background:var(--bg);color:var(--t1);line-height:1.65;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px}
+.bgx{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(59,130,246,.08),transparent),radial-gradient(circle at 20% 80%,rgba(139,92,246,.05),transparent),linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:100%,100%,60px 60px,60px 60px}
+.c{max-width:1400px;margin:0 auto;padding:0 32px;position:relative;z-index:1}
+.hdr{padding:48px 0 32px;border-bottom:1px solid var(--bdr)}
+.hdr-b{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:20px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.2);font-size:12px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:1.5px;font-family:var(--fm);margin-bottom:20px}
+.hdr-b::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--blue);box-shadow:0 0 8px var(--blue);animation:pd 2s ease-in-out infinite}
+@keyframes pd{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.hdr h1{font-size:clamp(32px,4vw,52px);font-weight:800;letter-spacing:-1.5px;line-height:1.1;background:linear-gradient(135deg,var(--t1),var(--t2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-s{font-size:17px;color:var(--t2);margin-top:12px;max-width:700px}
+.hdr-m{display:flex;gap:24px;margin-top:20px;flex-wrap:wrap}
+.hdr-m span{font-size:13px;font-family:var(--fm);color:var(--t3);display:flex;align-items:center;gap:6px}
+.hdr-m span::before{content:'';width:4px;height:4px;border-radius:50%}
+.m1::before{background:var(--kafka)}.m2::before{background:var(--cyan)}.m3::before{background:var(--green)}.m4::before{background:var(--violet)}
+nav{position:sticky;top:0;z-index:100;background:rgba(8,9,13,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);padding:0 32px}
+.ni{max-width:1400px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;padding:8px 0;-ms-overflow-style:none;scrollbar-width:none}
+.ni::-webkit-scrollbar{display:none}
+.nb{flex-shrink:0;padding:8px 14px;border-radius:8px;background:0;border:0;color:var(--t2);font-size:12px;font-family:var(--fd);font-weight:500;cursor:pointer;transition:var(--tr);white-space:nowrap}
+.nb:hover{color:var(--t1);background:var(--bg4)}.nb.a{color:var(--blue);background:rgba(59,130,246,.15)}
+section{padding:48px 0}
+.sl{font-size:11px;font-family:var(--fm);color:var(--t3);text-transform:uppercase;letter-spacing:2.5px;font-weight:600;margin-bottom:8px}
+.st{font-size:clamp(24px,3vw,34px);font-weight:700;letter-spacing:-.5px;margin-bottom:16px}
+.sd{font-size:15px;color:var(--t2);max-width:800px;margin-bottom:32px;line-height:1.7}
+.g2{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px}
+.g3{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.g4{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.g5{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.card{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:20px;transition:var(--tr)}
+.card:hover{border-color:var(--bdr2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.card h4{font-size:15px;font-weight:700;margin-bottom:4px}.card p{font-size:13px;color:var(--t2);line-height:1.7;margin-top:6px}
+.tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-family:var(--fm);background:var(--bg4);color:var(--t2);border:1px solid var(--bdr);font-weight:500;margin:2px}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+.mono{font-family:var(--fm);font-size:12px}
+.dim{color:var(--t3)}.sec{color:var(--t2)}
+.blu{color:var(--blue)}.cyn{color:var(--cyan)}.grn{color:var(--green)}.amb{color:var(--amber)}.ros{color:var(--rose)}.vio{color:var(--violet)}.org{color:var(--orange)}.kaf{color:var(--kafka)}
+.ico{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.callout{background:var(--bg2);border:1px solid var(--bdr);border-left:3px solid var(--blue);border-radius:var(--r);padding:20px 24px;margin:20px 0}
+.callout h4{font-size:14px;font-weight:700;margin-bottom:6px;color:var(--blue)}.callout p{font-size:13px;color:var(--t2);line-height:1.7}
+.callout.ck{border-left-color:var(--kafka)}.callout.ck h4{color:var(--kafka)}
+.callout.ca{border-left-color:var(--amber)}.callout.ca h4{color:var(--amber)}
+.callout.cg{border-left-color:var(--green)}.callout.cg h4{color:var(--green)}
+.callout.cv{border-left-color:var(--violet)}.callout.cv h4{color:var(--violet)}
+table{width:100%;border-collapse:separate;border-spacing:0;border-radius:var(--r);overflow:hidden;border:1px solid var(--bdr);font-size:13px;margin:16px 0}
+th{background:var(--bg4);padding:10px 14px;text-align:left;font-size:11px;font-family:var(--fm);color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;border-bottom:1px solid var(--bdr)}
+td{padding:10px 14px;border-bottom:1px solid var(--bdr);color:var(--t2)}
+tr:last-child td{border-bottom:0}tr:hover{background:rgba(255,255,255,.02)}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-family:var(--fm);font-weight:600}
+.bb{background:rgba(59,130,246,.15);color:var(--blue)}.bg{background:rgba(16,185,129,.15);color:var(--green)}.ba{background:rgba(245,158,11,.15);color:var(--amber)}.bv{background:rgba(139,92,246,.15);color:var(--violet)}.br{background:rgba(244,63,94,.15);color:var(--rose)}.bk{background:rgba(232,82,63,.15);color:var(--kafka)}
+.sla-v{font-size:28px;font-weight:800;font-family:var(--fm);letter-spacing:-1px;text-align:center}
+.kb{margin:14px 0;padding:10px 24px;background:linear-gradient(90deg,transparent 0%,rgba(232,82,63,.12) 15%,rgba(232,82,63,.12) 85%,transparent 100%);border-top:1px solid rgba(232,82,63,.2);border-bottom:1px solid rgba(232,82,63,.2);text-align:center;font-size:11px;font-family:var(--fm);color:var(--kafka);font-weight:600;letter-spacing:2px;position:relative;overflow:hidden}
+.kb::before{content:'';position:absolute;top:50%;left:-100%;width:200%;height:1px;background:linear-gradient(90deg,transparent,var(--kafka),transparent);animation:ks 4s linear infinite}
+@keyframes ks{0%{transform:translateX(-50%)}100%{transform:translateX(0%)}}
+.kt{display:inline-block;padding:2px 10px;background:rgba(232,82,63,.1);border-radius:4px;margin:0 4px;font-size:11px}
+.flow-box{background:var(--bg2);border:1px solid var(--bdr);border-radius:16px;padding:32px;overflow-x:auto;position:relative}
+.flow-box::before{content:attr(data-label);position:absolute;top:14px;left:22px;font-size:10px;font-family:var(--fm);color:var(--t3);letter-spacing:2px;font-weight:600}
+.fn{position:relative;min-width:130px;padding:12px 16px;border-radius:var(--r);text-align:center;font-size:12px;font-weight:600;transition:var(--tr);border:1px solid;display:inline-block;margin:4px}
+.fn:hover{transform:translateY(-2px)}
+.fn .ni2{font-size:9px;font-family:var(--fm);opacity:.6;letter-spacing:1px;margin-bottom:3px}
+.fn .nl{font-size:13px;font-weight:600}.fn .ns{font-size:10px;font-weight:400;opacity:.7;margin-top:2px}
+.n-bl{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.3);color:var(--blue)}
+.n-cy{background:rgba(6,182,212,.12);border-color:rgba(6,182,212,.3);color:var(--cyan)}
+.n-am{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.3);color:var(--amber)}
+.n-gn{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.3);color:var(--green)}
+.n-vi{background:rgba(139,92,246,.12);border-color:rgba(139,92,246,.3);color:var(--violet)}
+.n-ro{background:rgba(244,63,94,.12);border-color:rgba(244,63,94,.3);color:var(--rose)}
+.n-ex{background:rgba(255,255,255,.03);border-color:var(--bdr2);border-style:dashed;color:var(--t2)}
+.n-kf{background:rgba(232,82,63,.12);border-color:rgba(232,82,63,.35);color:var(--kafka)}
+.arr{display:inline-block;color:var(--t3);font-size:16px;margin:0 4px;vertical-align:middle}
+.spec{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.spec-i{font-size:11px;font-family:var(--fm);color:var(--t3);padding:6px 10px;background:var(--bg4);border-radius:6px}
+.spec-i strong{display:block;color:var(--t2);font-size:13px}
+.stripe{background:var(--bg3);border-left:3px solid;padding:14px 18px;border-radius:0 var(--r) var(--r) 0;margin:6px 0}
+.stripe h4{font-size:14px;font-weight:600;margin-bottom:3px}.stripe p{font-size:12.5px;color:var(--t2);line-height:1.6}
+.footer{padding:40px 0;border-top:1px solid var(--bdr);text-align:center;color:var(--t3);font-size:12px;font-family:var(--fm)}
+@media(max-width:768px){.c{padding:0 16px}.g2,.g3,.g4,.g5{grid-template-columns:1fr}.flow-box{padding:16px}}
+</style>
+</head>
+<body>
+<div class="bgx"></div>
+<div class="c">
+<header class="hdr">
+<div class="hdr-b">System Architecture v2.0</div>
+<h1>Enterprise Payment<br>Processing Platform</h1>
+<p class="hdr-s">Kafka-driven, event-sourced microservices architecture for core banking payments across Singapore, Hong Kong, UK, and India — with self-healing infrastructure, per-country clearing house configurations, and autonomous recovery.</p>
+<div class="hdr-m">
+<span class="m1">Apache Kafka Backbone</span>
+<span class="m2">ISO 20022 Native</span>
+<span class="m3">Self-Healing Infrastructure</span>
+<span class="m4">Multi-Region (SG · HK · UK · IN)</span>
+</div>
+</header>
+</div>
+
+<nav>
+<div class="ni">
+<button class="nb a" onclick="scrollTo_('flow')">Payment Flow</button>
+<button class="nb" onclick="scrollTo_('clearing')">Clearing Houses</button>
+<button class="nb" onclick="scrollTo_('config')">Country Config</button>
+<button class="nb" onclick="scrollTo_('compliance')">Compliance</button>
+<button class="nb" onclick="scrollTo_('saga')">Accounting Saga</button>
+<button class="nb" onclick="scrollTo_('state')">State Machine</button>
+<button class="nb" onclick="scrollTo_('kafka')">Kafka Topics</button>
+<button class="nb" onclick="scrollTo_('databases')">Database Isolation</button>
+<button class="nb" onclick="scrollTo_('selfheal')">Self-Healing</button>
+<button class="nb" onclick="scrollTo_('resilience')">Resilience</button>
+<button class="nb" onclick="scrollTo_('sla')">SLA Targets</button>
+<button class="nb" onclick="scrollTo_('stack')">Tech Stack</button>
+</div>
+</nav>
+
+<div class="c">
+
+<!-- ══════ FLOW ══════ -->
+<section id="flow">
+<div class="sl">Section 01</div>
+<h2 class="st">End-to-End Payment Flow</h2>
+<p class="sd">A payment instruction traverses six architectural tiers. Each transition is mediated by Kafka topics. Compliance screening runs in parallel where SLAs permit, following AWS/industry best practices for real-time payment orchestration.</p>
+
+<div class="flow-box" data-label="PAYMENT LIFECYCLE — END TO END" style="padding-top:40px">
+<div style="text-align:center">
+<div style="margin-bottom:8px">
+<div class="fn n-ex"><div class="ni2">UPSTREAM</div><div class="nl">IBM MQ</div><div class="ns">MT/MX Messages</div></div>
+<div class="fn n-ex"><div class="ni2">UPSTREAM</div><div class="nl">SFTP Files</div><div class="ns">CSV · XML · FIN</div></div>
+<div class="fn n-ex"><div class="ni2">UPSTREAM</div><div class="nl">REST/gRPC</div><div class="ns">JSON · Protobuf</div></div>
+<div class="fn n-ex"><div class="ni2">UPSTREAM</div><div class="nl">ISO 20022</div><div class="ns">pain.001 · pacs.008</div></div>
+</div>
+<div style="color:var(--t3);font-size:18px;margin:4px 0">▾</div>
+<div class="fn n-bl" style="min-width:520px"><div class="ni2">TIER 1 — INGESTION GATEWAY</div><div class="nl">Protocol Translation · Deduplication · Envelope Wrapping</div><div class="ns">Redis dedup (TTL 7d) · UUID v7 · Camel / Spring Integration</div></div>
+
+<div class="kb">▸ KAFKA <span class="kt">payments.inbound.raw</span> ◂</div>
+
+<div class="fn n-cy" style="min-width:520px"><div class="ni2">TIER 2 — MESSAGE PROCESSING</div><div class="nl">Schema Validation · MT→MX Conversion · Enrichment</div><div class="ns">JAXB/XSD · BIC/IBAN resolve · FX rates · Fee calc</div></div>
+
+<div class="kb"><span class="kt">payments.parsed.canonical</span> ──▸ <span class="kt">payments.enriched</span></div>
+
+<div style="margin:8px 0">
+<div class="fn n-am"><div class="ni2">SANCTIONS</div><div class="nl">OFAC·EU·UN·MAS</div><div class="ns">Fircosoft &lt;200ms</div></div>
+<div class="fn n-am"><div class="ni2">AML</div><div class="nl">Tx Monitor</div><div class="ns">Actimize &lt;2s</div></div>
+<div class="fn n-am"><div class="ni2">FRAUD</div><div class="nl">ML Scoring</div><div class="ns">gRPC &lt;100ms</div></div>
+<div class="fn n-am"><div class="ni2">PEP</div><div class="nl">PEP Screen</div><div class="ns">Hybrid &lt;500ms</div></div>
+</div>
+
+<div class="kb"><span class="kt">payments.compliance.response</span> ──▸ <span class="kt">payments.clearing.outbound</span></div>
+
+<div style="margin:8px 0">
+<div class="fn n-gn"><div class="ni2">SG</div><div class="nl">MEPS+</div><div class="ns">RTGS &lt;30s</div></div>
+<div class="fn n-gn"><div class="ni2">SG</div><div class="nl">FAST</div><div class="ns">Real-time &lt;10s</div></div>
+<div class="fn n-gn"><div class="ni2">HK</div><div class="nl">CHATS</div><div class="ns">RTGS &lt;60s</div></div>
+<div class="fn n-gn"><div class="ni2">UK</div><div class="nl">FPS</div><div class="ns">Real-time &lt;15s</div></div>
+<div class="fn n-gn"><div class="ni2">IN</div><div class="nl">RTGS/NEFT</div><div class="ns">24x7 &lt;30m</div></div>
+<div class="fn n-gn"><div class="ni2">GLOBAL</div><div class="nl">SWIFT gpi</div><div class="ns">X-border &lt;4h</div></div>
+</div>
+
+<div class="kb"><span class="kt">payments.clearing.response</span> ──▸ <span class="kt">payments.accounting.booked</span></div>
+
+<div class="fn n-vi" style="min-width:520px"><div class="ni2">TIER 5 — ACCOUNTING & SETTLEMENT</div><div class="nl">Double-Entry Ledger · Saga Orchestration · GL Posting</div><div class="ns">Append-only event-sourced · Compensating transactions · Nostro/Vostro</div></div>
+
+<div class="kb"><span class="kt">payments.notifications</span> <span class="kt">payments.recon.eod</span> <span class="kt">payments.status.changes</span></div>
+
+<div class="fn n-ro" style="min-width:520px"><div class="ni2">TIER 6 — REPORTING & RECONCILIATION</div><div class="nl">Real-Time Dashboards · Regulatory Reports · EOD Recon</div><div class="ns">Kafka Streams views · ClickHouse analytics · GraphQL API</div></div>
+</div>
+</div>
+</section>
+
+<!-- ══════ CLEARING HOUSES ══════ -->
+<section id="clearing">
+<div class="sl">Section 02</div>
+<h2 class="st">Clearing House Deep Dive</h2>
+<p class="sd">Each clearing house has unique protocols, operating hours, cutoff times, message formats, and settlement mechanics. The adapter pattern isolates these differences so the core processing pipeline remains unchanged across regions.</p>
+
+<table>
+<tr><th>Region</th><th>System</th><th>Operator</th><th>Protocol</th><th>Hours (Local)</th><th>Cutoff</th><th>Settlement</th><th>Min Amt</th><th>ISO 20022</th></tr>
+<tr><td><span class="badge bb">SG</span></td><td class="mono kaf" style="font-weight:600">MEPS+</td><td>MAS</td><td>ISO 20022 / SWIFT Alliance Lite2</td><td>24x7 (interbank subset)</td><td>18:00 SGT (customer)</td><td>Real-time gross (individual)</td><td>No minimum</td><td>Live since Aug 2022 (L4L++)</td></tr>
+<tr><td><span class="badge bb">SG</span></td><td class="mono kaf" style="font-weight:600">FAST</td><td>ABS / NETS</td><td>ISO 20022</td><td>24x7x365</td><td>None (real-time)</td><td>Immediate credit</td><td>No minimum</td><td>Native</td></tr>
+<tr><td><span class="badge ba">HK</span></td><td class="mono kaf" style="font-weight:600">HKD CHATS</td><td>HKICL / HKMA</td><td>SWIFTNet FIN Y-Copy</td><td>08:30–18:30 HKT</td><td>18:00 HKT (customer)</td><td>Real-time gross (individual)</td><td>No minimum</td><td>Migrated Apr 2024</td></tr>
+<tr><td><span class="badge ba">HK</span></td><td class="mono kaf" style="font-weight:600">USD/EUR/RMB CHATS</td><td>HKICL</td><td>SWIFTNet FIN Y-Copy</td><td>08:30–18:30 (RMB to 05:00)</td><td>17:00/18:00 HKT</td><td>Real-time gross</td><td>No minimum</td><td>Migrated Apr 2024</td></tr>
+<tr><td><span class="badge bg">UK</span></td><td class="mono kaf" style="font-weight:600">CHAPS</td><td>BoE</td><td>ISO 20022 / SWIFT</td><td>06:00–18:00 GMT</td><td>17:00 GMT (customer)</td><td>Real-time gross</td><td>No minimum (typ. >£10K)</td><td>Live since Jun 2023</td></tr>
+<tr><td><span class="badge bg">UK</span></td><td class="mono kaf" style="font-weight:600">Faster Payments</td><td>Pay.UK / VocaLink</td><td>ISO 8583 → ISO 20022 migration</td><td>24x7x365</td><td>None (real-time)</td><td>Near-instant (seconds)</td><td>No min; max £1M</td><td>Migration underway</td></tr>
+<tr><td><span class="badge bv">IN</span></td><td class="mono kaf" style="font-weight:600">RTGS</td><td>RBI</td><td>ISO 20022 (customized)</td><td>24x7x365 (since Dec 2020)</td><td>None (24x7)</td><td>Real-time gross (individual)</td><td>₹2 lakh minimum</td><td>Customized ISO 20022</td></tr>
+<tr><td><span class="badge bv">IN</span></td><td class="mono kaf" style="font-weight:600">NEFT</td><td>RBI</td><td>Proprietary + ISO elements</td><td>24x7x365 (48 batches/day)</td><td>Half-hourly batch cycles</td><td>Deferred Net Settlement (DNS)</td><td>No minimum</td><td>Partial</td></tr>
+<tr><td><span class="badge bv">IN</span></td><td class="mono kaf" style="font-weight:600">UPI / IMPS</td><td>NPCI</td><td>Proprietary API</td><td>24x7x365</td><td>None</td><td>Immediate (via IMPS)</td><td>No minimum; max ₹5L (UPI)</td><td>No (proprietary)</td></tr>
+<tr><td><span class="badge br">GLOBAL</span></td><td class="mono kaf" style="font-weight:600">SWIFT gpi</td><td>SWIFT</td><td>ISO 20022 MX (since Nov 2025)</td><td>Varies by corridor</td><td>Correspondent dependent</td><td>Via nostro/vostro chain</td><td>No minimum</td><td>Mandatory since Nov 2025</td></tr>
+</table>
+
+<div class="callout ca">
+<h4>Key Clearing House Differences That Affect Product Configuration</h4>
+<p><strong>Settlement Model:</strong> MEPS+, CHATS, RTGS (India) use real-time gross settlement. NEFT uses deferred net settlement in 48 half-hourly batches. This fundamentally changes how your accounting engine books entries — RTGS payments can be booked immediately on confirmation, while NEFT requires batch settlement cycle awareness.<br><br>
+<strong>Operating Windows:</strong> Singapore FAST, UK FPS, and India RTGS/NEFT now operate 24x7x365. However, HK CHATS is still 08:30–18:30 HKT on weekdays only. Your adapter must implement time-window validation and queue payments received outside operating hours for next-window submission.<br><br>
+<strong>Minimum Amounts:</strong> India's RTGS mandates ₹2 lakh minimum — below this, route to NEFT/IMPS. Your routing engine must enforce these thresholds per clearing house.<br><br>
+<strong>ISO 20022 Maturity:</strong> MEPS+ and CHATS have completed migration. SWIFT mandated ISO 20022 exclusively since Nov 2025. India's RTGS runs a customized variant. UK Faster Payments is still migrating. Your message transformer must handle variant-specific schemas per clearing house.</p>
+</div>
+</section>
+
+<!-- ══════ COUNTRY CONFIG MATRIX ══════ -->
+<section id="config">
+<div class="sl">Section 03</div>
+<h2 class="st">Country-Level Configuration Matrix</h2>
+<p class="sd">The platform uses a configuration-driven adapter pattern. Each country deployment loads region-specific configurations from a central Config Service (backed by Consul/etcd). The core processing pipeline remains identical — only the adapter layer and configuration parameters change.</p>
+
+<table>
+<tr><th>Parameter</th><th>Singapore</th><th>Hong Kong</th><th>United Kingdom</th><th>India</th></tr>
+<tr><td style="font-weight:600">Primary RTGS</td><td>MEPS+ (MAS)</td><td>HKD CHATS (HKICL)</td><td>CHAPS (BoE)</td><td>RTGS (RBI)</td></tr>
+<tr><td style="font-weight:600">Retail Real-time</td><td>FAST (ABS)</td><td>FPS (HKICL)</td><td>Faster Payments (VocaLink)</td><td>UPI/IMPS (NPCI)</td></tr>
+<tr><td style="font-weight:600">Batch/Deferred</td><td>IBG (SGDCC)</td><td>Bulk BACS equivalent</td><td>BACS</td><td>NEFT (48 batches/day)</td></tr>
+<tr><td style="font-weight:600">Message Format</td><td>ISO 20022 (HVPS+/CBPR+)</td><td>SWIFTNet FIN Y-Copy + ISO</td><td>ISO 20022 (CHAPS MX)</td><td>ISO 20022 (RBI customized)</td></tr>
+<tr><td style="font-weight:600">Connectivity</td><td>SWIFT Alliance Lite2</td><td>SWIFTNet + eMBT</td><td>SWIFT / VocaLink API</td><td>SFMS (INFINET)</td></tr>
+<tr><td style="font-weight:600">Sanctions Lists</td><td>MAS + OFAC + EU + UN</td><td>HKMA + OFAC + EU + UN</td><td>HMT (OFSI) + OFAC + EU + UN</td><td>RBI + MEA + OFAC + UN</td></tr>
+<tr><td style="font-weight:600">Regulator</td><td>MAS</td><td>HKMA</td><td>FCA / PRA / BoE</td><td>RBI</td></tr>
+<tr><td style="font-weight:600">Reporting</td><td>MAS STR + FATF</td><td>JFIU STR</td><td>NCA SAR + FCA reporting</td><td>FIU-IND STR + RBI returns</td></tr>
+<tr><td style="font-weight:600">Currency</td><td>SGD (primary) + USD</td><td>HKD + USD + EUR + RMB</td><td>GBP + EUR</td><td>INR</td></tr>
+<tr><td style="font-weight:600">Value Date Rules</td><td>T+0 (FAST), T+0 (MEPS+)</td><td>T+0 (CHATS)</td><td>T+0 (FPS/CHAPS)</td><td>T+0 (RTGS), T+0 to T+1 (NEFT)</td></tr>
+<tr><td style="font-weight:600">Operating Hours</td><td>24x7 (FAST) / business hrs (MEPS+ subset)</td><td>08:30–18:30 HKT (Mon–Fri)</td><td>24x7 (FPS) / 06:00–18:00 (CHAPS)</td><td>24x7x365 (RTGS/NEFT since 2020)</td></tr>
+<tr><td style="font-weight:600">Routing Threshold</td><td>Any amount → FAST; High value → MEPS+</td><td>All values → CHATS</td><td>≤£1M → FPS; &gt;£1M → CHAPS</td><td>&lt;₹2L → NEFT/IMPS; ≥₹2L → RTGS</td></tr>
+</table>
+
+<div class="callout cv">
+<h4>Configuration-Driven Adapter Pattern</h4>
+<p>Each clearing house adapter is a pluggable microservice conforming to a standard <code>ClearingAdapter</code> interface: <code>formatMessage()</code>, <code>submit()</code>, <code>parseResponse()</code>, <code>handleTimeout()</code>. Country-specific parameters (cutoff times, routing thresholds, message schemas, connectivity endpoints, sanctions lists) are externalized into a Config Service (Consul/etcd) with hot-reload capability. When you deploy to a new country, you: (1) implement the adapter interface for the local clearing house, (2) configure the country parameters in Config Service, (3) register the new adapter in the routing decision matrix — zero changes to the core pipeline.</p>
+</div>
+</section>
+
+<!-- ══════ COMPLIANCE ══════ -->
+<section id="compliance">
+<div class="sl">Section 04</div>
+<h2 class="st">Compliance Screening Architecture</h2>
+<p class="sd">Fan-out/fan-in with parallel engines. Country-specific sanctions lists loaded per region. Investigation workflow with configurable SLA timers.</p>
+
+<div class="g4">
+<div class="card" style="border-left:3px solid var(--amber)"><h4 class="amb">Sanctions Screener</h4><p class="mono dim">OFAC · EU · UN + Country-specific (MAS/HKMA/OFSI/RBI)</p><p>REST API to Fircosoft/Accuity. <strong>&lt;200ms sync</strong>. On Hit → REFER to Investigation.</p></div>
+<div class="card" style="border-left:3px solid var(--amber)"><h4 class="amb">AML Engine</h4><p class="mono dim">Transaction Monitoring Rules · Threshold alerts</p><p>Kafka event to Actimize/NICE. <strong>&lt;2 seconds</strong>. On Hit → ALERT compliance team.</p></div>
+<div class="card" style="border-left:3px solid var(--amber)"><h4 class="amb">Fraud Detection</h4><p class="mono dim">Behavioral Scoring · Velocity Checks · ML Models</p><p>gRPC to scoring engine. <strong>&lt;100ms</strong>. On Hit → BLOCK or ESCALATE.</p></div>
+<div class="card" style="border-left:3px solid var(--amber)"><h4 class="amb">PEP Screening</h4><p class="mono dim">Politically Exposed Persons · Country-specific lists</p><p>Batch + real-time hybrid. <strong>&lt;500ms</strong>. On Hit → REFER with risk score.</p></div>
+</div>
+<div class="callout ca"><h4>Aggregation: ALL must PASS</h4><p>Correlation-based fan-in. Timeout: 30s (real-time), 5min (batch). Auto-escalation on timeout. Investigation SLA: 4h domestic, 24h cross-border. Full audit trail via event stream.</p></div>
+</section>
+
+<!-- ══════ SAGA ══════ -->
+<section id="saga">
+<div class="sl">Section 05</div>
+<h2 class="st">Accounting Saga Pattern</h2>
+<p class="sd">Distributed transactions via Saga with compensating transactions. Each step idempotent. On failure, compensations execute in reverse order.</p>
+<div class="flow-box" data-label="SAGA ORCHESTRATION" style="padding-top:40px;display:flex;gap:8px;overflow-x:auto;align-items:stretch">
+<div class="card" style="flex:1;min-width:150px;text-align:center"><div class="sla-v vio" style="opacity:.4;font-size:20px">01</div><h4 style="font-size:12px">Debit Customer</h4><p style="font-size:11px">Customer Acct → Suspense</p><div class="badge br" style="margin-top:8px;font-size:10px">↩ Credit back</div></div>
+<div style="display:flex;align-items:center;color:var(--t3)">→</div>
+<div class="card" style="flex:1;min-width:150px;text-align:center"><div class="sla-v vio" style="opacity:.4;font-size:20px">02</div><h4 style="font-size:12px">Calculate Fees</h4><p style="font-size:11px">Apply rules → Fee Income GL</p><div class="badge br" style="margin-top:8px;font-size:10px">↩ Reverse fees</div></div>
+<div style="display:flex;align-items:center;color:var(--t3)">→</div>
+<div class="card" style="flex:1;min-width:150px;text-align:center"><div class="sla-v vio" style="opacity:.4;font-size:20px">03</div><h4 style="font-size:12px">FX Conversion</h4><p style="font-size:11px">CCY1 → CCY2 Position</p><div class="badge br" style="margin-top:8px;font-size:10px">↩ Reverse FX</div></div>
+<div style="display:flex;align-items:center;color:var(--t3)">→</div>
+<div class="card" style="flex:1;min-width:150px;text-align:center"><div class="sla-v vio" style="opacity:.4;font-size:20px">04</div><h4 style="font-size:12px">Clear Settlement</h4><p style="font-size:11px">Suspense → Nostro/Vostro</p><div class="badge br" style="margin-top:8px;font-size:10px">↩ Reverse settle</div></div>
+<div style="display:flex;align-items:center;color:var(--t3)">→</div>
+<div class="card" style="flex:1;min-width:150px;text-align:center"><div class="sla-v vio" style="opacity:.4;font-size:20px">05</div><h4 style="font-size:12px">GL Posting</h4><p style="font-size:11px">Post to Core Banking GL</p><div class="badge br" style="margin-top:8px;font-size:10px">↩ Reverse GL</div></div>
+</div>
+</section>
+
+<!-- ══════ STATE MACHINE ══════ -->
+<section id="state">
+<div class="sl">Section 06</div>
+<h2 class="st">Payment State Machine</h2>
+<div class="flow-box" data-label="STATE TRANSITIONS" style="padding-top:36px">
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px">
+<div class="fn n-bl"><div class="nl">RECEIVED</div></div><span class="arr">→</span>
+<div class="fn n-cy"><div class="nl">VALIDATED</div></div><span class="arr">→</span>
+<div class="fn n-cy"><div class="nl">ENRICHED</div></div><span class="arr">→</span>
+<div class="fn n-am"><div class="nl">SCREENING</div></div><span class="arr">→</span>
+<div style="display:inline-block"><div class="fn n-am"><div class="nl">SCREENED_PASS</div></div><br><div class="fn n-am" style="border-style:dashed;font-size:11px"><div class="nl">UNDER_INVESTIGATION</div></div></div><span class="arr">→</span>
+<div class="fn n-gn"><div class="nl">SUBMITTED</div></div><span class="arr">→</span>
+<div class="fn n-gn"><div class="nl">CONFIRMED</div></div><span class="arr">→</span>
+<div class="fn n-vi"><div class="nl">BOOKED</div></div><span class="arr">→</span>
+<div class="fn" style="background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);color:#34d399"><div class="nl">COMPLETED</div></div>
+</div>
+<div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-left:16px">
+<span class="mono dim" style="font-size:11px">Failure states:</span>
+<div class="fn n-ro" style="padding:6px 12px"><div class="nl" style="font-size:11px">REJECTED</div></div>
+<div class="fn n-ro" style="padding:6px 12px;border-style:dashed"><div class="nl" style="font-size:11px">CLEARING_TIMEOUT</div></div>
+<div class="fn n-ro" style="padding:6px 12px;border-style:dashed"><div class="nl" style="font-size:11px">RETURNED</div></div>
+</div>
+</div>
+</section>
+
+<!-- ══════ KAFKA ══════ -->
+<section id="kafka">
+<div class="sl">Section 07</div>
+<h2 class="st">Kafka Topic Architecture</h2>
+<p class="sd">Exactly-once via Transactional Outbox (Debezium CDC) + idempotent producers + read_committed consumers.</p>
+<table>
+<tr><th>Topic</th><th>Partitions</th><th>RF</th><th>Retention</th><th>Key</th><th>Policy</th></tr>
+<tr><td class="mono kaf">payments.inbound.raw</td><td><span class="badge bb">24</span></td><td><span class="badge bg">3</span></td><td><span class="badge ba">30d</span></td><td>source_id+msg_ref</td><td>Delete</td></tr>
+<tr><td class="mono kaf">payments.parsed.canonical</td><td><span class="badge bb">24</span></td><td><span class="badge bg">3</span></td><td><span class="badge ba">30d</span></td><td>payment_id</td><td>Delete</td></tr>
+<tr><td class="mono kaf">payments.enriched</td><td><span class="badge bb">24</span></td><td><span class="badge bg">3</span></td><td><span class="badge ba">30d</span></td><td>payment_id</td><td>Delete</td></tr>
+<tr><td class="mono kaf">payments.compliance.*</td><td><span class="badge bb">12</span></td><td><span class="badge bg">3</span></td><td><span class="badge ba">14d</span></td><td>payment_id</td><td>Delete</td></tr>
+<tr><td class="mono kaf">payments.clearing.*</td><td><span class="badge bb">12</span></td><td><span class="badge bg">3</span></td><td><span class="badge ba">30d</span></td><td>payment_id</td><td>Delete</td></tr>
+<tr><td class="mono kaf">payments.accounting.booked</td><td><span class="badge bb">24</span></td><td><span class="badge bg">3</span></td><td><span class="badge ba">90d</span></td><td>payment_id</td><td>Delete</td></tr>
+<tr><td class="mono kaf">payments.status.changes</td><td><span class="badge bb">24</span></td><td><span class="badge bg">3</span></td><td><span class="badge bv">Compact</span></td><td>payment_id</td><td>Compact</td></tr>
+<tr><td class="mono kaf">payments.dlq.*</td><td><span class="badge bb">6</span></td><td><span class="badge bg">3</span></td><td><span class="badge ba">90d</span></td><td>original_key</td><td>Delete</td></tr>
+</table>
+</section>
+
+<!-- ══════ DATABASES ══════ -->
+<section id="databases">
+<div class="sl">Section 08</div>
+<h2 class="st">Database-per-Service Segregation</h2>
+<p class="sd">Each service owns its data exclusively. HashiCorp Vault dynamic secrets. K8s network policies enforce isolation.</p>
+<div class="g3">
+<div class="card" style="border-left:3px solid var(--blue)"><h4>ingestion_db</h4><p class="mono dim">PostgreSQL 16 · ~50 GB/mo</p><p>Dedup tracking, raw message metadata, ingestion audit.</p></div>
+<div class="card" style="border-left:3px solid var(--cyan)"><h4>payment_master_db</h4><p class="mono dim">PostgreSQL 16 + Citus · ~200 GB/mo</p><p>Core records, events, validations, status history. Sharded.</p></div>
+<div class="card" style="border-left:3px solid var(--cyan)"><h4>reference_data_db</h4><p class="mono dim">PostgreSQL 16 + Redis · ~10 GB</p><p>BIC directory, IBAN rules, FX rates (15s refresh), fee configs.</p></div>
+<div class="card" style="border-left:3px solid var(--amber)"><h4>compliance_db</h4><p class="mono dim">PostgreSQL 16 · ~100 GB/mo</p><p>Investigation cases, screening results, analyst actions, audit.</p></div>
+<div class="card" style="border-left:3px solid var(--green)"><h4>routing_db</h4><p class="mono dim">PostgreSQL 16 · ~80 GB/mo</p><p>Clearing submissions, SLA timers, circuit breaker state, retries.</p></div>
+<div class="card" style="border-left:3px solid var(--violet)"><h4>ledger_db</h4><p class="mono dim">PostgreSQL 16 + Citus · ~500 GB/mo</p><p>Append-only double-entry ledger, saga state, GL postings.</p></div>
+<div class="card" style="border-left:3px solid var(--rose)"><h4>analytics_db</h4><p class="mono dim">ClickHouse · ~1 TB/mo</p><p>Columnar analytics, materialized views, regulatory reports.</p></div>
+<div class="card" style="border-left:3px solid var(--orange)"><h4>event_store</h4><p class="mono dim">Kafka commit log</p><p>Source of truth. 30-90d hot, 7yr S3 archive for compliance.</p></div>
+</div>
+</section>
+
+<!-- ══════ SELF-HEALING ══════ -->
+<section id="selfheal">
+<div class="sl">Section 09</div>
+<h2 class="st">Self-Monitoring · Self-Healing · Self-Recovery</h2>
+<p class="sd">The platform is designed as a self-managing organism. Inspired by modern AI-enhanced Kubernetes practices, the system continuously observes its own health, autonomously remediates failures, and recovers to full operational capacity without human intervention for 95% of incident types.</p>
+
+<h3 style="font-size:18px;font-weight:700;color:var(--green);margin:24px 0 16px">🔍 Self-Monitoring</h3>
+<div class="g3">
+<div class="card" style="border-left:3px solid var(--green)"><h4>Health Probes (Every Service)</h4><p><strong>Liveness Probe:</strong> Heartbeat check — if it fails, K8s kills and restarts the container immediately. <strong>Readiness Probe:</strong> Gatekeeper — no traffic routed until service is fully initialized. <strong>Startup Probe:</strong> Grace period for slow-starting services (DB migration, cache warmup).</p></div>
+<div class="card" style="border-left:3px solid var(--green)"><h4>Business Health Metrics</h4><p>Beyond infrastructure health: payment throughput rate, clearing success ratio, DLQ depth, consumer lag, sanctions screening latency, accounting balance drift detection. These are custom Prometheus metrics exposed by every service.</p></div>
+<div class="card" style="border-left:3px solid var(--green)"><h4>Anomaly Detection</h4><p>ML-based anomaly detection on payment volume patterns, latency distributions, and error rates. Detects subtle degradations (memory leaks, connection pool exhaustion) 24-48 hours before they cause outages. Isolation Forest + LSTM models trained on operational data.</p></div>
+<div class="card" style="border-left:3px solid var(--green)"><h4>Dependency Health Map</h4><p>Real-time service dependency graph (built via Istio service mesh telemetry). Visualizes health propagation — if Redis is degrading, see which downstream services are impacted before cascading failures occur.</p></div>
+</div>
+
+<h3 style="font-size:18px;font-weight:700;color:var(--cyan);margin:24px 0 16px">🔧 Self-Healing</h3>
+<div class="g3">
+<div class="card" style="border-left:3px solid var(--cyan)"><h4>Kubernetes Auto-Restart</h4><p>Failed containers auto-restarted via restartPolicy: Always. Pod Disruption Budgets ensure minimum replicas during voluntary disruptions. HPA scales up when consumer lag exceeds threshold. VPA right-sizes resource requests based on actual usage.</p></div>
+<div class="card" style="border-left:3px solid var(--cyan)"><h4>Circuit Breaker Auto-Recovery</h4><p>When clearing house adapter enters OPEN state (5 failures / 50% fail rate), it automatically transitions to HALF-OPEN after 30s cooldown and sends probe requests. On success → CLOSED. Payments buffered in Kafka retry topic during outage — zero data loss.</p></div>
+<div class="card" style="border-left:3px solid var(--cyan)"><h4>DLQ Auto-Replay</h4><p>Categorized DLQ with auto-classification: <strong>transient</strong> errors (timeout, conn refused) → auto-replay after 5min. <strong>Recoverable</strong> errors (dependency down) → auto-replay when dependency health restored. <strong>Poison</strong> messages → alert + manual review only.</p></div>
+<div class="card" style="border-left:3px solid var(--cyan)"><h4>Database Connection Healing</h4><p>HikariCP connection pool with leak detection (30s threshold). Auto-eviction of stale connections. PgBouncer as connection pooler with auto-reconnect. If primary DB fails, automatic promotion of streaming replica within 15 seconds.</p></div>
+<div class="card" style="border-left:3px solid var(--cyan)"><h4>Kafka Consumer Auto-Rebalance</h4><p>When a consumer instance dies, Kafka automatically rebalances partitions to surviving consumers (cooperative sticky rebalancing for minimal disruption). Consumer lag monitoring auto-scales consumer count to prevent backlog accumulation.</p></div>
+<div class="card" style="border-left:3px solid var(--cyan)"><h4>Config Hot-Reload</h4><p>Country-specific configurations (cutoff times, routing thresholds, sanctions lists) hot-reloaded from Consul/etcd without service restart. Feature flags via LaunchDarkly for instant enable/disable of clearing adapters during incidents.</p></div>
+</div>
+
+<h3 style="font-size:18px;font-weight:700;color:var(--violet);margin:24px 0 16px">🔄 Self-Recovery</h3>
+<div class="g3">
+<div class="card" style="border-left:3px solid var(--violet)"><h4>Event Replay for State Recovery</h4><p>If a service loses its database, the complete state can be reconstructed by replaying Kafka events from the 30-day retained log. Event sourcing means the Kafka log IS the source of truth — databases are just materialized views.</p></div>
+<div class="card" style="border-left:3px solid var(--violet)"><h4>Multi-AZ Failover</h4><p>All services run across 3 availability zones. Kafka brokers spread with rack-awareness. PostgreSQL streaming replication with auto-failover (Patroni). If an entire AZ goes down, remaining AZs absorb the load within 60 seconds.</p></div>
+<div class="card" style="border-left:3px solid var(--violet)"><h4>Cross-Region DR</h4><p>Kafka MirrorMaker 2 replicates to DR region continuously (RPO=0). Automated failover runbook in PagerDuty: detect region failure → DNS failover → consumer group rebalance in DR → full service restored in &lt;5 minutes.</p></div>
+<div class="card" style="border-left:3px solid var(--violet)"><h4>Reconciliation Auto-Repair</h4><p>EOD recon engine automatically detects mismatches between clearing confirmations and ledger entries. For known patterns (duplicate posting, missed confirmation), it auto-generates compensating entries and alerts ops team for verification.</p></div>
+</div>
+
+<div class="callout cg">
+<h4>Self-Healing Maturity Model</h4>
+<p><strong>Level 1 (Day 1):</strong> K8s auto-restart + circuit breakers + DLQ retry = handles 70% of incidents autonomously.<br>
+<strong>Level 2 (Month 3):</strong> + anomaly detection + auto-scaling + dependency health maps = handles 85% autonomously.<br>
+<strong>Level 3 (Month 6):</strong> + ML-based predictive healing + auto-recon repair + event replay recovery = handles 95% autonomously.<br>
+<strong>Target:</strong> Mean Time to Detect (MTTD) &lt; 30 seconds. Mean Time to Recover (MTTR) &lt; 2 minutes for automated incidents.</p>
+</div>
+</section>
+
+<!-- ══════ RESILIENCE ══════ -->
+<section id="resilience">
+<div class="sl">Section 10</div>
+<h2 class="st">Resilience & Recovery Patterns</h2>
+<div class="g3">
+<div class="card"><h4>3-Tier DLQ <span class="badge br">RETRY</span></h4><p>Tier 1: Immediate (100ms–1s, 3x). Tier 2: Delayed topic (30s–1h, 4x). Tier 3: Terminal DLQ (manual). PagerDuty alert on depth >10/5min.</p></div>
+<div class="card"><h4>Idempotency <span class="badge bb">FRAMEWORK</span></h4><p>Redis-backed store with PG fallback. Deterministic key. Result stored atomically with business state. TTL 7 days.</p></div>
+<div class="card"><h4>Exactly-Once <span class="badge bv">OUTBOX</span></h4><p>Transactional Outbox: business state + event in single DB tx. Debezium CDC reads via WAL. Idempotent producers. read_committed consumers.</p></div>
+<div class="card"><h4>Event Replay <span class="badge bk">KAFKA</span></h4><p>30d operational, 90d accounting, 7yr S3 archive. Full state reconstruction from event log for DR and audit.</p></div>
+</div>
+<table style="margin-top:16px">
+<tr><th>Component</th><th>RPO</th><th>RTO</th><th>Strategy</th></tr>
+<tr><td>Kafka Cluster</td><td class="grn" style="font-weight:600">0 (zero loss)</td><td>&lt;5 min</td><td>Multi-AZ RF=3, MirrorMaker 2 to DR</td></tr>
+<tr><td>PostgreSQL</td><td>&lt;1 min</td><td>&lt;15 min</td><td>Streaming replication + WAL archive (S3)</td></tr>
+<tr><td>Redis Cache</td><td>Best effort</td><td>&lt;2 min</td><td>Sentinel auto-failover; rebuild from DB</td></tr>
+<tr><td>Clearing Adapters</td><td>N/A</td><td>&lt;30 sec</td><td>Active-passive health-check failover</td></tr>
+<tr><td>Application Services</td><td>N/A</td><td>&lt;60 sec</td><td>K8s auto-restart, rolling deployments</td></tr>
+</table>
+</section>
+
+<!-- ══════ SLA ══════ -->
+<section id="sla">
+<div class="sl">Section 11</div>
+<h2 class="st">Performance & SLA Targets</h2>
+<div class="g5">
+<div class="card" style="text-align:center"><div class="sla-v cyn">&lt;5s</div><p>FAST E2E (p99)</p><p class="mono dim" style="font-size:10px">Alert &gt;8s</p></div>
+<div class="card" style="text-align:center"><div class="sla-v blu">&lt;15s</div><p>RTGS E2E (p99)</p><p class="mono dim" style="font-size:10px">Alert &gt;25s</p></div>
+<div class="card" style="text-align:center"><div class="sla-v grn">10K</div><p>Ingestion (msg/s)</p><p class="mono dim" style="font-size:10px">Alert &lt;5K</p></div>
+<div class="card" style="text-align:center"><div class="sla-v amb">&lt;10ms</div><p>Kafka Latency (p99)</p><p class="mono dim" style="font-size:10px">Alert &gt;50ms</p></div>
+<div class="card" style="text-align:center"><div class="sla-v vio">&lt;5ms</div><p>DB OLTP (p95)</p><p class="mono dim" style="font-size:10px">Alert &gt;20ms</p></div>
+<div class="card" style="text-align:center"><div class="sla-v ros">99.99%</div><p>Availability</p><p class="mono dim" style="font-size:10px">52 min/yr</p></div>
+<div class="card" style="text-align:center"><div class="sla-v org">&lt;60s</div><p>Service Recovery</p><p class="mono dim" style="font-size:10px">K8s restart</p></div>
+<div class="card" style="text-align:center"><div class="sla-v kaf">&lt;30s</div><p>MTTD</p><p class="mono dim" style="font-size:10px">Self-monitoring</p></div>
+<div class="card" style="text-align:center"><div class="sla-v grn">&lt;2m</div><p>MTTR (Auto)</p><p class="mono dim" style="font-size:10px">Self-healing</p></div>
+</div>
+</section>
+
+<!-- ══════ TECH STACK ══════ -->
+<section id="stack">
+<div class="sl">Section 12</div>
+<h2 class="st">Technology Stack</h2>
+<div class="g4">
+<div class="card"><p class="mono dim" style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px">Event Streaming</p><h4>Apache Kafka 3.7+</h4><p class="mono sec">Backbone, exactly-once, replay</p></div>
+<div class="card"><p class="mono dim" style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px">Upstream Bridge</p><h4>IBM MQ + Camel</h4><p class="mono sec">Legacy protocol bridge</p></div>
+<div class="card"><p class="mono dim" style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px">Services</p><h4>Spring Boot + Java 21</h4><p class="mono sec">Virtual threads, mature ecosystem</p></div>
+<div class="card"><p class="mono dim" style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px">Primary DB</p><h4>PostgreSQL 16 + Citus</h4><p class="mono sec">ACID, horizontal sharding</p></div>
+<div class="card"><p class="mono dim" style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px">Cache</p><h4>Redis Cluster 7.2+</h4><p class="mono sec">Dedup, ref data, idempotency</p></div>
+<div class="card"><p class="mono dim" style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px">Analytics</p><h4>ClickHouse</h4><p class="mono sec">Columnar, 100x faster aggregation</p></div>
+<div class="card"><p class="mono dim" style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px">CDC / Outbox</p><h4>Debezium 2.5+</h4><p class="mono sec">WAL-based outbox pattern</p></div>
+<div class="card"><p class="mono dim" style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px">Orchestration</p><h4>Kubernetes (EKS/GKE)</h4><p class="mono sec">Multi-region, auto-scaling</p></div>
+<div class="card"><p class="mono dim" style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px">Service Mesh</p><h4>Istio 1.21+</h4><p class="mono sec">mTLS, traffic mgmt, telemetry</p></div>
+<div class="card"><p class="mono dim" style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px">Secrets</p><h4>HashiCorp Vault</h4><p class="mono sec">Dynamic secrets, auto-rotation</p></div>
+<div class="card"><p class="mono dim" style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px">Config Service</p><h4>Consul / etcd</h4><p class="mono sec">Hot-reload, country configs</p></div>
+<div class="card"><p class="mono dim" style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px">Observability</p><h4>Prometheus + OTel + Grafana</h4><p class="mono sec">Metrics, tracing, dashboards</p></div>
+</div>
+</section>
+
+<footer class="footer">
+Enterprise Payment Processing Platform · Architecture v2.0 · February 2026 · Confidential
+</footer>
+
+</div>
+
+<script>
+function scrollTo_(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'})}
+document.querySelectorAll('.nb').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('.nb').forEach(x=>x.classList.remove('a'));this.classList.add('a')}));
+// Intersection observer for nav highlighting
+const sections=document.querySelectorAll('section[id]');
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){document.querySelectorAll('.nb').forEach(b=>b.classList.remove('a'));const btn=document.querySelector(`.nb[onclick*="${e.target.id}"]`);if(btn)btn.classList.add('a')}})},{threshold:0.15,rootMargin:'-80px 0px -60% 0px'});
+sections.forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>

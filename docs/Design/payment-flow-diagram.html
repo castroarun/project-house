@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Platform — Architecture Flow Diagram</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06070b;--surface:#0c0e16;--card:#12141f;--elevated:#181b28;
+  --border:#1a1e30;--border-hi:#252a40;
+  --t1:#e6e8f0;--t2:#8890a8;--t3:#4a5070;
+  --blue:#3b82f6;--cyan:#06b6d4;--emerald:#10b981;--amber:#f59e0b;
+  --rose:#f43f5e;--violet:#8b5cf6;--orange:#f97316;--teal:#14b8a6;
+  --kafka:#e8523f;--lime:#84cc16;
+  --ff:'Outfit',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--ff);background:var(--bg);color:var(--t1);overflow:hidden;height:100vh;width:100vw}
+
+/* ── Toolbar ── */
+.toolbar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:52px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;
+  background:rgba(6,7,11,.9);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.toolbar-left{display:flex;align-items:center;gap:16px}
+.toolbar-title{font-size:15px;font-weight:700;letter-spacing:-.3px}
+.toolbar-badge{font-size:10px;font-family:var(--mono);color:var(--kafka);padding:3px 10px;background:rgba(232,82,63,.1);border:1px solid rgba(232,82,63,.2);border-radius:12px;font-weight:600}
+.toolbar-right{display:flex;align-items:center;gap:10px}
+.tb{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--t2);font-size:12px;font-family:var(--ff);font-weight:500;cursor:pointer;transition:.2s}
+.tb:hover{border-color:var(--border-hi);color:var(--t1)}
+.tb.active{border-color:rgba(59,130,246,.3);color:var(--blue);background:rgba(59,130,246,.08)}
+.zoom-display{font-size:11px;font-family:var(--mono);color:var(--t3);min-width:44px;text-align:center}
+
+/* ── Canvas ── */
+.canvas-wrap{
+  position:absolute;top:52px;left:0;right:0;bottom:0;
+  overflow:auto;cursor:grab;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%,rgba(59,130,246,.04),transparent),
+    radial-gradient(circle at 80% 70%,rgba(139,92,246,.03),transparent),
+    linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.012) 1px,transparent 1px);
+  background-size:100%,100%,50px 50px,50px 50px;
+}
+.canvas-wrap:active{cursor:grabbing}
+.canvas{
+  position:relative;
+  width:2600px;height:2400px;
+  transform-origin:0 0;
+  padding:40px;
+}
+
+/* ── Legend ── */
+.legend{
+  position:fixed;bottom:16px;left:16px;z-index:100;
+  display:flex;flex-wrap:wrap;gap:12px;
+  padding:10px 16px;border-radius:10px;
+  background:rgba(6,7,11,.9);backdrop-filter:blur(16px);
+  border:1px solid var(--border);
+}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;font-family:var(--mono);color:var(--t2)}
+.legend-dot{width:10px;height:10px;border-radius:3px}
+
+/* ── Minimap ── */
+.minimap{
+  position:fixed;bottom:16px;right:16px;z-index:100;
+  width:200px;height:180px;
+  background:rgba(6,7,11,.92);backdrop-filter:blur(16px);
+  border:1px solid var(--border);border-radius:10px;
+  overflow:hidden;cursor:pointer;
+}
+.minimap-viewport{
+  position:absolute;border:1.5px solid var(--blue);border-radius:2px;
+  background:rgba(59,130,246,.08);
+  pointer-events:none;
+}
+
+/* ── Shared node styles ── */
+.node{
+  position:absolute;border-radius:12px;
+  border:1.5px solid;transition:box-shadow .3s,transform .3s;
+  cursor:pointer;
+}
+.node:hover{transform:scale(1.03);z-index:10}
+.node-inner{padding:14px 18px}
+.node-id{font-size:9px;font-family:var(--mono);opacity:.5;letter-spacing:1.5px;margin-bottom:4px;text-transform:uppercase}
+.node-title{font-size:14px;font-weight:700;margin-bottom:3px}
+.node-desc{font-size:11px;opacity:.7;line-height:1.4}
+.node-tech{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px}
+.node-tag{font-size:9px;font-family:var(--mono);padding:2px 7px;border-radius:4px;font-weight:600}
+
+/* Color variants */
+.n-ext{border-color:var(--border-hi);background:rgba(255,255,255,.02)}.n-ext:hover{box-shadow:0 0 20px rgba(255,255,255,.05)}
+.n-ext .node-tag{background:rgba(255,255,255,.05);color:var(--t2)}
+
+.n-blue{border-color:rgba(59,130,246,.25);background:rgba(59,130,246,.06);color:var(--blue)}.n-blue:hover{box-shadow:0 0 30px rgba(59,130,246,.12)}
+.n-blue .node-tag{background:rgba(59,130,246,.12);color:var(--blue)}
+
+.n-cyan{border-color:rgba(6,182,212,.25);background:rgba(6,182,212,.06);color:var(--cyan)}.n-cyan:hover{box-shadow:0 0 30px rgba(6,182,212,.12)}
+.n-cyan .node-tag{background:rgba(6,182,212,.12);color:var(--cyan)}
+
+.n-amber{border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.06);color:var(--amber)}.n-amber:hover{box-shadow:0 0 30px rgba(245,158,11,.12)}
+.n-amber .node-tag{background:rgba(245,158,11,.12);color:var(--amber)}
+
+.n-emerald{border-color:rgba(16,185,129,.25);background:rgba(16,185,129,.06);color:var(--emerald)}.n-emerald:hover{box-shadow:0 0 30px rgba(16,185,129,.12)}
+.n-emerald .node-tag{background:rgba(16,185,129,.12);color:var(--emerald)}
+
+.n-violet{border-color:rgba(139,92,246,.25);background:rgba(139,92,246,.06);color:var(--violet)}.n-violet:hover{box-shadow:0 0 30px rgba(139,92,246,.12)}
+.n-violet .node-tag{background:rgba(139,92,246,.12);color:var(--violet)}
+
+.n-rose{border-color:rgba(244,63,94,.25);background:rgba(244,63,94,.06);color:var(--rose)}.n-rose:hover{box-shadow:0 0 30px rgba(244,63,94,.12)}
+.n-rose .node-tag{background:rgba(244,63,94,.12);color:var(--rose)}
+
+.n-teal{border-color:rgba(20,184,166,.25);background:rgba(20,184,166,.06);color:var(--teal)}.n-teal:hover{box-shadow:0 0 30px rgba(20,184,166,.12)}
+.n-teal .node-tag{background:rgba(20,184,166,.12);color:var(--teal)}
+
+.n-kafka{border-color:rgba(232,82,63,.3);background:rgba(232,82,63,.06);color:var(--kafka)}.n-kafka:hover{box-shadow:0 0 30px rgba(232,82,63,.12)}
+.n-kafka .node-tag{background:rgba(232,82,63,.12);color:var(--kafka)}
+
+.n-orange{border-color:rgba(249,115,22,.25);background:rgba(249,115,22,.06);color:var(--orange)}.n-orange:hover{box-shadow:0 0 30px rgba(249,115,22,.12)}
+.n-orange .node-tag{background:rgba(249,115,22,.12);color:var(--orange)}
+
+.n-lime{border-color:rgba(132,204,22,.25);background:rgba(132,204,22,.06);color:var(--lime)}.n-lime:hover{box-shadow:0 0 30px rgba(132,204,22,.12)}
+.n-lime .node-tag{background:rgba(132,204,22,.12);color:var(--lime)}
+
+/* DB nodes smaller */
+.db-node .node-inner{padding:10px 14px}
+.db-node .node-title{font-size:12px}
+.db-node .node-desc{font-size:10px}
+
+/* Group boxes */
+.group-box{
+  position:absolute;border-radius:16px;
+  border:1px dashed;
+  padding:12px 16px 8px;
+}
+.group-label{
+  font-size:10px;font-family:var(--mono);font-weight:600;
+  letter-spacing:2px;text-transform:uppercase;opacity:.5;
+  margin-bottom:8px;
+}
+
+/* ── SVG Connectors ── */
+svg.connectors{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.conn{fill:none;stroke-width:1.5;opacity:.4}
+.conn-anim{stroke-dasharray:6 4;animation:dash 1.5s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-20}}
+.conn-kafka{stroke:var(--kafka)}
+.conn-data{stroke:var(--t3);stroke-dasharray:4 3}
+.conn-sync{stroke:var(--cyan);opacity:.3}
+.conn-mesh{stroke:var(--teal);stroke-dasharray:8 4;opacity:.25}
+
+/* Arrowhead marker */
+marker#arrow-kafka polygon{fill:var(--kafka)}
+marker#arrow-data polygon{fill:var(--t3)}
+marker#arrow-sync polygon{fill:var(--cyan)}
+marker#arrow-mesh polygon{fill:var(--teal)}
+marker#arrow-blue polygon{fill:var(--blue)}
+marker#arrow-amber polygon{fill:var(--amber)}
+marker#arrow-emerald polygon{fill:var(--emerald)}
+
+/* Detail panel */
+.detail-panel{
+  position:fixed;top:52px;right:-420px;z-index:90;
+  width:400px;height:calc(100vh - 52px);
+  background:var(--surface);border-left:1px solid var(--border);
+  padding:24px;overflow-y:auto;
+  transition:right .35s cubic-bezier(.4,0,.2,1);
+}
+.detail-panel.open{right:0}
+.dp-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--t2);font-size:18px;cursor:pointer}
+.dp-title{font-size:18px;font-weight:700;margin-bottom:4px}
+.dp-type{font-size:11px;font-family:var(--mono);color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px}
+.dp-section{margin-bottom:16px}
+.dp-section h4{font-size:12px;font-family:var(--mono);color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px}
+.dp-section p{font-size:13px;color:var(--t2);line-height:1.7}
+.dp-tags{display:flex;flex-wrap:wrap;gap:6px}
+.dp-tag{font-size:11px;font-family:var(--mono);padding:4px 10px;border-radius:6px;background:var(--elevated);color:var(--t2);border:1px solid var(--border)}
+.dp-metric{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dp-m{padding:10px;background:var(--card);border-radius:8px;border:1px solid var(--border)}
+.dp-m strong{display:block;font-size:16px;font-weight:700;font-family:var(--mono)}
+.dp-m span{font-size:10px;color:var(--t3)}
+</style>
+</head>
+<body>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <div class="toolbar-title">Payment Platform Architecture</div>
+    <div class="toolbar-badge">Interactive Diagram</div>
+  </div>
+  <div class="toolbar-right">
+    <button class="tb" onclick="zoomTo(.5)">50%</button>
+    <button class="tb active" onclick="zoomTo(.7)">70%</button>
+    <button class="tb" onclick="zoomTo(1)">100%</button>
+    <button class="tb" onclick="fitAll()">Fit</button>
+    <div class="zoom-display" id="zoomDisplay">70%</div>
+  </div>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Ingestion</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div>Processing</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Compliance</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--emerald)"></div>Clearing</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--violet)"></div>Accounting</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--rose)"></div>Reporting</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--kafka)"></div>Kafka</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Istio Mesh</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>Database</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--t3)"></div>External</div>
+</div>
+
+<!-- Minimap -->
+<div class="minimap" id="minimap">
+  <canvas id="minimapCanvas" width="200" height="180"></canvas>
+  <div class="minimap-viewport" id="minimapVP"></div>
+</div>
+
+<!-- Detail Panel -->
+<div class="detail-panel" id="detailPanel">
+  <button class="dp-close" onclick="closeDetail()">✕</button>
+  <div id="detailContent"></div>
+</div>
+
+<!-- Main Canvas -->
+<div class="canvas-wrap" id="canvasWrap">
+<div class="canvas" id="canvas">
+
+<!-- ═══ SVG CONNECTORS ═══ -->
+<svg class="connectors" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arrow-kafka" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6"/></marker>
+  <marker id="arrow-data" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6"/></marker>
+  <marker id="arrow-sync" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6"/></marker>
+  <marker id="arrow-mesh" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6"/></marker>
+  <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--blue)"/></marker>
+  <marker id="arrow-amber" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--amber)"/></marker>
+  <marker id="arrow-emerald" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--emerald)"/></marker>
+</defs>
+
+<!-- ─── Upstream → Ingestion ─── -->
+<path class="conn conn-anim" stroke="var(--t3)" d="M200,100 L200,230" marker-end="url(#arrow-data)"/>
+<path class="conn conn-anim" stroke="var(--t3)" d="M470,100 L470,230" marker-end="url(#arrow-data)"/>
+<path class="conn conn-anim" stroke="var(--t3)" d="M740,100 L740,230" marker-end="url(#arrow-data)"/>
+<path class="conn conn-anim" stroke="var(--t3)" d="M1010,100 L1010,230" marker-end="url(#arrow-data)"/>
+
+<!-- Ingestion → Kafka Bus 1 -->
+<path class="conn conn-anim conn-kafka" d="M550,360 L550,430" marker-end="url(#arrow-kafka)"/>
+
+<!-- Kafka Bus 1 → Message Processor -->
+<path class="conn conn-anim conn-kafka" d="M550,490 L550,555" marker-end="url(#arrow-kafka)"/>
+
+<!-- Message Processor → Enrichment -->
+<path class="conn conn-anim conn-kafka" d="M550,685 L550,720 L310,720 L310,755" marker-end="url(#arrow-kafka)"/>
+
+<!-- Enrichment → Kafka Bus 2 -->
+<path class="conn conn-anim conn-kafka" d="M310,885 L310,930 L550,930" marker-end="url(#arrow-kafka)"/>
+<!-- Kafka Bus 2 → Compliance Fan-out -->
+<path class="conn conn-anim conn-kafka" d="M550,980 L150,1050" marker-end="url(#arrow-kafka)"/>
+<path class="conn conn-anim conn-kafka" d="M550,980 L430,1050" marker-end="url(#arrow-kafka)"/>
+<path class="conn conn-anim conn-kafka" d="M550,980 L710,1050" marker-end="url(#arrow-kafka)"/>
+<path class="conn conn-anim conn-kafka" d="M550,980 L990,1050" marker-end="url(#arrow-kafka)"/>
+
+<!-- Compliance engines → Aggregator -->
+<path class="conn conn-anim" stroke="var(--amber)" d="M150,1165 L550,1240" marker-end="url(#arrow-amber)"/>
+<path class="conn conn-anim" stroke="var(--amber)" d="M430,1165 L550,1240" marker-end="url(#arrow-amber)"/>
+<path class="conn conn-anim" stroke="var(--amber)" d="M710,1165 L550,1240" marker-end="url(#arrow-amber)"/>
+<path class="conn conn-anim" stroke="var(--amber)" d="M990,1165 L550,1240" marker-end="url(#arrow-amber)"/>
+
+<!-- Aggregator → Investigation (side) -->
+<path class="conn" stroke="var(--amber)" stroke-dasharray="6 4" d="M750,1290 L920,1290" marker-end="url(#arrow-amber)"/>
+
+<!-- Aggregator → Kafka Bus 3 -->
+<path class="conn conn-anim conn-kafka" d="M550,1350 L550,1400" marker-end="url(#arrow-kafka)"/>
+
+<!-- Kafka Bus 3 → Clearing Adapters -->
+<path class="conn conn-anim" stroke="var(--emerald)" d="M300,1460 L100,1520" marker-end="url(#arrow-emerald)"/>
+<path class="conn conn-anim" stroke="var(--emerald)" d="M440,1460 L340,1520" marker-end="url(#arrow-emerald)"/>
+<path class="conn conn-anim" stroke="var(--emerald)" d="M550,1460 L580,1520" marker-end="url(#arrow-emerald)"/>
+<path class="conn conn-anim" stroke="var(--emerald)" d="M660,1460 L820,1520" marker-end="url(#arrow-emerald)"/>
+<path class="conn conn-anim" stroke="var(--emerald)" d="M800,1460 L1060,1520" marker-end="url(#arrow-emerald)"/>
+
+<!-- Clearing → External Clearing Houses -->
+<path class="conn conn-anim" stroke="var(--t3)" d="M100,1640 L100,1700" marker-end="url(#arrow-data)"/>
+<path class="conn conn-anim" stroke="var(--t3)" d="M340,1640 L340,1700" marker-end="url(#arrow-data)"/>
+<path class="conn conn-anim" stroke="var(--t3)" d="M580,1640 L580,1700" marker-end="url(#arrow-data)"/>
+<path class="conn conn-anim" stroke="var(--t3)" d="M820,1640 L820,1700" marker-end="url(#arrow-data)"/>
+<path class="conn conn-anim" stroke="var(--t3)" d="M1060,1640 L1060,1700" marker-end="url(#arrow-data)"/>
+
+<!-- Clearing → Kafka Bus 4 -->
+<path class="conn conn-anim conn-kafka" d="M550,1650 L550,1830" marker-end="url(#arrow-kafka)"/>
+
+<!-- Kafka Bus 4 → Accounting -->
+<path class="conn conn-anim conn-kafka" d="M550,1895 L550,1940" marker-end="url(#arrow-kafka)"/>
+
+<!-- Accounting → GL / Nostro -->
+<path class="conn conn-anim" stroke="var(--t3)" d="M370,2010 L200,2080" marker-end="url(#arrow-data)"/>
+<path class="conn conn-anim" stroke="var(--t3)" d="M730,2010 L900,2080" marker-end="url(#arrow-data)"/>
+
+<!-- Accounting → Kafka Bus 5 -->
+<path class="conn conn-anim conn-kafka" d="M550,2060 L550,2110" marker-end="url(#arrow-kafka)"/>
+
+<!-- Kafka Bus 5 → Reporting -->
+<path class="conn conn-anim conn-kafka" d="M550,2175 L550,2220" marker-end="url(#arrow-kafka)"/>
+
+<!-- ─── Database connections (right side) ─── -->
+<path class="conn conn-data" d="M1150,300 L1340,300" marker-end="url(#arrow-data)"/>
+<path class="conn conn-data" d="M1150,620 L1340,520" marker-end="url(#arrow-data)"/>
+<path class="conn conn-data" d="M510,820 L1340,640" marker-end="url(#arrow-data)"/>
+<path class="conn conn-data" d="M1150,1290 L1340,760" marker-end="url(#arrow-data)"/>
+<path class="conn conn-data" d="M1150,1580 L1340,880" marker-end="url(#arrow-data)"/>
+<path class="conn conn-data" d="M1150,1980 L1340,1000" marker-end="url(#arrow-data)"/>
+<path class="conn conn-data" d="M1150,2270 L1340,1120" marker-end="url(#arrow-data)"/>
+
+<!-- Mesh connections (left side infrastructure) -->
+<path class="conn conn-mesh" d="M1650,350 L1650,2100" marker-end="url(#arrow-mesh)"/>
+
+</svg>
+
+<!-- ═══════════════════════════════════ -->
+<!-- UPSTREAM SOURCES (Row 0, y=40)     -->
+<!-- ═══════════════════════════════════ -->
+<div class="group-box" style="left:40px;top:20px;width:1100px;height:120px;border-color:var(--border-hi)">
+  <div class="group-label" style="color:var(--t3)">Upstream Payment Sources</div>
+</div>
+
+<div class="node n-ext" style="left:80px;top:50px;width:200px" onclick="showDetail('ibmmq')">
+  <div class="node-inner"><div class="node-id">Channel</div><div class="node-title">IBM MQ</div><div class="node-desc">MT/MX messages via JMS/AMQP</div></div>
+</div>
+<div class="node n-ext" style="left:350px;top:50px;width:200px" onclick="showDetail('sftp')">
+  <div class="node-inner"><div class="node-id">Channel</div><div class="node-title">SFTP Files</div><div class="node-desc">CSV · XML · SWIFT FIN batches</div></div>
+</div>
+<div class="node n-ext" style="left:620px;top:50px;width:200px" onclick="showDetail('api')">
+  <div class="node-inner"><div class="node-id">Channel</div><div class="node-title">REST / gRPC API</div><div class="node-desc">JSON · Protobuf payloads</div></div>
+</div>
+<div class="node n-ext" style="left:890px;top:50px;width:200px" onclick="showDetail('iso')">
+  <div class="node-inner"><div class="node-id">Channel</div><div class="node-title">ISO 20022 MX</div><div class="node-desc">pain.001 · pacs.008</div></div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- TIER 1: INGESTION (y=220)          -->
+<!-- ═══════════════════════════════════ -->
+<div class="node n-blue" style="left:200px;top:220px;width:700px" onclick="showDetail('ingestion')">
+  <div class="node-inner">
+    <div class="node-id">Tier 1 · Ingestion Gateway</div>
+    <div class="node-title">Protocol Translation · Deduplication · Envelope Wrapping</div>
+    <div class="node-desc">Redis dedup (TTL 7d) · UUID v7 payment ID · IBM MQ ACK only after Kafka produce confirmation</div>
+    <div class="node-tech"><span class="node-tag">Apache Camel</span><span class="node-tag">Spring Integration</span><span class="node-tag">Redis Cluster</span><span class="node-tag">IBM MQ Client</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- KAFKA BUS 1 (y=430)                -->
+<!-- ═══════════════════════════════════ -->
+<div class="node n-kafka" style="left:200px;top:420px;width:700px;height:50px" onclick="showDetail('kafka1')">
+  <div class="node-inner" style="padding:10px 18px;display:flex;align-items:center;justify-content:center;gap:12px">
+    <span style="font-size:11px;font-family:var(--mono);font-weight:600;letter-spacing:2px">▸ KAFKA</span>
+    <span class="node-tag" style="font-size:10px">payments.inbound.raw</span>
+    <span style="font-size:10px;opacity:.5">24 partitions · RF=3 · 30d retention</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- TIER 2: MESSAGE PROCESSING (y=545) -->
+<!-- ═══════════════════════════════════ -->
+<div class="node n-cyan" style="left:280px;top:545px;width:540px" onclick="showDetail('processor')">
+  <div class="node-inner">
+    <div class="node-id">Tier 2 · Message Processor</div>
+    <div class="node-title">Schema Validation · MT→MX Conversion · Business Rules</div>
+    <div class="node-desc">XSD validation → format conversion → field extraction → cutoff/currency checks → RECEIVED → VALIDATED</div>
+    <div class="node-tech"><span class="node-tag">JAXB</span><span class="node-tag">XSD Validators</span><span class="node-tag">ISO 20022</span></div>
+  </div>
+</div>
+
+<!-- ENRICHMENT SERVICE -->
+<div class="node n-cyan" style="left:100px;top:755px;width:420px" onclick="showDetail('enrichment')">
+  <div class="node-inner">
+    <div class="node-id">Enrichment Service</div>
+    <div class="node-title">BIC Lookup · IBAN Validation · FX Rates · Fee Calculation</div>
+    <div class="node-desc">Reference data from Redis cache (15s FX refresh). Routing decision matrix: MEPS+/FAST/CHATS/FPS/SWIFT gpi</div>
+    <div class="node-tech"><span class="node-tag">Redis Cache</span><span class="node-tag">FX Engine</span><span class="node-tag">Fee Rules</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- KAFKA BUS 2 (y=930)                -->
+<!-- ═══════════════════════════════════ -->
+<div class="node n-kafka" style="left:200px;top:930px;width:700px;height:50px" onclick="showDetail('kafka2')">
+  <div class="node-inner" style="padding:10px 18px;display:flex;align-items:center;justify-content:center;gap:12px">
+    <span style="font-size:11px;font-family:var(--mono);font-weight:600;letter-spacing:2px">▸ KAFKA</span>
+    <span class="node-tag" style="font-size:10px">payments.enriched</span>
+    <span style="font-size:10px;opacity:.5">→ payments.compliance.request</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- TIER 3: COMPLIANCE (y=1050)        -->
+<!-- ═══════════════════════════════════ -->
+<div class="group-box" style="left:40px;top:1020px;width:1080px;height:165px;border-color:rgba(245,158,11,.15)">
+  <div class="group-label" style="color:var(--amber)">Tier 3 · Parallel Compliance Screening (Fan-Out)</div>
+</div>
+
+<div class="node n-amber" style="left:60px;top:1055px;width:220px" onclick="showDetail('sanctions')">
+  <div class="node-inner"><div class="node-id">Sanctions</div><div class="node-title">OFAC · EU · UN · MAS</div><div class="node-desc">Fircosoft REST · &lt;200ms sync</div></div>
+</div>
+<div class="node n-amber" style="left:320px;top:1055px;width:220px" onclick="showDetail('aml')">
+  <div class="node-inner"><div class="node-id">AML</div><div class="node-title">Transaction Monitoring</div><div class="node-desc">Actimize Kafka · &lt;2s</div></div>
+</div>
+<div class="node n-amber" style="left:580px;top:1055px;width:220px" onclick="showDetail('fraud')">
+  <div class="node-inner"><div class="node-id">Fraud</div><div class="node-title">ML Scoring Engine</div><div class="node-desc">gRPC · &lt;100ms behavioral</div></div>
+</div>
+<div class="node n-amber" style="left:840px;top:1055px;width:220px" onclick="showDetail('pep')">
+  <div class="node-inner"><div class="node-id">PEP</div><div class="node-title">PEP Screening</div><div class="node-desc">Hybrid batch+RT · &lt;500ms</div></div>
+</div>
+
+<!-- AGGREGATOR -->
+<div class="node n-amber" style="left:280px;top:1240px;width:460px" onclick="showDetail('aggregator')">
+  <div class="node-inner">
+    <div class="node-id">Response Aggregator (Fan-In)</div>
+    <div class="node-title">ALL Engines Must PASS · Correlation-Based</div>
+    <div class="node-desc">Timeout: 30s (real-time) · 5min (batch) · Auto-escalation on timeout</div>
+  </div>
+</div>
+
+<!-- INVESTIGATION (side) -->
+<div class="node n-amber" style="left:820px;top:1240px;width:280px;border-style:dashed" onclick="showDetail('investigation')">
+  <div class="node-inner"><div class="node-id">If Referred</div><div class="node-title">Investigation Workbench</div><div class="node-desc">4h SLA (domestic) · 24h (x-border) · Analyst UI · Escalation rules</div></div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- KAFKA BUS 3 (y=1400)               -->
+<!-- ═══════════════════════════════════ -->
+<div class="node n-kafka" style="left:200px;top:1400px;width:700px;height:50px">
+  <div class="node-inner" style="padding:10px 18px;display:flex;align-items:center;justify-content:center;gap:12px">
+    <span style="font-size:11px;font-family:var(--mono);font-weight:600;letter-spacing:2px">▸ KAFKA</span>
+    <span class="node-tag" style="font-size:10px">payments.clearing.outbound</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- TIER 4: CLEARING ADAPTERS (y=1520) -->
+<!-- ═══════════════════════════════════ -->
+<div class="group-box" style="left:20px;top:1490px;width:1170px;height:170px;border-color:rgba(16,185,129,.15)">
+  <div class="group-label" style="color:var(--emerald)">Tier 4 · Clearing House Adapters (Circuit Breaker Protected)</div>
+</div>
+
+<div class="node n-emerald" style="left:30px;top:1525px;width:190px" onclick="showDetail('meps')">
+  <div class="node-inner"><div class="node-id">Singapore</div><div class="node-title">MEPS+ Adapter</div><div class="node-desc">RTGS · ISO 20022 · &lt;30s</div></div>
+</div>
+<div class="node n-emerald" style="left:250px;top:1525px;width:190px" onclick="showDetail('fast')">
+  <div class="node-inner"><div class="node-id">Singapore</div><div class="node-title">FAST Adapter</div><div class="node-desc">Real-time · ISO · &lt;10s</div></div>
+</div>
+<div class="node n-emerald" style="left:470px;top:1525px;width:190px" onclick="showDetail('chats')">
+  <div class="node-inner"><div class="node-id">Hong Kong</div><div class="node-title">CHATS Adapter</div><div class="node-desc">RTGS · HKICL · &lt;60s</div></div>
+</div>
+<div class="node n-emerald" style="left:690px;top:1525px;width:190px" onclick="showDetail('fps')">
+  <div class="node-inner"><div class="node-id">United Kingdom</div><div class="node-title">FPS Adapter</div><div class="node-desc">VocaLink · ISO · &lt;15s</div></div>
+</div>
+<div class="node n-emerald" style="left:910px;top:1525px;width:240px" onclick="showDetail('swift')">
+  <div class="node-inner"><div class="node-id">Global</div><div class="node-title">SWIFT gpi Adapter</div><div class="node-desc">FIN/MX · Alliance GW · &lt;4h</div></div>
+</div>
+
+<!-- External Clearing Houses -->
+<div class="node n-ext" style="left:30px;top:1700px;width:190px"><div class="node-inner"><div class="node-id">External</div><div class="node-title">MAS MEPS+</div></div></div>
+<div class="node n-ext" style="left:250px;top:1700px;width:190px"><div class="node-inner"><div class="node-id">External</div><div class="node-title">ABS FAST</div></div></div>
+<div class="node n-ext" style="left:470px;top:1700px;width:190px"><div class="node-inner"><div class="node-id">External</div><div class="node-title">HKICL CHATS</div></div></div>
+<div class="node n-ext" style="left:690px;top:1700px;width:190px"><div class="node-inner"><div class="node-id">External</div><div class="node-title">VocaLink FPS</div></div></div>
+<div class="node n-ext" style="left:910px;top:1700px;width:240px"><div class="node-inner"><div class="node-id">External</div><div class="node-title">SWIFT Network</div></div></div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- KAFKA BUS 4 (y=1840)               -->
+<!-- ═══════════════════════════════════ -->
+<div class="node n-kafka" style="left:200px;top:1840px;width:700px;height:50px">
+  <div class="node-inner" style="padding:10px 18px;display:flex;align-items:center;justify-content:center;gap:12px">
+    <span style="font-size:11px;font-family:var(--mono);font-weight:600;letter-spacing:2px">▸ KAFKA</span>
+    <span class="node-tag" style="font-size:10px">payments.clearing.response</span>
+    <span style="font-size:10px;opacity:.5">→ payments.accounting.booked</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- TIER 5: ACCOUNTING (y=1940)        -->
+<!-- ═══════════════════════════════════ -->
+<div class="node n-violet" style="left:200px;top:1940px;width:700px" onclick="showDetail('accounting')">
+  <div class="node-inner">
+    <div class="node-id">Tier 5 · Accounting & Settlement Engine</div>
+    <div class="node-title">Double-Entry Ledger · Saga Orchestrator · GL Posting</div>
+    <div class="node-desc">Append-only event-sourced. 5-step Saga: Debit→Fees→FX→Settlement→GL with compensating transactions</div>
+    <div class="node-tech"><span class="node-tag">Saga Pattern</span><span class="node-tag">Citus Sharding</span><span class="node-tag">Event Sourcing</span></div>
+  </div>
+</div>
+
+<!-- Core Banking GL / Nostro -->
+<div class="node n-ext" style="left:60px;top:2080px;width:260px"><div class="node-inner"><div class="node-id">External</div><div class="node-title">Core Banking GL</div><div class="node-desc">General Ledger postings</div></div></div>
+<div class="node n-ext" style="left:780px;top:2080px;width:260px"><div class="node-inner"><div class="node-id">External</div><div class="node-title">Nostro / Vostro System</div><div class="node-desc">Correspondent balances</div></div></div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- KAFKA BUS 5 (y=2110)               -->
+<!-- ═══════════════════════════════════ -->
+<div class="node n-kafka" style="left:200px;top:2110px;width:700px;height:50px">
+  <div class="node-inner" style="padding:10px 18px;display:flex;align-items:center;justify-content:center;gap:12px">
+    <span style="font-size:11px;font-family:var(--mono);font-weight:600;letter-spacing:2px">▸ KAFKA</span>
+    <span class="node-tag" style="font-size:10px">payments.status.changes</span>
+    <span class="node-tag" style="font-size:10px">payments.notifications</span>
+    <span class="node-tag" style="font-size:10px">payments.recon.eod</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- TIER 6: REPORTING (y=2220)         -->
+<!-- ═══════════════════════════════════ -->
+<div class="node n-rose" style="left:200px;top:2220px;width:700px" onclick="showDetail('reporting')">
+  <div class="node-inner">
+    <div class="node-id">Tier 6 · Reporting & Reconciliation</div>
+    <div class="node-title">Real-Time Dashboards · Regulatory Reports · EOD Recon</div>
+    <div class="node-desc">Kafka Streams materialized views → ClickHouse. GraphQL API. LVT, STR, daily positions auto-generated.</div>
+    <div class="node-tech"><span class="node-tag">Kafka Streams</span><span class="node-tag">ClickHouse</span><span class="node-tag">GraphQL</span><span class="node-tag">Grafana</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- RIGHT SIDE: DATABASES (x=1300)     -->
+<!-- ═══════════════════════════════════ -->
+<div class="group-box" style="left:1280px;top:430px;width:300px;height:740px;border-color:rgba(249,115,22,.15)">
+  <div class="group-label" style="color:var(--orange)">Database-per-Service (Vault Managed)</div>
+</div>
+
+<div class="node n-orange db-node" style="left:1300px;top:470px;width:260px" onclick="showDetail('db_ingestion')">
+  <div class="node-inner"><div class="node-title">ingestion_db</div><div class="node-desc">PostgreSQL 16 · Dedup · 50GB/mo</div></div>
+</div>
+<div class="node n-orange db-node" style="left:1300px;top:545px;width:260px" onclick="showDetail('db_master')">
+  <div class="node-inner"><div class="node-title">payment_master_db</div><div class="node-desc">PG 16 + Citus · Core records · 200GB/mo</div></div>
+</div>
+<div class="node n-orange db-node" style="left:1300px;top:620px;width:260px" onclick="showDetail('db_ref')">
+  <div class="node-inner"><div class="node-title">reference_data_db</div><div class="node-desc">PG 16 + Redis · BIC/IBAN/FX · 10GB</div></div>
+</div>
+<div class="node n-orange db-node" style="left:1300px;top:695px;width:260px" onclick="showDetail('db_compliance')">
+  <div class="node-inner"><div class="node-title">compliance_db</div><div class="node-desc">PostgreSQL 16 · Cases/Audit · 100GB/mo</div></div>
+</div>
+<div class="node n-orange db-node" style="left:1300px;top:770px;width:260px" onclick="showDetail('db_routing')">
+  <div class="node-inner"><div class="node-title">routing_db</div><div class="node-desc">PostgreSQL 16 · SLA/Retry · 80GB/mo</div></div>
+</div>
+<div class="node n-orange db-node" style="left:1300px;top:845px;width:260px" onclick="showDetail('db_ledger')">
+  <div class="node-inner"><div class="node-title">ledger_db</div><div class="node-desc">PG 16 + Citus · Ledger · 500GB/mo</div></div>
+</div>
+<div class="node n-orange db-node" style="left:1300px;top:920px;width:260px" onclick="showDetail('db_analytics')">
+  <div class="node-inner"><div class="node-title">analytics_db</div><div class="node-desc">ClickHouse · Columnar · 1TB/mo</div></div>
+</div>
+<div class="node n-orange db-node" style="left:1300px;top:995px;width:260px" onclick="showDetail('db_events')">
+  <div class="node-inner"><div class="node-title">event_store</div><div class="node-desc">Kafka topics · 30-90d hot · S3 7yr</div></div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- FAR RIGHT: INFRASTRUCTURE (x=1650) -->
+<!-- ═══════════════════════════════════ -->
+<div class="group-box" style="left:1640px;top:280px;width:320px;height:1870px;border-color:rgba(20,184,166,.15)">
+  <div class="group-label" style="color:var(--teal)">Platform Infrastructure (Istio Mesh)</div>
+</div>
+
+<div class="node n-teal db-node" style="left:1670px;top:330px;width:270px" onclick="showDetail('istio')">
+  <div class="node-inner"><div class="node-title">Istio Service Mesh</div><div class="node-desc">mTLS · Traffic mgmt · Kiali console</div></div>
+</div>
+<div class="node n-teal db-node" style="left:1670px;top:420px;width:270px" onclick="showDetail('vault')">
+  <div class="node-inner"><div class="node-title">HashiCorp Vault</div><div class="node-desc">Dynamic secrets · Auto-rotation</div></div>
+</div>
+<div class="node n-teal db-node" style="left:1670px;top:510px;width:270px" onclick="showDetail('k8s')">
+  <div class="node-inner"><div class="node-title">Kubernetes (EKS/GKE)</div><div class="node-desc">Multi-region · Auto-scaling · HPA</div></div>
+</div>
+<div class="node n-lime db-node" style="left:1670px;top:600px;width:270px" onclick="showDetail('prometheus')">
+  <div class="node-inner"><div class="node-title">Prometheus + Grafana</div><div class="node-desc">Metrics · Golden signals · Thanos</div></div>
+</div>
+<div class="node n-lime db-node" style="left:1670px;top:690px;width:270px" onclick="showDetail('otel')">
+  <div class="node-inner"><div class="node-title">OpenTelemetry + Jaeger</div><div class="node-desc">Distributed tracing · 30d retention</div></div>
+</div>
+<div class="node n-lime db-node" style="left:1670px;top:780px;width:270px" onclick="showDetail('elk')">
+  <div class="node-inner"><div class="node-title">ELK Stack</div><div class="node-desc">Structured logging · Envoy access logs</div></div>
+</div>
+<div class="node n-teal db-node" style="left:1670px;top:870px;width:270px" onclick="showDetail('kiali')">
+  <div class="node-inner"><div class="node-title">Kiali Dashboard</div><div class="node-desc">Service topology · Traffic flows · mTLS</div></div>
+</div>
+<div class="node n-lime db-node" style="left:1670px;top:960px;width:270px" onclick="showDetail('pagerduty')">
+  <div class="node-inner"><div class="node-title">PagerDuty</div><div class="node-desc">Alerting · Escalation · DLQ monitor</div></div>
+</div>
+<div class="node n-teal db-node" style="left:1670px;top:1050px;width:270px" onclick="showDetail('argocd')">
+  <div class="node-inner"><div class="node-title">ArgoCD + GitLab CI</div><div class="node-desc">GitOps · Canary deploys · Rollback</div></div>
+</div>
+<div class="node n-teal db-node" style="left:1670px;top:1140px;width:270px" onclick="showDetail('debezium')">
+  <div class="node-inner"><div class="node-title">Debezium CDC</div><div class="node-desc">Outbox pattern · WAL capture</div></div>
+</div>
+<div class="node n-kafka db-node" style="left:1670px;top:1230px;width:270px" onclick="showDetail('kafka_cluster')">
+  <div class="node-inner"><div class="node-title">Kafka Cluster (3 Regions)</div><div class="node-desc">RF=3 · MirrorMaker 2 · RPO=0</div></div>
+</div>
+<div class="node n-teal db-node" style="left:1670px;top:1320px;width:270px">
+  <div class="node-inner"><div class="node-title">Redis Sentinel Cluster</div><div class="node-desc">Dedup · Cache · Idempotency · HA</div></div>
+</div>
+<div class="node n-teal db-node" style="left:1670px;top:1410px;width:270px">
+  <div class="node-inner"><div class="node-title">Schema Registry</div><div class="node-desc">Avro/Protobuf · Compatibility checks</div></div>
+</div>
+
+<!-- DLQ box -->
+<div class="node n-rose db-node" style="left:1670px;top:1540px;width:270px" onclick="showDetail('dlq')">
+  <div class="node-inner"><div class="node-title">Dead Letter Queues</div><div class="node-desc">3-tier retry · Replay tool · 90d retention</div></div>
+</div>
+<div class="node n-ext db-node" style="left:1670px;top:1630px;width:270px">
+  <div class="node-inner"><div class="node-title">S3 Archive</div><div class="node-desc">7-year regulatory archive · WAL backups</div></div>
+</div>
+
+<!-- Multi-region labels -->
+<div class="group-box" style="left:1670px;top:1750px;width:270px;height:370px;border-color:rgba(59,130,246,.15)">
+  <div class="group-label" style="color:var(--blue)">Multi-Region Deployment</div>
+</div>
+<div class="node n-blue db-node" style="left:1690px;top:1790px;width:230px">
+  <div class="node-inner"><div class="node-title">🇸🇬 Singapore Region</div><div class="node-desc">MEPS+ · FAST · Primary APAC</div></div>
+</div>
+<div class="node n-blue db-node" style="left:1690px;top:1870px;width:230px">
+  <div class="node-inner"><div class="node-title">🇭🇰 Hong Kong Region</div><div class="node-desc">CHATS · APAC failover</div></div>
+</div>
+<div class="node n-blue db-node" style="left:1690px;top:1950px;width:230px">
+  <div class="node-inner"><div class="node-title">🇬🇧 UK Region</div><div class="node-desc">FPS · BACS · EMEA primary</div></div>
+</div>
+<div class="node n-blue db-node" style="left:1690px;top:2030px;width:230px">
+  <div class="node-inner"><div class="node-title">🌐 DR Region</div><div class="node-desc">MirrorMaker 2 · Hot standby</div></div>
+</div>
+
+</div><!-- canvas -->
+</div><!-- canvas-wrap -->
+
+<script>
+// ── Detail panel data ──
+const details = {
+  ibmmq: { title:'IBM MQ Channel', type:'Upstream Source', desc:'Receives SWIFT MT and MX messages via JMS/AMQP protocol. MQ listener acknowledges messages only after Kafka produce is confirmed, ensuring zero message loss. Supports both persistent and non-persistent delivery modes.', tech:['IBM MQ 9.3+','JMS 2.0','AMQP 1.0'], metrics:{throughput:'5K msg/s',protocol:'JMS/AMQP',format:'MT/MX',ack:'Post-Kafka confirm'}},
+  sftp: { title:'SFTP File Channel', type:'Upstream Source', desc:'SFTP file watcher monitors designated directories for incoming payment files. Uses atomic rename pattern to prevent partial reads. Large files are chunked for parallel processing. Supports CSV, XML, and SWIFT FIN formats.', tech:['SFTP','Apache Camel','File Watcher'], metrics:{formats:'CSV/XML/FIN',strategy:'Atomic rename',chunking:'10K records',polling:'5s interval'}},
+  api: { title:'REST / gRPC API', type:'Upstream Source', desc:'API Gateway with rate limiting (10K req/s) for real-time payment initiation. Synchronous ACK with correlation ID returned immediately, async processing follows. Supports both JSON (REST) and Protobuf (gRPC) payloads.', tech:['Spring WebFlux','gRPC','API Gateway'], metrics:{rateLimit:'10K req/s',response:'Sync ACK <50ms',format:'JSON/Protobuf',auth:'mTLS + JWT'}},
+  iso: { title:'ISO 20022 MX Channel', type:'Upstream Source', desc:'Native ISO 20022 message ingestion. XSD schema validation at the gateway level with namespace-aware parsing. Supports pain.001 (Customer Credit Transfer Initiation) and pacs.008 (FI to FI Customer Credit Transfer).', tech:['ISO 20022','XSD','pacs.008','pain.001'], metrics:{validation:'XSD at gateway',standard:'ISO 20022 MX',messages:'pain.001/pacs.008',compliance:'Full MX native'}},
+  ingestion: { title:'Ingestion Gateway', type:'Tier 1 · Entry Point', desc:'Single entry point abstracting all upstream protocol diversity. Every inbound message gets a deterministic idempotency key (source_id + msg_ref + instruction_date + amount + debtor_account) checked against Redis cluster (TTL 7 days). Messages wrapped in canonical envelope with UUID v7 payment ID before publishing to Kafka. IBM MQ messages are ACKed only after Kafka produce confirmation.', tech:['Apache Camel 4.x','Spring Integration','IBM MQ Client','Redis Cluster 7.2+'], metrics:{dedup:'Redis TTL 7d',paymentId:'UUID v7',throughput:'10K msg/s',latency:'<20ms p99'}},
+  processor: { title:'Message Processing Service', type:'Tier 2 · Validation & Transform', desc:'Five-stage pipeline: (1) XSD/JSON Schema validation, (2) SWIFT MT→MX conversion via configurable mapping engine, (3) Critical field extraction into canonical model, (4) Business rule validation (cutoff times, currency, value dates), (5) Status transition RECEIVED→VALIDATED or REJECTED with detailed error arrays. Payment Master Store in PostgreSQL with event sourcing across 5 tables, monthly range partitioning.', tech:['JAXB','XSD Validators','PostgreSQL 16','Citus'], metrics:{pipeline:'5-stage',conversion:'MT→MX',partitioning:'Monthly range',tables:'5 core tables'}},
+  enrichment: { title:'Enrichment Service', type:'Tier 2 · Reference Data', desc:'Augments validated payments with: BIC directory lookups (daily SWIFT refresh), IBAN validation per country, FX rates from treasury (15s refresh via Kafka topic reference.fx.rates), fee calculation by configurable rule engine (payment type, corridor, amount band, customer tier), and routing metadata determination.', tech:['Redis Cache','FX Engine','Fee Rules','BIC Directory'], metrics:{fxRefresh:'15 seconds',bicRefresh:'Daily',cacheHit:'>99%',latency:'<5ms lookup'}},
+  sanctions: { title:'Sanctions Screener', type:'Tier 3 · Compliance Engine', desc:'Screens all payment parties (debtor, creditor, intermediaries) against OFAC, EU, UN, and MAS sanctions lists. Integrated with Fircosoft/Accuity via synchronous REST API for real-time payments. Hit results include match score, matched list, and matched entity details. On hit: REFER to investigation queue with full match context.', tech:['Fircosoft','REST API','OFAC/EU/UN/MAS'], metrics:{response:'<200ms',mode:'Synchronous',lists:'OFAC/EU/UN/MAS',onHit:'REFER'}},
+  aml: { title:'AML Engine', type:'Tier 3 · Compliance Engine', desc:'Transaction monitoring against configurable AML rules (velocity checks, amount thresholds, country risk, unusual patterns). Integrated with NICE Actimize via Kafka event. Asynchronous response within 2 seconds. On alert: generates Suspicious Activity Report and alerts compliance team via investigation workbench.', tech:['NICE Actimize','Kafka Events','Rule Engine'], metrics:{response:'<2 seconds',mode:'Asynchronous',onHit:'ALERT + SAR',rules:'Configurable'}},
+  fraud: { title:'Fraud Detection', type:'Tier 3 · Compliance Engine', desc:'Real-time behavioral scoring using ML models deployed via gRPC inference endpoint. Features include: transaction velocity, geo-anomaly detection, device fingerprinting, beneficiary risk scoring. Fastest compliance engine at <100ms. On high risk: BLOCK (>95 score) or ESCALATE (80-95 score).', tech:['ML Scoring','gRPC','TensorFlow Serving'], metrics:{response:'<100ms',mode:'gRPC sync',model:'ML behavioral',onHit:'BLOCK/ESCALATE'}},
+  pep: { title:'PEP Screening', type:'Tier 3 · Compliance Engine', desc:'Screens payment parties against Politically Exposed Persons databases. Uses hybrid batch+real-time approach: batch pre-scoring of known customers with real-time screening for new/unknown parties. Returns risk score and PEP classification. On hit: REFER with risk score to investigation queue.', tech:['PEP Database','Hybrid Screening'], metrics:{response:'<500ms',mode:'Hybrid batch+RT',onHit:'REFER + score',coverage:'Global PEP lists'}},
+  aggregator: { title:'Response Aggregator', type:'Tier 3 · Fan-In', desc:'Correlation-based aggregation waits for ALL screening engine responses. Payment proceeds ONLY when every engine returns PASS. Configurable timeout: 30 seconds for real-time payments (FAST, FPS), 5 minutes for batch. Timed-out payments auto-escalated to compliance operations — no silent pipeline stalls. Maintains correlation state in compliance_db.', tech:['Correlation Engine','Timeout Manager','State Machine'], metrics:{realTime:'30s timeout',batch:'5min timeout',rule:'ALL must PASS',escalation:'Auto on timeout'}},
+  investigation: { title:'Investigation Workbench', type:'Tier 3 · Manual Review', desc:'Web-based workbench for compliance analysts. Stateful workflow with SLA timers: 4 hours for domestic, 24 hours for cross-border payments. Features: hit review with match details, free-text comments, release/reject decisions, escalation to senior analysts for aged cases. All actions logged as events on payment event stream.', tech:['React UI','Workflow Engine','Audit Trail'], metrics:{slaDomestic:'4 hours',slaCrossBorder:'24 hours',escalation:'Auto for aged',audit:'Full event trail'}},
+  accounting: { title:'Accounting & Settlement Engine', type:'Tier 5 · Double-Entry Ledger', desc:'Maintains financial integrity through append-only event-sourced double-entry ledger. 5-step Saga: (1) Debit Customer→Suspense, (2) Calculate Fees→Fee Income GL, (3) FX Conversion if cross-currency, (4) Clearing Settlement→Nostro/Vostro, (5) GL Posting. Each step idempotent with compensating transactions. Saga orchestrator maintains saga log tracking each step state.', tech:['Saga Pattern','PostgreSQL + Citus','Event Sourcing','Compensating Txns'], metrics:{model:'Double-entry',sagaSteps:'5 steps',ledger:'Append-only',sharding:'By account (Citus)'}},
+  reporting: { title:'Reporting & Reconciliation', type:'Tier 6 · Analytics & Recon', desc:'Kafka Streams consuming compacted payments.status.changes topic with materialized views updated every second. Views: volumes by channel/currency/status, clearing success rates, avg processing time, screening hit rates. ClickHouse for analytical queries, GraphQL API for dashboard. Regulatory reports (LVT, STR, daily positions) auto-generated. EOD recon matches clearing confirmations against ledger entries.', tech:['Kafka Streams','ClickHouse','GraphQL','TimescaleDB','Grafana'], metrics:{updateFreq:'Every second',storage:'ClickHouse columnar',api:'GraphQL',recon:'EOD automated'}},
+  meps: { title:'MEPS+ Adapter', type:'Tier 4 · Singapore RTGS', desc:'Connects to MAS Electronic Payment System Plus via SWIFT Alliance Lite2. Handles ISO 20022 pacs.008 and pacs.002 messages. Store-and-forward with retry on failure. Circuit breaker: 5 failures → OPEN → 30s cool-down → HALF-OPEN probe. SLA: <30 seconds end-to-end.', tech:['SWIFT Alliance Lite2','ISO 20022','Circuit Breaker','Resilience4j'], metrics:{sla:'<30 seconds',protocol:'ISO 20022',connection:'SWIFT Alliance',recovery:'Store-and-forward'}},
+  fast: { title:'FAST Adapter', type:'Tier 4 · Singapore Real-Time', desc:'Direct connection to ABS FAST infrastructure. Real-time retail payments with <10 second SLA. Circuit breaker with automatic fallback to MEPS+ if FAST is unavailable. Highest throughput adapter due to retail payment volumes.', tech:['ABS Direct Connect','ISO 20022','Fallback to MEPS+'], metrics:{sla:'<10 seconds',protocol:'ISO 20022',fallback:'MEPS+',volume:'Highest retail'}},
+  chats: { title:'CHATS Adapter', type:'Tier 4 · Hong Kong RTGS', desc:'Connects to HKICL gateway for HKD RTGS payments. Supports both proprietary and ISO formats. Dual-path architecture with automatic failover. <60 second SLA.', tech:['HKICL Gateway','Proprietary + ISO','Dual-path'], metrics:{sla:'<60 seconds',protocol:'Proprietary/ISO',connection:'HKICL Gateway',recovery:'Dual-path failover'}},
+  fps: { title:'FPS Adapter', type:'Tier 4 · UK Real-Time', desc:'Connects to VocaLink gateway for UK Faster Payments. ISO 20022 native. Real-time retry with exponential backoff. <15 second SLA for retail payments.', tech:['VocaLink Gateway','ISO 20022','Exponential Backoff'], metrics:{sla:'<15 seconds',protocol:'ISO 20022',connection:'VocaLink',recovery:'Exponential backoff'}},
+  swift: { title:'SWIFT gpi Adapter', type:'Tier 4 · Cross-Border', desc:'Connects via SWIFT Alliance Gateway for cross-border payments. Supports both FIN (MT103) and MX (pacs.008) formats. SWIFT gpi tracker integration for real-time status updates. <4 hour SLA per gpi commitment.', tech:['SWIFT Alliance GW','FIN/MX','gpi Tracker'], metrics:{sla:'<4 hours',protocol:'FIN + MX',tracker:'gpi real-time',coverage:'Global'}},
+  istio: { title:'Istio Service Mesh', type:'Platform Infrastructure', desc:'Service mesh providing: STRICT mTLS across all namespaces, AuthorizationPolicy for fine-grained RBAC (e.g. only routing-engine can reach clearing adapters), VirtualServices for canary deployments (95/5 traffic split), DestinationRules for network-level circuit breaking and outlier detection, header-based routing for test payments to sandbox, Envoy rate limiting for clearing house submission caps, fault injection for chaos testing.', tech:['Istio 1.21+','Envoy Proxy','Kiali','Citadel'], metrics:{mtls:'STRICT mode',canary:'95/5 split',outlier:'Auto-eject 3x 5xx',rateLimit:'Per-adapter caps'}},
+  kiali: { title:'Kiali Service Mesh Console', type:'Traffic Observability', desc:'Real-time service topology visualization showing live traffic flows between all payment microservices. Displays error rates per edge, latency distribution, mTLS lock status. Drill-down into VirtualService and DestinationRule configurations. Primary operations tool during incidents — shows exactly where a payment is stuck and why.', tech:['Kiali','Istio Telemetry','Grafana Integration'], metrics:{view:'Real-time topology',signals:'4 golden signals',mtls:'Lock status per edge',config:'Validation errors'}},
+  kafka_cluster: { title:'Kafka Cluster', type:'Event Backbone', desc:'Multi-region Kafka cluster with RF=3. MirrorMaker 2 replicates critical topics to DR region. RPO=0 (zero data loss). Exactly-once semantics with transactional producers. Schema Registry (Avro/Protobuf) for message compatibility. 10 operational topics + DLQ topics.', tech:['Apache Kafka 3.7+','MirrorMaker 2','Schema Registry','Confluent'], metrics:{rpo:'Zero data loss',rto:'<5 minutes',partitions:'Up to 24',retention:'30-90d hot'}},
+  dlq: { title:'Dead Letter Queues', type:'Resilience Pattern', desc:'Three-tier retry strategy: Tier 1 (immediate: 100ms, 500ms, 1s — 3 attempts), Tier 2 (delayed retry topic: 30s, 2m, 10m, 1h — 4 attempts), Tier 3 (DLQ terminal — manual review). DLQ messages include original payload, retry metadata, error stack trace, correlation ID. PagerDuty alert when depth >10 in 5 minutes. DLQ Replay Tool for operator re-submission.', tech:['Kafka DLQ Topics','PagerDuty','Replay Tool'], metrics:{tier1:'3 immediate retries',tier2:'4 delayed retries',alert:'>10 in 5min',retention:'90 days'}},
+};
+
+function showDetail(id) {
+  const d = details[id];
+  if (!d) return;
+  const p = document.getElementById('detailPanel');
+  const c = document.getElementById('detailContent');
+  let html = `<div class="dp-title">${d.title}</div><div class="dp-type">${d.type}</div>`;
+  html += `<div class="dp-section"><h4>Description</h4><p>${d.desc}</p></div>`;
+  if (d.tech) { html += `<div class="dp-section"><h4>Technology</h4><div class="dp-tags">${d.tech.map(t=>`<span class="dp-tag">${t}</span>`).join('')}</div></div>`; }
+  if (d.metrics) { html += `<div class="dp-section"><h4>Key Metrics</h4><div class="dp-metric">${Object.entries(d.metrics).map(([k,v])=>`<div class="dp-m"><strong>${v}</strong><span>${k}</span></div>`).join('')}</div></div>`; }
+  c.innerHTML = html;
+  p.classList.add('open');
+}
+function closeDetail() { document.getElementById('detailPanel').classList.remove('open'); }
+
+// ── Zoom ──
+let scale = 0.7;
+const canvas = document.getElementById('canvas');
+const wrap = document.getElementById('canvasWrap');
+function zoomTo(s) {
+  scale = s;
+  canvas.style.transform = `scale(${scale})`;
+  document.getElementById('zoomDisplay').textContent = Math.round(scale*100)+'%';
+  document.querySelectorAll('.tb').forEach(b => b.classList.remove('active'));
+  updateMinimap();
+}
+function fitAll() {
+  const ww = wrap.clientWidth, wh = wrap.clientHeight;
+  scale = Math.min(ww/2600, wh/2400, 1);
+  canvas.style.transform = `scale(${scale})`;
+  document.getElementById('zoomDisplay').textContent = Math.round(scale*100)+'%';
+  document.querySelectorAll('.tb').forEach(b => b.classList.remove('active'));
+  updateMinimap();
+}
+zoomTo(0.7);
+
+// ── Minimap ──
+function updateMinimap() {
+  const mm = document.getElementById('minimap');
+  const vp = document.getElementById('minimapVP');
+  const sx = 200/2600, sy = 180/2400;
+  const vw = wrap.clientWidth / scale * sx;
+  const vh = wrap.clientHeight / scale * sy;
+  const vx = wrap.scrollLeft / scale * sx;
+  const vy = wrap.scrollTop / scale * sy;
+  vp.style.width = Math.min(vw, 200)+'px';
+  vp.style.height = Math.min(vh, 180)+'px';
+  vp.style.left = Math.max(0, Math.min(vx, 200-vw))+'px';
+  vp.style.top = Math.max(0, Math.min(vy, 180-vh))+'px';
+
+  // Draw minimap dots
+  const ctx = document.getElementById('minimapCanvas').getContext('2d');
+  ctx.clearRect(0,0,200,180);
+  ctx.fillStyle = 'rgba(255,255,255,.03)';
+  ctx.fillRect(0,0,200,180);
+  document.querySelectorAll('.node').forEach(n => {
+    const l = parseInt(n.style.left)||0, t = parseInt(n.style.top)||0;
+    const w = n.offsetWidth, h = n.offsetHeight;
+    ctx.fillStyle = n.classList.contains('n-blue') ? 'rgba(59,130,246,.4)' :
+                    n.classList.contains('n-cyan') ? 'rgba(6,182,212,.4)' :
+                    n.classList.contains('n-amber') ? 'rgba(245,158,11,.4)' :
+                    n.classList.contains('n-emerald') ? 'rgba(16,185,129,.4)' :
+                    n.classList.contains('n-violet') ? 'rgba(139,92,246,.4)' :
+                    n.classList.contains('n-rose') ? 'rgba(244,63,94,.4)' :
+                    n.classList.contains('n-kafka') ? 'rgba(232,82,63,.4)' :
+                    n.classList.contains('n-orange') ? 'rgba(249,115,22,.4)' :
+                    n.classList.contains('n-teal') ? 'rgba(20,184,166,.4)' :
+                    'rgba(255,255,255,.1)';
+    ctx.fillRect(l*sx, t*sy, Math.max(w*sx,2), Math.max(h*sy,2));
+  });
+}
+wrap.addEventListener('scroll', updateMinimap);
+window.addEventListener('resize', updateMinimap);
+setTimeout(updateMinimap, 100);
+
+// Minimap click navigation
+document.getElementById('minimap').addEventListener('click', function(e) {
+  const rect = this.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  const sx = 2600/200, sy = 2400/180;
+  wrap.scrollLeft = (mx * sx - wrap.clientWidth/scale/2) * scale;
+  wrap.scrollTop = (my * sy - wrap.clientHeight/scale/2) * scale;
+});
+
+// Close detail on canvas click
+wrap.addEventListener('click', function(e) {
+  if (e.target === wrap || e.target === canvas || e.target.tagName === 'svg') closeDetail();
+});
+</script>
+</body>
+</html>
