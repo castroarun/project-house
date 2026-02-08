@@ -7,6 +7,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### 2026-02-08 — Training Program Plan (Viceral Academy)
+
+- **Added:** Comprehensive training program plan (`docs/Design/TRAINING-PROGRAM-PLAN.md`)
+- **Added:** 4-level certification track: VCPF → VCPE → VCPSA → VCPA (44 modules, 32 weeks)
+- **Added:** Curriculum covering all Payment House technologies and domain knowledge
+- **Added:** App design concept — dark theme, 5 key screens (dashboard, module, video, exam, certificate)
+- **Added:** Video sourcing strategy — YouTube, Confluent, Spring Academy, Redis University, etc.
+- **Added:** Exam format — MCQ, scenario, code reading, architecture, design questions
+- **Added:** Implementation phases for the training app (MVP in 2-3 weeks)
+
 ### 2026-02-08 — Project Initialized + Architecture Design Ingested
 
 - **Added:** Project scaffolding — docs structure, templates, gitignore
