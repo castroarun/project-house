@@ -1,6 +1,6 @@
 # Payment House — Training Program Plan
 
-**Codename:** Viceral Academy
+**App Name:** PayForge
 **Tagline:** _From Zero to Payment Architect_
 **Status:** Plan (not yet built)
 **Last Updated:** 2026-02-08
@@ -42,7 +42,7 @@ Level 3: Payment Systems Architect    (Advanced — 10 weeks)
 Level 4: Capstone — Build Payment House (Project — 8 weeks)
 ```
 
-Each level has its own certificate. Completing all 4 earns the **Viceral Certified Payment Architect (VCPA)** designation.
+Each level has its own certificate. Completing all 4 earns the **PayForge Certified Payment Architect (VCPA)** designation.
 
 ---
 
@@ -66,7 +66,7 @@ _Goal: Understand the payment domain, Java 21 fundamentals, and core design prin
 | 6 | M12 | Twelve-Factor App | Config in env, stateless processes, port binding, dev/prod parity, logs as streams | 12-factor compliance audit on a sample app |
 
 **Level 1 Exam:** 60 questions, 90 minutes. Pass: 70%.
-**Certificate:** Viceral Certified — Payment Foundations (VCPF)
+**Certificate:** PayForge Certified — Payment Foundations (VCPF)
 
 ---
 
@@ -94,7 +94,7 @@ _Goal: Master Kafka, databases, Spring Boot, and core microservices patterns._
 | 8 | M28 | Testing Strategies | Unit (AAA), integration (Testcontainers), contract, E2E, chaos, performance | Write test suites for a clearing adapter with >90% coverage |
 
 **Level 2 Exam:** 80 questions, 120 minutes. Pass: 70%.
-**Certificate:** Viceral Certified — Platform Engineer (VCPE)
+**Certificate:** PayForge Certified — Platform Engineer (VCPE)
 
 ---
 
@@ -122,7 +122,7 @@ _Goal: Master infrastructure, observability, multi-region, security, and system 
 | 10 | M44 | System Design — Payment Platform | Full system design exercise: whiteboard the complete Payment House | Design document: 6-tier architecture from scratch |
 
 **Level 3 Exam:** 60 questions + 1 system design (written). 180 minutes. Pass: 75%.
-**Certificate:** Viceral Certified — Payment Systems Architect (VCPSA)
+**Certificate:** PayForge Certified — Payment Systems Architect (VCPSA)
 
 ---
 
@@ -138,7 +138,7 @@ _Goal: Build a working subset of Payment House end-to-end._
 | 7-8 | Sprint 4 | Accounting saga + Reporting dashboard + E2E test + Observability |
 
 **Capstone Evaluation:** Working demo + architecture walkthrough + code review.
-**Certificate:** Viceral Certified Payment Architect (VCPA)
+**Certificate:** PayForge Certified Payment Architect (VCPA)
 
 ---
 
@@ -199,17 +199,9 @@ For each module:
 
 ## 4. App Design Concept
 
-### App Name Options
+### App Name
 
-| Name | Feel | Available? |
-|------|------|------------|
-| **Viceral Academy** | Premium, connected to project | Check domain |
-| **PaymentPath** | Clear, descriptive | Check domain |
-| **ClearingHouse Academy** | Domain-specific | Check domain |
-| **Arch.dev** | Minimal, developer-focused | Likely taken |
-| **StackForge** | Builder energy | Check domain |
-
-**Recommended:** **Viceral Academy** — ties directly to the `viceral` branch name, sounds premium, unique.
+**PayForge** — Builder energy, forging payment expertise. Premium, memorable, unique.
 
 ### Design Philosophy
 
@@ -224,7 +216,7 @@ Minimalist dark theme (like the architecture HTML diagrams you already built)
 #### 1. Dashboard (Home)
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  Viceral Academy                          [avatar] [☀/🌙]│
+│  PayForge                                 [avatar] [☀/🌙]│
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
 │  Welcome back, Arun                                     │
@@ -354,7 +346,7 @@ Minimalist dark theme (like the architecture HTML diagrams you already built)
 ┌─────────────────────────────────────────────────────────┐
 │                                                         │
 │                  ╔═══════════════════╗                   │
-│                  ║  VICERAL ACADEMY  ║                   │
+│                  ║     PAYFORGE      ║                   │
 │                  ╚═══════════════════╝                   │
 │                                                         │
 │              Certificate of Achievement                 │
@@ -439,10 +431,10 @@ Minimalist dark theme (like the architecture HTML diagrams you already built)
 
 | Level | Abbreviation | Full Name | Badge Color |
 |-------|-------------|-----------|-------------|
-| 1 | **VCPF** | Viceral Certified — Payment Foundations | Blue |
-| 2 | **VCPE** | Viceral Certified — Platform Engineer | Cyan |
-| 3 | **VCPSA** | Viceral Certified — Payment Systems Architect | Violet |
-| 4 | **VCPA** | Viceral Certified Payment Architect | Gold |
+| 1 | **VCPF** | PayForge Certified — Payment Foundations | Blue |
+| 2 | **VCPE** | PayForge Certified — Platform Engineer | Cyan |
+| 3 | **VCPSA** | PayForge Certified — Payment Systems Architect | Violet |
+| 4 | **VCPA** | PayForge Certified Payment Architect | Gold |
 
 ### Digital Badges
 - SVG badges for each level

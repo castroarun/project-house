@@ -7,7 +7,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
-### 2026-02-08 — Training Program Plan (Viceral Academy)
+### 2026-02-08 — Training App Renamed to PayForge
+
+- **Changed:** Training app renamed from "Viceral Academy" to **PayForge**
+- **Changed:** All certificates updated (VCPF/VCPE/VCPSA/VCPA now PayForge Certified)
+- **Changed:** UI wireframes updated with PayForge branding
+
+### 2026-02-08 — Training Program Plan (PayForge)
 
 - **Added:** Comprehensive training program plan (`docs/Design/TRAINING-PROGRAM-PLAN.md`)
 - **Added:** 4-level certification track: VCPF → VCPE → VCPSA → VCPA (44 modules, 32 weeks)
