@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayoneX — Brand Variants</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#08090d;--bg2:#0f1118;--bg3:#151822;--bg4:#1a1e2e;--bdr:#1f2438;--bdr2:#2a3050;--t1:#e8eaf0;--t2:#8b90a0;--t3:#555a6e;--blue:#3b82f6;--cyan:#06b6d4;--green:#10b981;--amber:#f59e0b;--r:10px;--fd:'Outfit',sans-serif;--fm:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--fd);background:var(--bg);color:var(--t1);min-height:100vh;padding:40px 24px}
+
+.grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(500px,1fr));gap:24px}
+.variant{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:48px 40px 40px;position:relative;transition:.3s}
+.variant:hover{border-color:var(--bdr2);box-shadow:0 8px 40px rgba(0,0,0,.4)}
+.variant-label{position:absolute;top:12px;right:16px;font-size:10px;font-family:var(--fm);color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:4px;background:var(--bg3);border:1px solid var(--bdr)}
+.subtitle{font-size:12px;color:var(--t3);letter-spacing:4px;text-transform:uppercase;font-weight:500;margin-top:16px;font-family:var(--fm)}
+.desc{font-size:13px;color:var(--t2);margin-top:12px;max-width:500px;line-height:1.6}
+
+/* Page header */
+.page-hdr{text-align:center;margin-bottom:48px}
+.page-hdr h1{font-size:24px;font-weight:700;color:var(--t2);letter-spacing:-.5px}
+.page-hdr p{font-size:13px;color:var(--t3);margin-top:8px;font-family:var(--fm)}
+
+/* ═══════════════════════════════════════════ */
+/* VARIANT A — Full underline + dot at X      */
+/* ═══════════════════════════════════════════ */
+.va h1{font-size:56px;font-weight:900;letter-spacing:-2px;line-height:1.1;background:linear-gradient(135deg,#fff 0%,var(--blue) 50%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;position:relative;display:inline-block;filter:drop-shadow(0 0 30px rgba(59,130,246,.3))}
+.va h1::before{content:'';position:absolute;bottom:-6px;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--blue),var(--cyan) 85%,transparent);border-radius:2px;box-shadow:0 0 12px rgba(59,130,246,.4)}
+.va h1::after{content:'';position:absolute;bottom:-10px;right:-2px;width:10px;height:10px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan),0 0 20px rgba(6,182,212,.4)}
+
+/* ═══════════════════════════════════════════ */
+/* VARIANT B — Underline only under X         */
+/* ═══════════════════════════════════════════ */
+.vb h1{font-size:56px;font-weight:900;letter-spacing:-2px;line-height:1.1;color:var(--t1);display:inline-block;position:relative}
+.vb h1 span{background:linear-gradient(135deg,var(--blue),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;position:relative}
+.vb h1 span::after{content:'';position:absolute;bottom:-4px;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:2px;box-shadow:0 0 10px rgba(59,130,246,.5)}
+
+/* ═══════════════════════════════════════════ */
+/* VARIANT C — Glowing X, line from left to X */
+/* ═══════════════════════════════════════════ */
+.vc h1{font-size:56px;font-weight:900;letter-spacing:-2px;line-height:1.1;color:var(--t1);display:inline-block;position:relative}
+.vc h1 span{color:var(--cyan);-webkit-text-fill-color:var(--cyan);text-shadow:0 0 20px rgba(6,182,212,.6),0 0 40px rgba(6,182,212,.2)}
+.vc h1::before{content:'';position:absolute;bottom:-6px;left:0;right:30px;height:2px;background:linear-gradient(90deg,transparent,var(--bdr2) 10%,var(--cyan));border-radius:2px}
+.vc h1::after{content:'';position:absolute;bottom:-10px;right:12px;width:10px;height:10px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan),0 0 20px rgba(6,182,212,.5);animation:vc-pulse 2s ease-in-out infinite alternate}
+@keyframes vc-pulse{0%{box-shadow:0 0 10px var(--cyan),0 0 20px rgba(6,182,212,.5)}100%{box-shadow:0 0 14px var(--cyan),0 0 30px rgba(6,182,212,.6)}}
+
+/* ═══════════════════════════════════════════ */
+/* VARIANT D — Circuit line: dot─line─PayoneX */
+/* ═══════════════════════════════════════════ */
+.vd{padding-left:60px}
+.vd h1{font-size:56px;font-weight:900;letter-spacing:-2px;line-height:1.1;background:linear-gradient(135deg,#fff 0%,var(--blue) 60%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;position:relative;display:inline-block}
+.vd h1::before{content:'';position:absolute;top:50%;left:-52px;width:44px;height:2px;background:linear-gradient(90deg,var(--cyan),var(--blue));border-radius:2px;box-shadow:0 0 8px rgba(59,130,246,.3)}
+.vd h1::after{content:'';position:absolute;top:50%;left:-62px;transform:translateY(-50%);width:12px;height:12px;border-radius:50%;border:2px solid var(--cyan);background:var(--bg2);box-shadow:0 0 10px rgba(6,182,212,.5)}
+
+/* ═══════════════════════════════════════════ */
+/* VARIANT E — X only colored, no underline   */
+/* ═══════════════════════════════════════════ */
+.ve h1{font-size:56px;font-weight:900;letter-spacing:-2px;line-height:1.1;color:#fff;display:inline-block}
+.ve h1 span{background:linear-gradient(180deg,var(--blue),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 16px rgba(59,130,246,.5))}
+
+/* ═══════════════════════════════════════════ */
+/* VARIANT F — Dot·Line under "oneX"          */
+/* ═══════════════════════════════════════════ */
+.vf h1{font-size:56px;font-weight:900;letter-spacing:-2px;line-height:1.1;background:linear-gradient(135deg,#fff 0%,var(--t2) 40%,var(--blue) 70%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;position:relative;display:inline-block}
+.vf h1::before{content:'';position:absolute;bottom:-6px;left:38%;width:62%;height:2px;background:linear-gradient(90deg,var(--blue),var(--cyan),transparent);border-radius:2px}
+.vf h1::after{content:'';position:absolute;bottom:-9px;right:-2px;width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan),0 0 16px rgba(6,182,212,.4)}
+
+/* ═══════════════════════════════════════════ */
+/* VARIANT G — Animated scan line             */
+/* ═══════════════════════════════════════════ */
+.vg h1{font-size:56px;font-weight:900;letter-spacing:-2px;line-height:1.1;background:linear-gradient(135deg,#fff 0%,var(--blue) 50%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;position:relative;display:inline-block;filter:drop-shadow(0 0 25px rgba(59,130,246,.25))}
+.vg h1::before{content:'';position:absolute;bottom:-6px;left:0;width:100%;height:2px;background:var(--bdr);border-radius:2px}
+.vg h1::after{content:'';position:absolute;bottom:-10px;right:-2px;width:10px;height:10px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan),0 0 20px rgba(6,182,212,.4);animation:vg-glow 2s ease-in-out infinite alternate}
+@keyframes vg-glow{0%{box-shadow:0 0 8px var(--cyan),0 0 16px rgba(6,182,212,.3)}100%{box-shadow:0 0 14px var(--cyan),0 0 28px rgba(6,182,212,.5)}}
+
+/* ═══════════════════════════════════════════ */
+/* VARIANT H — Bracket style [ PayoneX ]      */
+/* ═══════════════════════════════════════════ */
+.vh h1{font-size:56px;font-weight:900;letter-spacing:-2px;line-height:1.1;color:#fff;display:inline-flex;align-items:center;gap:12px}
+.vh h1 .br{font-weight:200;font-size:72px;color:var(--blue);opacity:.4;line-height:0}
+.vh h1 .br-r{color:var(--cyan)}
+.vh h1 .name{background:linear-gradient(135deg,#fff 20%,var(--blue) 60%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+</style>
+</head>
+<body>
+
+<div class="page-hdr">
+<h1>PayoneX — Brand Variants</h1>
+<p>Pick a style for the architecture &amp; metro map headers</p>
+</div>
+
+<div class="grid">
+
+<!-- A: Current — full underline + dot -->
+<div class="variant va">
+<div class="variant-label">A · Current</div>
+<h1>PayoneX</h1>
+<p class="subtitle">Enterprise Payment Processing Platform</p>
+<p class="desc">Full gradient title, underline spans entire word, glowing cyan dot terminates at X.</p>
+</div>
+
+<!-- B: Underline only X -->
+<div class="variant vb">
+<div class="variant-label">B · Underline X</div>
+<h1>Payone<span>X</span></h1>
+<p class="subtitle">Enterprise Payment Processing Platform</p>
+<p class="desc">White title, the X gets a blue→cyan gradient with a short underline accent beneath it only.</p>
+</div>
+
+<!-- C: Glowing X + line from left -->
+<div class="variant vc">
+<div class="variant-label">C · Glow X + Line</div>
+<h1>Payone<span>X</span></h1>
+<p class="subtitle">Enterprise Payment Processing Platform</p>
+<p class="desc">White title, X glows cyan. Subtle line traces from left edge to a pulsing dot at the X.</p>
+</div>
+
+<!-- D: Circuit — dot─line─PayoneX -->
+<div class="variant vd">
+<div class="variant-label">D · Circuit</div>
+<h1>PayoneX</h1>
+<p class="subtitle">Enterprise Payment Processing Platform</p>
+<p class="desc">Circuit-board style — hollow dot connector on the left with a line leading into the title. Matches the metro/transit theme.</p>
+</div>
+
+<!-- E: X only colored, clean -->
+<div class="variant ve">
+<div class="variant-label">E · Clean X</div>
+<h1>Payone<span>X</span></h1>
+<p class="subtitle">Enterprise Payment Processing Platform</p>
+<p class="desc">Cleanest variant. Pure white title, the X alone gets a blue→cyan gradient with glow. No underline, no dot.</p>
+</div>
+
+<!-- F: Dot·Line under oneX -->
+<div class="variant vf">
+<div class="variant-label">F · Accent oneX</div>
+<h1>PayoneX</h1>
+<p class="subtitle">Enterprise Payment Processing Platform</p>
+<p class="desc">Full gradient title. Underline only under "oneX" portion with a dot connector at the start — emphasizes the core branding.</p>
+</div>
+
+<!-- G: Animated scan line -->
+<div class="variant vg">
+<div class="variant-label">G · Scan Line</div>
+<h1>PayoneX</h1>
+<p class="subtitle">Enterprise Payment Processing Platform</p>
+<p class="desc">Full gradient title with a dim track line underneath. A glowing cyan pill scans back and forth — subtle life/activity indicator.</p>
+</div>
+
+<!-- H: Bracket style -->
+<div class="variant vh">
+<div class="variant-label">H · Brackets</div>
+<h1><span class="br">[</span><span class="name">PayoneX</span><span class="br br-r">]</span></h1>
+<p class="subtitle">Enterprise Payment Processing Platform</p>
+<p class="desc">Engineering/code aesthetic — title framed in translucent brackets. Blue left, cyan right. Clean, technical feel.</p>
+</div>
+
+</div>
+
+</body>
+</html>

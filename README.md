@@ -1,4 +1,4 @@
-<h1 align="center">Payment House</h1>
+<h1 align="center">Payonex</h1>
 
 <h3 align="center">
   Enterprise Payment Processing Platform

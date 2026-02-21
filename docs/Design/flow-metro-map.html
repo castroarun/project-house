@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayoneX — Payment Flow Metro Map</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08090d;--bg2:#0f1118;--bg3:#151822;--bg4:#1a1e2e;
+  --bdr:#1f2438;--bdr2:#2a3050;
+  --t1:#e8eaf0;--t2:#8b90a0;--t3:#555a6e;
+  --blue:#3b82f6;--cyan:#06b6d4;--green:#10b981;--amber:#f59e0b;
+  --rose:#f43f5e;--violet:#8b5cf6;--orange:#f97316;--kafka:#e8523f;
+  --r:10px;--fd:'Outfit',sans-serif;--fm:'JetBrains Mono',monospace
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--fd);background:var(--bg);color:var(--t1);
+  min-height:100vh;overflow-x:hidden;
+  background-image:
+    radial-gradient(ellipse 50% 30% at 50% 0%,rgba(59,130,246,.04),transparent),
+    radial-gradient(circle at 80% 60%,rgba(139,92,246,.025),transparent);
+}
+
+/* ── Header ── */
+.header{
+  text-align:center;padding:56px 24px 40px;position:relative;
+}
+.header::after{
+  content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:200px;height:1px;background:linear-gradient(90deg,transparent,var(--bdr2),transparent);
+}
+.header h1{
+  font-size:42px;font-weight:900;letter-spacing:-1.5px;
+  background:linear-gradient(135deg,#fff 0%,var(--blue) 50%,var(--cyan) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  filter:drop-shadow(0 0 25px rgba(59,130,246,.25));
+  position:relative;display:inline-block;
+}
+.header h1::before{
+  content:'';position:absolute;bottom:-6px;left:0;width:100%;height:2px;
+  background:var(--bdr);border-radius:2px;
+}
+.header h1::after{
+  content:'';position:absolute;bottom:-10px;right:-2px;width:10px;height:10px;
+  border-radius:50%;background:var(--cyan);
+  box-shadow:0 0 10px var(--cyan),0 0 20px rgba(6,182,212,.4);
+  animation:hdr-glow 2s ease-in-out infinite alternate;
+}
+@keyframes hdr-glow{
+  0%{box-shadow:0 0 8px var(--cyan),0 0 16px rgba(6,182,212,.3)}
+  100%{box-shadow:0 0 14px var(--cyan),0 0 28px rgba(6,182,212,.5)}
+}
+.header .subtitle-brand{
+  font-size:12px;color:var(--t3);margin-top:12px;font-weight:500;
+  font-family:var(--fm);letter-spacing:4px;text-transform:uppercase;
+}
+.header .subtitle{
+  font-size:14px;color:var(--t2);margin-top:6px;font-weight:400;
+  font-family:var(--fm);letter-spacing:.5px;
+}
+.header .route-badge{
+  display:inline-block;margin-top:14px;
+  padding:5px 16px;border-radius:20px;font-size:11px;font-weight:600;
+  background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);
+  color:var(--blue);font-family:var(--fm);letter-spacing:1px;
+}
+
+/* ── Metro Container ── */
+.metro{
+  position:relative;padding:0 0 20px;
+  max-width:900px;margin:0 auto;
+}
+
+/* ── Trunk Line ── */
+.trunk{
+  position:absolute;left:120px;top:12px;bottom:140px;width:5px;
+  background:linear-gradient(180deg,transparent 0%,var(--blue) 2%,var(--blue) 98%,transparent 100%);
+  border-radius:3px;z-index:1;overflow:hidden;
+}
+
+/* ── Pulse animation on trunk ── */
+.trunk::before{
+  content:'';position:absolute;left:0;top:0;width:100%;height:80px;
+  background:linear-gradient(180deg,transparent,rgba(59,130,246,.6),transparent);
+  border-radius:3px;
+  animation:pulse-down 4s ease-in-out infinite;
+}
+@keyframes pulse-down{
+  0%{top:-80px;opacity:0}
+  10%{opacity:1}
+  90%{opacity:1}
+  100%{top:calc(100% - 80px);opacity:0}
+}
+
+/* ── Station ── */
+.station{
+  position:relative;padding-left:170px;padding-right:24px;margin-bottom:0;
+  min-height:80px;display:flex;align-items:flex-start;z-index:2;
+}
+.station .dot{
+  position:absolute;left:110px;top:12px;
+  width:22px;height:22px;border-radius:50%;
+  border:3px solid var(--blue);background:var(--bg);
+  z-index:3;transition:all .3s;
+}
+.station:hover .dot{
+  transform:scale(1.15);
+  box-shadow:0 0 12px rgba(59,130,246,.3);
+}
+
+/* ── Station Card ── */
+.card{
+  background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);
+  padding:16px 20px;width:100%;position:relative;
+  transition:border-color .3s,box-shadow .3s;
+}
+.card:hover{
+  border-color:var(--bdr2);
+  box-shadow:0 4px 24px rgba(0,0,0,.3);
+}
+.card .tier-label{
+  font-size:10px;font-family:var(--fm);font-weight:600;
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;
+}
+.card h3{
+  font-size:16px;font-weight:700;letter-spacing:-.3px;margin-bottom:8px;
+}
+.card .desc{
+  font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:6px;
+}
+.card .tech{
+  font-size:11px;font-family:var(--fm);color:var(--t3);line-height:1.6;
+}
+
+/* ── Connector line from dot to card ── */
+.station::before{
+  content:'';position:absolute;left:132px;top:22px;
+  width:38px;height:2px;z-index:2;
+}
+
+/* ── Color variants ── */
+.station.external .dot{border-color:var(--t3);border-style:dashed}
+.station.external::before{background:var(--t3)}
+.station.external .tier-label{color:var(--t3)}
+
+.station.blue .dot{border-color:var(--blue)}
+.station.blue::before{background:var(--blue)}
+.station.blue .tier-label{color:var(--blue)}
+
+.station.cyan .dot{border-color:var(--cyan)}
+.station.cyan::before{background:var(--cyan)}
+.station.cyan .tier-label{color:var(--cyan)}
+
+.station.amber .dot{border-color:var(--amber)}
+.station.amber::before{background:var(--amber)}
+.station.amber .tier-label{color:var(--amber)}
+
+.station.green .dot{border-color:var(--green)}
+.station.green::before{background:var(--green)}
+.station.green .tier-label{color:var(--green)}
+
+.station.violet .dot{border-color:var(--violet)}
+.station.violet::before{background:var(--violet)}
+.station.violet .tier-label{color:var(--violet)}
+
+.station.rose .dot{border-color:var(--rose)}
+.station.rose::before{background:var(--rose)}
+.station.rose .tier-label{color:var(--rose)}
+
+/* ── Special glowing stations (ACTC / ACSC) ── */
+.station.special-green .dot{
+  border-color:var(--green);
+  box-shadow:0 0 16px rgba(16,185,129,.5),0 0 32px rgba(16,185,129,.2);
+  animation:glow-green 2s ease-in-out infinite alternate;
+  display:flex;align-items:center;justify-content:center;
+}
+.station.special-green .dot .dot-icon{
+  font-size:12px;line-height:1;filter:drop-shadow(0 0 4px rgba(16,185,129,.8));
+}
+.station.special-green::before{background:var(--green)}
+.station.special-green .tier-label{color:var(--green)}
+.station.special-green .card{
+  border-color:rgba(16,185,129,.3);
+  background:linear-gradient(135deg,var(--bg2),rgba(16,185,129,.05));
+}
+@keyframes glow-green{
+  0%{box-shadow:0 0 12px rgba(16,185,129,.4),0 0 24px rgba(16,185,129,.15)}
+  100%{box-shadow:0 0 20px rgba(16,185,129,.6),0 0 40px rgba(16,185,129,.25)}
+}
+
+.station.special-cyan .dot{
+  border-color:var(--cyan);
+  box-shadow:0 0 16px rgba(6,182,212,.5),0 0 32px rgba(6,182,212,.2);
+  animation:glow-cyan 2s ease-in-out infinite alternate;
+  display:flex;align-items:center;justify-content:center;
+}
+.station.special-cyan .dot .dot-icon{
+  font-size:12px;line-height:1;filter:drop-shadow(0 0 4px rgba(6,182,212,.8));
+}
+.station.special-cyan::before{background:var(--cyan)}
+.station.special-cyan .tier-label{color:var(--cyan)}
+.station.special-cyan .card{
+  border-color:rgba(6,182,212,.3);
+  background:linear-gradient(135deg,var(--bg2),rgba(6,182,212,.05));
+}
+@keyframes glow-cyan{
+  0%{box-shadow:0 0 12px rgba(6,182,212,.4),0 0 24px rgba(6,182,212,.15)}
+  100%{box-shadow:0 0 20px rgba(6,182,212,.6),0 0 40px rgba(6,182,212,.25)}
+}
+
+/* ── Kafka Interchange ── */
+.kafka-interchange{
+  position:relative;padding-left:170px;margin:0;
+  height:56px;display:flex;align-items:center;z-index:2;
+}
+.kafka-interchange .kafka-dot{
+  position:absolute;left:114px;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;border-radius:3px;rotate:45deg;
+  background:var(--kafka);z-index:3;
+  box-shadow:0 0 8px rgba(232,82,63,.3);
+}
+.kafka-interchange .kafka-label{
+  font-size:11px;font-family:var(--fm);color:var(--kafka);
+  font-weight:600;display:flex;align-items:center;gap:8px;
+}
+.kafka-interchange .kafka-label::before{
+  content:'KAFKA';font-size:8px;font-weight:700;letter-spacing:1px;
+  padding:2px 6px;border-radius:3px;
+  background:rgba(232,82,63,.12);border:1px solid rgba(232,82,63,.2);
+}
+.kafka-interchange .kafka-connector{
+  position:absolute;left:132px;top:50%;width:38px;height:2px;
+  background:var(--kafka);z-index:2;
+}
+
+/* ── Compliance Fan-out Section ── */
+.compliance-branches{
+  padding-left:170px;padding-right:24px;margin-top:8px;margin-bottom:8px;
+  position:relative;z-index:2;
+}
+.compliance-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  padding:12px;background:rgba(245,158,11,.03);
+  border:1px solid rgba(245,158,11,.12);border-radius:var(--r);
+}
+.compliance-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 12px;background:var(--bg3);border-radius:6px;
+  border:1px solid var(--bdr);font-size:12px;
+}
+.compliance-item .ci-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+}
+.compliance-item .ci-name{font-weight:600;color:var(--t1)}
+.compliance-item .ci-sla{font-family:var(--fm);color:var(--t3);font-size:10px;margin-left:auto}
+.compliance-fanout-label{
+  font-size:10px;font-family:var(--fm);color:var(--amber);
+  letter-spacing:1px;text-transform:uppercase;font-weight:600;
+  margin-bottom:8px;
+}
+
+/* ── Clearing Branch Section ── */
+.clearing-section{
+  position:relative;z-index:2;
+  padding-left:20px;padding-right:24px;
+  margin-top:0;margin-bottom:0;
+}
+.clearing-visual{
+  position:relative;margin-left:100px;
+  padding:20px 0;
+}
+
+/* SVG branch diagram */
+.branch-svg{
+  display:block;width:100%;height:auto;
+  overflow:visible;
+}
+
+/* Clearing house cards */
+.clearing-routes{
+  display:flex;flex-direction:column;gap:10px;
+  padding-left:50px;margin-top:8px;
+}
+.clearing-route{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 16px;background:var(--bg2);
+  border:1px solid var(--bdr);border-radius:8px;
+  transition:border-color .3s,transform .2s;
+}
+.clearing-route:hover{
+  border-color:var(--bdr2);transform:translateX(4px);
+}
+.clearing-route .route-line{
+  width:24px;height:4px;border-radius:2px;flex-shrink:0;
+}
+.clearing-route .route-name{
+  font-size:13px;font-weight:700;min-width:70px;
+}
+.clearing-route .route-detail{
+  font-size:11px;color:var(--t2);flex:1;
+}
+.clearing-route .route-sla{
+  font-size:10px;font-family:var(--fm);font-weight:600;
+  padding:3px 8px;border-radius:4px;background:var(--bg3);
+  white-space:nowrap;
+}
+
+/* ── Branch Lines (CSS-drawn) ── */
+.branch-container{
+  position:relative;margin-left:100px;
+  padding:16px 0 16px 22px;
+}
+
+/* Diverge lines */
+.diverge-area{
+  position:relative;height:120px;margin-left:0;
+}
+.converge-area{
+  position:relative;height:120px;margin-left:0;
+}
+
+/* Individual branch route rows */
+.branch-routes{
+  display:flex;flex-direction:column;gap:6px;
+  margin-left:40px;
+}
+.branch-route{
+  display:flex;align-items:center;gap:12px;
+  padding:8px 16px;background:var(--bg2);
+  border:1px solid var(--bdr);border-radius:8px;
+  position:relative;transition:all .3s;
+}
+.branch-route:hover{
+  border-color:var(--bdr2);transform:translateX(4px);
+  box-shadow:0 2px 12px rgba(0,0,0,.2);
+}
+.branch-route .br-line{
+  width:28px;height:4px;border-radius:2px;flex-shrink:0;
+}
+.branch-route .br-name{
+  font-size:14px;font-weight:700;min-width:80px;
+}
+.branch-route .br-org{
+  font-size:11px;color:var(--t2);min-width:90px;
+}
+.branch-route .br-type{
+  font-size:10px;font-family:var(--fm);color:var(--t3);
+}
+.branch-route .br-sla{
+  font-size:11px;font-family:var(--fm);font-weight:600;
+  margin-left:auto;padding:3px 10px;border-radius:4px;
+  white-space:nowrap;
+}
+
+/* Branch SVG container */
+.branch-diagram{
+  position:relative;
+  margin-left:100px;
+  padding:8px 0;
+}
+.branch-diagram svg{
+  position:absolute;left:0;top:0;
+  width:100%;height:100%;
+  pointer-events:none;z-index:1;
+}
+.branch-list{
+  position:relative;z-index:2;
+  display:flex;flex-direction:column;gap:8px;
+  padding:12px 0 12px 60px;
+}
+.branch-item{
+  display:flex;align-items:center;gap:14px;
+  padding:10px 18px;background:var(--bg2);
+  border:1px solid var(--bdr);border-radius:8px;
+  transition:all .3s;
+}
+.branch-item:hover{
+  transform:translateX(6px);
+  box-shadow:0 2px 16px rgba(0,0,0,.3);
+}
+.branch-item .bi-color{
+  width:32px;height:5px;border-radius:3px;flex-shrink:0;
+}
+.branch-item .bi-name{
+  font-size:14px;font-weight:700;min-width:80px;
+}
+.branch-item .bi-org{
+  font-size:11px;color:var(--t2);min-width:100px;
+}
+.branch-item .bi-type{
+  font-size:10px;font-family:var(--fm);color:var(--t3);
+  flex:1;
+}
+.branch-item .bi-sla{
+  font-size:11px;font-family:var(--fm);font-weight:600;
+  padding:3px 10px;border-radius:5px;white-space:nowrap;
+}
+
+/* Color-coded SLA badges */
+.sla-cyan{background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.2)}
+.sla-green{background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.sla-amber{background:rgba(245,158,11,.1);color:var(--amber);border:1px solid rgba(245,158,11,.2)}
+.sla-violet{background:rgba(139,92,246,.1);color:var(--violet);border:1px solid rgba(139,92,246,.2)}
+.sla-rose{background:rgba(244,63,94,.1);color:var(--rose);border:1px solid rgba(244,63,94,.2)}
+
+/* ── Clearing SVG Diagram ── */
+.clearing-diagram-wrap{
+  position:relative;margin-left:0;
+  padding:0 24px 0 0;z-index:2;
+}
+.clearing-svg-area{
+  position:relative;
+  margin-left:95px;
+}
+
+/* ── Legend ── */
+.legend{
+  max-width:900px;margin:40px auto 60px;
+  padding:0 24px;
+}
+.legend-inner{
+  background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);
+  padding:20px 24px;
+}
+.legend h4{
+  font-size:12px;font-family:var(--fm);font-weight:600;
+  letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);
+  margin-bottom:14px;
+}
+.legend-grid{
+  display:flex;flex-wrap:wrap;gap:16px 28px;
+}
+.legend-item{
+  display:flex;align-items:center;gap:8px;font-size:12px;
+}
+.legend-item .li-line{
+  width:24px;height:4px;border-radius:2px;
+}
+.legend-item .li-dot{
+  width:12px;height:12px;border-radius:50%;border:2px solid;
+  background:var(--bg);
+}
+.legend-item .li-kafka{
+  width:10px;height:10px;border-radius:2px;rotate:45deg;
+  background:var(--kafka);
+}
+.legend-item .li-glow{
+  width:12px;height:12px;border-radius:50%;
+  border:2px solid var(--green);
+  box-shadow:0 0 8px rgba(16,185,129,.5);
+}
+.legend-item span{color:var(--t2)}
+
+/* ── ACTC Return Callout (left side of trunk) ── */
+.mq-return{
+  position:absolute;left:-164px;top:8px;width:150px;z-index:4;
+  padding:10px 12px;border-radius:8px;
+  background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.2);
+  text-align:right;
+}
+.mq-return::after{
+  content:'';position:absolute;right:-14px;top:18px;
+  width:14px;height:2px;background:rgba(59,130,246,.35);
+}
+.mq-return .mr-arrow{
+  font-size:16px;color:var(--blue);line-height:1;margin-bottom:4px;
+}
+.mq-return .mr-badge{
+  display:inline-block;font-size:8px;font-family:var(--fm);font-weight:700;
+  letter-spacing:1px;padding:2px 6px;border-radius:3px;margin-bottom:6px;
+  background:rgba(59,130,246,.12);color:var(--blue);
+  border:1px solid rgba(59,130,246,.2);
+}
+.mq-return .mr-queue{
+  font-size:10px;font-family:var(--fm);font-weight:600;
+  color:var(--blue);margin-bottom:3px;
+}
+.mq-return .mr-desc{
+  font-size:10px;color:var(--t3);line-height:1.4;
+}
+
+/* ── MQ Interchange ── */
+.mq-interchange{
+  position:relative;padding-left:170px;margin:0;
+  height:56px;display:flex;align-items:center;z-index:2;
+}
+.mq-interchange .mq-dot{
+  position:absolute;left:114px;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;border-radius:2px;
+  background:var(--blue);z-index:3;
+  box-shadow:0 0 8px rgba(59,130,246,.3);
+}
+.mq-interchange .mq-label{
+  font-size:11px;font-family:var(--fm);color:var(--blue);
+  font-weight:600;display:flex;align-items:center;gap:8px;
+}
+.mq-interchange .mq-label::before{
+  content:'IBM MQ';font-size:8px;font-weight:700;letter-spacing:1px;
+  padding:2px 6px;border-radius:3px;
+  background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.2);
+}
+.mq-interchange .mq-connector{
+  position:absolute;left:132px;top:50%;width:38px;height:2px;
+  background:var(--blue);z-index:2;
+}
+
+/* ── Dev Simulation Callout ── */
+.dev-callout{
+  position:absolute;right:-260px;top:4px;width:230px;z-index:4;
+  padding:12px 14px;border-radius:8px;
+  background:rgba(249,115,22,.06);border:1px dashed rgba(249,115,22,.3);
+  transition:all .3s;
+}
+.dev-callout:hover{
+  border-color:rgba(249,115,22,.5);
+  box-shadow:0 0 20px rgba(249,115,22,.08);
+}
+.dev-callout .dc-badge{
+  display:inline-block;font-size:8px;font-family:var(--fm);font-weight:700;
+  letter-spacing:1.5px;text-transform:uppercase;
+  padding:2px 8px;border-radius:3px;margin-bottom:8px;
+  background:rgba(249,115,22,.12);color:var(--orange);
+  border:1px solid rgba(249,115,22,.2);
+}
+.dev-callout .dc-title{
+  font-size:12px;font-weight:700;color:var(--orange);margin-bottom:4px;
+}
+.dev-callout .dc-desc{
+  font-size:11px;color:var(--t2);line-height:1.5;
+}
+.dev-callout .dc-desc strong{color:var(--orange)}
+.dev-callout::before{
+  content:'';position:absolute;left:-16px;top:16px;
+  width:16px;height:1px;background:rgba(249,115,22,.3);
+}
+
+/* ── Spacers ── */
+.spacer-sm{height:8px}
+.spacer-md{height:20px}
+.spacer-lg{height:32px}
+
+/* ── Responsive ── */
+@media(max-width:700px){
+  .metro{padding-left:0}
+  .trunk{left:40px}
+  .station{padding-left:90px}
+  .station .dot{left:30px}
+  .station::before{left:52px;width:38px}
+  .kafka-interchange{padding-left:90px}
+  .kafka-interchange .kafka-dot{left:34px}
+  .kafka-interchange .kafka-connector{left:52px;width:38px}
+  .compliance-branches{padding-left:90px}
+  .branch-diagram,.clearing-svg-area{margin-left:15px}
+  .branch-list{padding-left:30px}
+  .header h1{font-size:24px}
+  .branch-item .bi-org,.branch-item .bi-type{display:none}
+  .mq-return,.dev-callout{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════ HEADER ════════════════ -->
+<div class="header">
+  <h1>PayoneX</h1>
+  <div class="subtitle-brand">Enterprise Payment Processing Platform</div>
+  <div class="subtitle">Inbound FAST Payment (DBS &rarr; PayoneX) &mdash; Metro Map</div>
+  <div class="route-badge">ROUTE: FAST-INBOUND-SGD</div>
+</div>
+
+<!-- ════════════════ METRO MAP ════════════════ -->
+<div class="metro">
+  <!-- Trunk Line -->
+  <div class="trunk"></div>
+
+  <!-- ──────── Station 0: ORIGINATING BANK ──────── -->
+  <div class="station external" style="position:relative">
+    <div class="dot"></div>
+    <div class="card">
+      <div class="tier-label">Originating Bank</div>
+      <h3>DBS initiates Credit Transfer</h3>
+      <div class="desc">Alice sends SGD 500 to Bob &middot; DBS constructs pacs.008</div>
+      <div class="tech">ISO 20022 &middot; pacs.008.001.08</div>
+    </div>
+    <div class="dev-callout">
+      <div class="dc-badge">DEV Simulation</div>
+      <div class="dc-title">Phantom CLI / Test Harness</div>
+      <div class="dc-desc">Generates sample <strong>pacs.008</strong> messages with configurable scenarios (amount, currency, sender BIC)</div>
+    </div>
+  </div>
+
+  <div class="spacer-sm"></div>
+
+  <!-- ──────── Station 1: CLEARING HOUSE (FAST) ──────── -->
+  <div class="station green" style="position:relative">
+    <div class="dot" style="width:28px;height:28px;left:107px;top:10px;box-shadow:0 0 16px rgba(16,185,129,.35);border-width:4px"></div>
+    <div class="card" style="border-color:rgba(16,185,129,.3);background:linear-gradient(135deg,var(--bg2),rgba(16,185,129,.05))">
+      <div class="tier-label">Clearing House &mdash; FAST Network</div>
+      <h3>FAST delivers pacs.008 to PayoneX</h3>
+      <div class="desc">ABS / NETS real-time clearing &middot; Routed to PayoneX MQ Inbound Queue</div>
+      <div class="tech">IBM MQ &middot; Real-time settlement &middot; This is where the payment enters our system</div>
+    </div>
+    <div class="dev-callout">
+      <div class="dc-badge">DEV Simulation</div>
+      <div class="dc-title">Phantom Simulator</div>
+      <div class="dc-desc">Docker container mimics <strong>FAST clearing</strong> &mdash; injects pacs.008 onto <strong>MQ Inbound</strong> queue, waits for pacs.002 response</div>
+    </div>
+  </div>
+
+  <!-- MQ: Inbound Queue -->
+  <div class="mq-interchange">
+    <div class="mq-dot"></div>
+    <div class="mq-connector"></div>
+    <div class="mq-label">MQ.INBOUND.FAST.001</div>
+  </div>
+
+  <!-- ──────── Station 2: TIER 1 INGESTION ──────── -->
+  <div class="station blue">
+    <div class="dot"></div>
+    <div class="card">
+      <div class="tier-label">Tier 1 &mdash; Ingestion Gateway</div>
+      <h3>Receive &amp; Validate</h3>
+      <div class="desc">MQ Consume &middot; Dedup (Redis) &middot; XSD Validate &middot; Envelope Wrap</div>
+      <div class="tech">Assign UUID v7 &middot; Parse pacs.008 header</div>
+    </div>
+  </div>
+
+  <div class="spacer-sm"></div>
+
+  <!-- ──────── Special: ACTC ACK ──────── -->
+  <div class="station special-green" style="position:relative">
+    <div class="dot"><span class="dot-icon">⚡</span></div>
+    <div class="card">
+      <div class="tier-label">&#9889; ACTC Acknowledgement</div>
+      <h3>Immediate pacs.002 ACTC &middot; &lt;500ms</h3>
+      <div class="desc">AcceptedTechnicalValidation &mdash; sent back to FAST via MQ Outbound</div>
+      <div class="tech">pacs.002.001.10 &middot; ACTC status code &middot; SLA &lt; 500ms</div>
+    </div>
+    <!-- MQ Outbound return — left-side callout -->
+    <div class="mq-return">
+      <div class="mr-arrow">&#8593; Back to Clearing House</div>
+      <div class="mr-badge">IBM MQ</div>
+      <div class="mr-queue">MQ.OUTBOUND.FAST.001</div>
+      <div class="mr-desc">pacs.002 ACTC response sent back to FAST</div>
+    </div>
+  </div>
+
+  <!-- Kafka: payments.inbound.raw -->
+  <div class="kafka-interchange">
+    <div class="kafka-dot"></div>
+    <div class="kafka-connector"></div>
+    <div class="kafka-label">payments.inbound.raw</div>
+  </div>
+
+  <!-- ──────── Station 3: TIER 2 MESSAGE PROCESSING ──────── -->
+  <div class="station cyan">
+    <div class="dot"></div>
+    <div class="card">
+      <div class="tier-label">Tier 2 &mdash; Message Processing</div>
+      <h3>Enrich &amp; Resolve</h3>
+      <div class="desc">Beneficiary Lookup &middot; Business Validation &middot; Enrichment</div>
+      <div class="tech">BIC/IBAN resolve &middot; FX rates &middot; Fee calc</div>
+    </div>
+  </div>
+
+  <!-- Kafka: payments.enriched -->
+  <div class="kafka-interchange">
+    <div class="kafka-dot"></div>
+    <div class="kafka-connector"></div>
+    <div class="kafka-label">payments.enriched</div>
+  </div>
+
+  <!-- ──────── Station 4: TIER 3 COMPLIANCE ──────── -->
+  <div class="station amber">
+    <div class="dot"></div>
+    <div class="card">
+      <div class="tier-label">Tier 3 &mdash; Compliance Engine</div>
+      <h3>Parallel Screening</h3>
+      <div class="desc">Parallel fan-out/fan-in &middot; ALL must PASS before clearing</div>
+      <div class="tech">Saga pattern &middot; Circuit breaker per check &middot; Timeout fallback</div>
+    </div>
+  </div>
+
+  <!-- Compliance fan-out sub-section -->
+  <div class="compliance-branches">
+    <div class="compliance-fanout-label">Parallel Fan-Out &rarr; Fan-In</div>
+    <div class="compliance-grid">
+      <div class="compliance-item">
+        <div class="ci-dot" style="background:var(--rose)"></div>
+        <span class="ci-name">Sanctions</span>
+        <span class="ci-sla">OFAC/EU/UN/MAS &lt;200ms</span>
+      </div>
+      <div class="compliance-item">
+        <div class="ci-dot" style="background:var(--amber)"></div>
+        <span class="ci-name">AML</span>
+        <span class="ci-sla">Tx Monitor &lt;2s</span>
+      </div>
+      <div class="compliance-item">
+        <div class="ci-dot" style="background:var(--violet)"></div>
+        <span class="ci-name">Fraud</span>
+        <span class="ci-sla">ML Scoring &lt;100ms</span>
+      </div>
+      <div class="compliance-item">
+        <div class="ci-dot" style="background:var(--cyan)"></div>
+        <span class="ci-name">PEP Screen</span>
+        <span class="ci-sla">&lt;500ms</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kafka: payments.compliance.passed -->
+  <div class="kafka-interchange">
+    <div class="kafka-dot"></div>
+    <div class="kafka-connector"></div>
+    <div class="kafka-label">payments.compliance.passed</div>
+  </div>
+
+  <div class="spacer-sm"></div>
+
+  <!-- ──────── NOTE: No Tier 4 Clearing for Inbound ──────── -->
+  <!-- Inbound payments arrive FROM the clearing house (FAST).
+       There is no "route to clearing" step — it goes straight to Accounting.
+       Tier 4 Clearing with branch routes only applies to OUTBOUND flows. -->
+
+
+  <!-- ──────── Station 6: TIER 5 ACCOUNTING ──────── -->
+  <div class="station violet">
+    <div class="dot"></div>
+    <div class="card">
+      <div class="tier-label">Tier 5 &mdash; Accounting &amp; Settlement</div>
+      <h3>Double-Entry Ledger</h3>
+      <div class="desc">Double-Entry Ledger &middot; Saga Orchestration &middot; GL Posting</div>
+      <div class="tech">Nostro/Vostro &middot; Compensating transactions &middot; Idempotent writes</div>
+    </div>
+  </div>
+
+  <div class="spacer-sm"></div>
+
+  <!-- ──────── Special: ACSC FINAL ──────── -->
+  <div class="station special-cyan" style="position:relative">
+    <div class="dot"><span class="dot-icon">✓</span></div>
+    <div class="card">
+      <div class="tier-label">&#10003; ACSC Final Confirmation</div>
+      <h3>Final pacs.002 ACSC &middot; &lt;5s E2E</h3>
+      <div class="desc">AcceptedSettlementCompleted &mdash; sent back to FAST via MQ Outbound</div>
+      <div class="tech">pacs.002.001.10 &middot; ACSC status code &middot; End-to-end SLA &lt; 5 seconds</div>
+    </div>
+    <!-- MQ Outbound return — left-side callout -->
+    <div class="mq-return">
+      <div class="mr-arrow">&#8593; Back to Clearing House</div>
+      <div class="mr-badge">IBM MQ</div>
+      <div class="mr-queue">MQ.OUTBOUND.FAST.001</div>
+      <div class="mr-desc">pacs.002 ACSC final &mdash; settled &amp; irrevocable</div>
+    </div>
+  </div>
+
+  <!-- Kafka: payments.status.changes -->
+  <div class="kafka-interchange">
+    <div class="kafka-dot"></div>
+    <div class="kafka-connector"></div>
+    <div class="kafka-label">payments.status.changes</div>
+  </div>
+
+  <!-- ──────── Station 7: TIER 6 REPORTING ──────── -->
+  <div class="station rose">
+    <div class="dot"></div>
+    <div class="card">
+      <div class="tier-label">Tier 6 &mdash; Reporting &amp; Analytics</div>
+      <h3>Real-Time Dashboards</h3>
+      <div class="desc">Real-Time Dashboards &middot; Regulatory Reports &middot; EOD Recon</div>
+      <div class="tech">ClickHouse analytics &middot; GraphQL API &middot; MAS/HKMA compliance</div>
+    </div>
+  </div>
+
+</div><!-- /metro -->
+
+<!-- ════════════════ LEGEND ════════════════ -->
+<div class="legend">
+  <div class="legend-inner">
+    <h4>Legend</h4>
+    <div class="legend-grid">
+      <div class="legend-item">
+        <div class="li-line" style="background:var(--blue)"></div>
+        <span>Main Trunk Line</span>
+      </div>
+      <div class="legend-item">
+        <div class="li-dot" style="border-color:var(--t3);border-style:dashed"></div>
+        <span>External Origin</span>
+      </div>
+      <div class="legend-item">
+        <div class="li-dot" style="border-color:var(--blue)"></div>
+        <span>Tier Station</span>
+      </div>
+      <div class="legend-item">
+        <div class="li-glow"></div>
+        <span>pacs.002 Milestone</span>
+      </div>
+      <div class="legend-item">
+        <div class="li-kafka"></div>
+        <span>Kafka Interchange</span>
+      </div>
+      <div class="legend-item">
+        <div style="width:10px;height:10px;border-radius:2px;background:var(--blue);box-shadow:0 0 6px rgba(59,130,246,.3)"></div>
+        <span>IBM MQ (External)</span>
+      </div>
+      <div class="legend-item">
+        <div class="li-line" style="background:var(--amber)"></div>
+        <span>Compliance Fan-Out</span>
+      </div>
+      <div class="legend-item">
+        <div style="width:18px;height:10px;border-radius:3px;border:1px dashed rgba(249,115,22,.5);background:rgba(249,115,22,.08)"></div>
+        <span style="color:var(--orange)">DEV Simulation (Phantom)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<div style="text-align:center;padding:0 24px 48px;font-size:11px;font-family:var(--fm);color:var(--t3)">
+  PayoneX &middot; Payment Flow Metro Map &middot; v1.0
+</div>
+
+</body>
+</html>

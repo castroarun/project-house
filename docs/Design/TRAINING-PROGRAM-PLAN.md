@@ -1,6 +1,6 @@
 # Payment House — Training Program Plan
 
-**App Name:** PayForge
+**App Name:** PayArk
 **Tagline:** _From Zero to Payment Architect_
 **Status:** Plan (not yet built)
 **Last Updated:** 2026-02-08
@@ -15,8 +15,10 @@ A structured, self-paced training program that takes a developer from "I don't u
 
 ### Who Is This For?
 
-- **Primary:** You (the builder) — to systematically learn every concept in the architecture before/while building it
-- **Secondary:** Any developer joining this project who needs to ramp up
+- **Primary (The Builder):** To systematically learn every concept in the architecture before/while building it
+- **Secondary (Architects):** Solution and system architects who need to understand the full platform — Levels 3-4 cover multi-region deployment, security architecture, infrastructure, and end-to-end system design
+- **Secondary (Developers):** Any developer joining this project who needs to ramp up — Levels 1-2 cover payment domain knowledge, Java 21, Spring Boot, Kafka, and core implementation patterns
+- **Secondary (Business Analysts):** BAs who need deep domain understanding — Levels 1 (M01-M04) covers payment lifecycles, ISO 20022, clearing houses, and compliance workflows without requiring code
 - **Tertiary:** Portfolio showcase — a learning platform is itself a portfolio piece
 
 ### Learning Philosophy
@@ -26,7 +28,7 @@ A structured, self-paced training program that takes a developer from "I don't u
 | **Build to learn** | Every module ends with a hands-on mini-project, not just quizzes |
 | **Layered depth** | Foundation → Intermediate → Advanced. No skipping |
 | **Domain-first** | Learn payment concepts before the tech that implements them |
-| **One concept, one module** | Each module teaches exactly one thing well |
+| **One concept, one module** | Each module teaches exactly one thing well — applying the Single Responsibility Principle (SRP) to curriculum design |
 | **Spaced repetition** | Key concepts resurface across modules in new contexts |
 
 ---
@@ -42,7 +44,7 @@ Level 3: Payment Systems Architect    (Advanced — 10 weeks)
 Level 4: Capstone — Build Payment House (Project — 8 weeks)
 ```
 
-Each level has its own certificate. Completing all 4 earns the **PayForge Certified Payment Architect (VCPA)** designation.
+Each level has its own certificate. Completing all 4 earns the **PayArk Certified Payment Architect (PAKA)** designation.
 
 ---
 
@@ -66,7 +68,7 @@ _Goal: Understand the payment domain, Java 21 fundamentals, and core design prin
 | 6 | M12 | Twelve-Factor App | Config in env, stateless processes, port binding, dev/prod parity, logs as streams | 12-factor compliance audit on a sample app |
 
 **Level 1 Exam:** 60 questions, 90 minutes. Pass: 70%.
-**Certificate:** PayForge Certified — Payment Foundations (VCPF)
+**Certificate:** PayArk Certified — Payment Foundations (PAKF)
 
 ---
 
@@ -94,7 +96,7 @@ _Goal: Master Kafka, databases, Spring Boot, and core microservices patterns._
 | 8 | M28 | Testing Strategies | Unit (AAA), integration (Testcontainers), contract, E2E, chaos, performance | Write test suites for a clearing adapter with >90% coverage |
 
 **Level 2 Exam:** 80 questions, 120 minutes. Pass: 70%.
-**Certificate:** PayForge Certified — Platform Engineer (VCPE)
+**Certificate:** PayArk Certified — Platform Engineer (PAKE)
 
 ---
 
@@ -122,7 +124,7 @@ _Goal: Master infrastructure, observability, multi-region, security, and system 
 | 10 | M44 | System Design — Payment Platform | Full system design exercise: whiteboard the complete Payment House | Design document: 6-tier architecture from scratch |
 
 **Level 3 Exam:** 60 questions + 1 system design (written). 180 minutes. Pass: 75%.
-**Certificate:** PayForge Certified — Payment Systems Architect (VCPSA)
+**Certificate:** PayArk Certified — Payment Systems Architect (PAKSA)
 
 ---
 
@@ -137,8 +139,38 @@ _Goal: Build a working subset of Payment House end-to-end._
 | 5-6 | Sprint 3 | Compliance screening (mock) + Clearing adapter (1 country) + Circuit breaker |
 | 7-8 | Sprint 4 | Accounting saga + Reporting dashboard + E2E test + Observability |
 
-**Capstone Evaluation:** Working demo + architecture walkthrough + code review.
-**Certificate:** PayForge Certified Payment Architect (VCPA)
+**Capstone Evaluation:** 3-layer assessment (see below).
+**Certificate:** PayArk Certified Payment Architect (PAKA)
+
+#### Capstone Assessment — Who Evaluates?
+
+Since this is a self-paced platform with no external instructor, the Capstone uses a **3-layer assessment model**:
+
+| Layer | Assessor | What It Checks | Pass Criteria |
+|-------|----------|---------------|---------------|
+| **1. Automated gates** | CI pipeline + test runner | Tests pass, coverage > 80%, build succeeds, no critical lint errors | All gates green |
+| **2. AI code review** | Claude Code | Code reviewed against a rubric — SOLID compliance, hexagonal architecture, pattern usage, error handling, test quality | Score >= 75% on rubric |
+| **3. Architecture document** | Claude Code | Written design document evaluated against Payment House architecture — bounded contexts, data flow, resilience patterns, trade-off analysis | Score >= 75% on rubric |
+
+#### How It Works
+
+```
+1. Builder completes all 4 Capstone sprints → working Payment House subset
+2. Builder runs the automated gate checks (tests, coverage, lint) → must all pass
+3. Builder submits codebase to Claude Code for AI review against the Capstone rubric
+4. Builder writes an architecture walkthrough document (not a live presentation)
+   → Covers: system design decisions, trade-offs, what they'd change, scaling plan
+5. Claude Code evaluates the document against the architecture rubric
+6. Both rubric scores >= 75% + all automated gates green → PAKA certified
+```
+
+#### Why This Works
+
+- **Automated gates** are objective — no bias, no subjectivity
+- **AI review** provides structured, repeatable feedback against a defined rubric (not just "looks good")
+- **Written architecture document** is assessable by AI and doubles as a portfolio artifact
+- No live presentation needed — the document speaks for itself
+- Builder can iterate: fix issues flagged by AI review and resubmit
 
 ---
 
@@ -195,13 +227,85 @@ For each module:
    (domain walkthroughs, architecture decisions, clearing house specifics)
 ```
 
+### Content Integration Strategy
+
+Each video source integrates differently into the app based on embedding constraints:
+
+#### Embeddable (In-App Player)
+
+| Source | Integration | Tracking |
+|--------|------------|----------|
+| **YouTube** | YouTube IFrame Player API — full embed with custom controls | Automatic — player API fires progress events (watched %, timestamps, pause/resume) |
+| **AI-generated** | Host on Bunny.net or YouTube unlisted, embed via HTML5 player | Automatic — custom video events (progress, pause/resume) |
+| **Self-recorded (Level 4 only)** | Same as AI-generated — host on Bunny.net or YouTube unlisted | Automatic — only created during Capstone when builder has expertise |
+
+#### External (Link-Out)
+
+| Source | Integration | Tracking |
+|--------|------------|----------|
+| **Udemy** | Link opens in new tab (DRM-protected, login required) | Manual — "Mark as Complete" button in app |
+| **Confluent Developer** | Link opens in new tab (login required for progress) | Manual |
+| **Spring Academy** | Link opens in new tab (login wall) | Manual |
+| **Redis University** | Link opens in new tab (login wall) | Manual |
+| **SWIFT Learning** | Link opens in new tab (login wall) | Manual |
+| **HashiCorp Learn** | Mixed — some free pages linkable, most need login | Manual |
+| **Baeldung** | Link to article (written content, not video) | Manual |
+
+#### UX Implications
+
+- Module content items display a **source badge** (e.g., YouTube icon, Udemy icon, external link icon) so the learner knows what to expect
+- Embedded content tracks progress automatically — the app knows exactly where you stopped
+- External content relies on the honor system — learner clicks "Mark as Complete" after finishing
+- The video player view wireframe (Section 4) applies only to embedded content
+
+### AI Video Generation (for Self-Created Content)
+
+For modules where no good external video exists — especially Payment House-specific domain walkthroughs, architecture explanations, and clearing house flows — AI video generators can produce professional content from written scripts:
+
+| Tool | Best For | How It Works | Cost |
+|------|----------|-------------|------|
+| **[Synthesia](https://www.synthesia.io/)** | Training videos with AI avatar presenter | Write script → pick avatar → generates talking-head video. Has LMS integration, quiz branching, SOC 2 compliant | Free: 3 min/mo. Starter: $18/mo |
+| **[HeyGen](https://www.heygen.com/)** | Realistic avatar presentations | Script → avatar → video. Most realistic avatars in testing. Credit-based (pay per minute) | Free: 1 min. Creator: $24/mo (5 min/video) |
+| **[Pictory](https://pictory.ai/)** | Text-to-video with stock visuals | Paste script/blog → auto-matches visuals, transitions, AI voiceover. No avatar, more B-roll style | From $25/mo |
+| **[InVideo AI](https://invideo.io/)** | Quick explainer videos | Prompt your idea → generates script, visuals, voiceover, subtitles automatically | Free tier available |
+
+#### Recommended Approach for PayArk
+
+The builder is a **learner first** — not a video producer or subject matter expert (yet). The production pipeline reflects this:
+
+| Who Does What | Role | What They Produce |
+|---|---|---|
+| **Claude Code (AI assistant)** | Content author | MDX reading material, YouTube curation with timestamps, quiz questions, hands-on lab designs |
+| **The Builder (you)** | Reviewer + student | Reviews content for accuracy, studies it, feeds scripts into Synthesia |
+| **Synthesia/HeyGen** | Video producer | Generates avatar-presented videos from the written scripts |
+| **YouTube creators** | Existing experts | Pre-existing videos curated and clipped to relevant segments |
+
+```
+Per-module production pipeline:
+
+1. Claude writes the MDX reading material + finds best YouTube clips with start/end timestamps
+2. Builder reviews and studies the content (this IS the learning)
+3. Builder pastes the script into Synthesia → generates AI avatar video (for domain topics)
+4. YouTube clips are embedded directly with timestamp parameters (for tech topics)
+5. All content is configured in the module JSON → app renders it
+```
+
+**Screen recordings happen later** — only in Level 4 (Capstone) when you're actually building Payment House and have the expertise to walk through your own code. Until then, curated YouTube + AI-generated covers everything.
+
+#### Why Not AI-Generate Everything?
+
+- AI avatars can't do live coding demos or interact with real tools
+- AI-generated videos work best for **structured explanations** — "here's how X works" — not for **exploratory teaching**
+- For tech topics (Kafka, Spring Boot, K8s), existing YouTube creators already have excellent content — no need to recreate it
+- Use AI generation to fill gaps where no good external content exists (payment domain, Payment House architecture)
+
 ---
 
 ## 4. App Design Concept
 
 ### App Name
 
-**PayForge** — Builder energy, forging payment expertise. Premium, memorable, unique.
+**PayArk** — The ark that carries all payment knowledge. Bold, memorable, unique.
 
 ### Design Philosophy
 
@@ -216,7 +320,7 @@ Minimalist dark theme (like the architecture HTML diagrams you already built)
 #### 1. Dashboard (Home)
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  PayForge                                 [avatar] [☀/🌙]│
+│  PayArk                                   [avatar] [☀/🌙]│
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
 │  Welcome back, Arun                                     │
@@ -234,7 +338,7 @@ Minimalist dark theme (like the architecture HTML diagrams you already built)
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐   │
 │  │ Level 1  │ │ Level 2  │ │ Level 3  │ │ Capstone │   │
 │  │ ✓ Done   │ │ 58%      │ │ Locked   │ │ Locked   │   │
-│  │ VCPF     │ │ ████░░░░ │ │          │ │          │   │
+│  │ PAKF     │ │ ████░░░░ │ │          │ │          │   │
 │  └──────────┘ └──────────┘ └──────────┘ └──────────┘   │
 │                                                         │
 │  RECENT ACTIVITY                                        │
@@ -355,10 +459,10 @@ Minimalist dark theme (like the architecture HTML diagrams you already built)
 │                                                         │
 │         has successfully completed Level 2              │
 │                                                         │
-│          PLATFORM ENGINEER (VCPE)                       │
+│          PLATFORM ENGINEER (PAKE)                       │
 │                                                         │
 │     Score: 82%  |  Date: 2026-03-15                     │
-│     Credential ID: VCPE-2026-00001                      │
+│     Credential ID: PAKE-2026-00001                      │
 │                                                         │
 │     [Download PDF]  [Share on LinkedIn]  [Verify]       │
 │                                                         │
@@ -402,10 +506,10 @@ Minimalist dark theme (like the architecture HTML diagrams you already built)
 
 | Exam | Questions | Time | Format | Pass |
 |------|-----------|------|--------|------|
-| Level 1: VCPF | 60 MCQ | 90 min | Multiple choice, scenario-based | 70% |
-| Level 2: VCPE | 80 MCQ | 120 min | MCQ + code reading + architecture diagrams | 70% |
-| Level 3: VCPSA | 60 MCQ + 1 design | 180 min | MCQ + written system design (open-ended) | 75% |
-| Level 4: VCPA | Project evaluation | N/A | Working demo + code review + architecture walkthrough | Pass/Fail |
+| Level 1: PAKF | 60 MCQ | 90 min | Multiple choice, scenario-based | 70% |
+| Level 2: PAKE | 80 MCQ | 120 min | MCQ + code reading + architecture diagrams | 70% |
+| Level 3: PAKSA | 60 MCQ + 1 design | 180 min | MCQ + written system design (open-ended) | 75% |
+| Level 4: PAKA | 3-layer assessment | N/A | Automated gates (tests/coverage/lint) + AI code review + written architecture document | 75% on both rubrics + all gates green |
 
 ### Question Types
 
@@ -423,6 +527,73 @@ Minimalist dark theme (like the architecture HTML diagrams you already built)
 - Each exam guarantees a spread: 30% easy, 50% medium, 20% hard
 - Pool grows over time — add questions as you learn more
 
+### Exam Integrity Model
+
+The exam system is designed so that cheating is either impossible or self-defeating.
+
+#### Question Bank & Generation
+
+| Aspect | Detail |
+|--------|--------|
+| **Who creates questions?** | Claude Code generates the entire question bank per module |
+| **Pool size** | 5x the exam size (e.g., 300 questions for a 60-question exam) |
+| **Storage** | Questions stored encrypted in DB — answer key not stored alongside questions, computed at grading time |
+| **Review** | Builder reviews question bank for accuracy (reviewing questions is itself a learning exercise) |
+
+#### Randomization Engine
+
+Each exam attempt is unique:
+
+| Rule | How It Works |
+|------|-------------|
+| **Random question selection** | Each attempt pulls N questions from the pool using a unique seed — never the same set twice |
+| **Answer shuffling** | Option A/B/C/D positions are randomized every attempt — same question, different answer positions |
+| **Weighted retry** | Questions you got **wrong before** have a **higher chance** of reappearing — forces genuine learning |
+| **Category coverage** | Each attempt guarantees topic coverage (e.g., 15% Kafka, 20% DDD, etc.) — can't get lucky with an easy subset |
+| **Difficulty spread** | Every attempt: 30% easy, 50% medium, 20% hard — maintained regardless of randomization |
+
+#### Anti-Cheat Measures
+
+| Layer | Mechanism | Purpose |
+|-------|-----------|---------|
+| **1. Structural** | 300-question pool for 60-question exam | Memorizing all 300 = learning the material anyway |
+| **1. Structural** | Encrypted questions in DB, no answer column | Can't casually browse answers |
+| **2. Temporal** | Per-question timer (60-90s MCQ, 5 min scenario) | Prevents tab-switching to search |
+| **2. Temporal** | No back-navigation during exam | Can't note questions, look up answers, then return |
+| **2. Temporal** | 48-hour cooldown between reattempts | Prevents brute-force retry loops |
+| **3. Feedback** | Correct answers **never shown** after failure | Only category weakness breakdown shown — "Review Module M07" not "Answer was C" |
+| **4. Ultimate** | Level 4 (PAKA) is a real project build | Cannot fake a working codebase + architecture document |
+
+#### Exam Session Flow
+
+```
+┌─────────────────────────────────────────────────┐
+│                 EXAM SESSION                     │
+│                                                  │
+│  1. System pulls 60 random from 300 pool         │
+│  2. Each question gets shuffled answer positions  │
+│  3. Per-question timer starts                     │
+│  4. Student answers sequentially (no going back)  │
+│  5. Score calculated at end                       │
+│                                                  │
+│  PASS (≥70%):                                    │
+│    → Certificate unlocked                        │
+│    → Full score + category breakdown shown        │
+│                                                  │
+│  FAIL (<70%):                                    │
+│    → 48-hour cooldown before reattempt            │
+│    → Score shown: "You scored 62% (42/60)"       │
+│    → Category breakdown: "Kafka: 4/8, DDD: 7/10" │
+│    → Weak areas: "Review Module M07, M11"         │
+│    → Correct answers: NEVER shown                │
+│    → Next attempt weighted toward weak areas      │
+└─────────────────────────────────────────────────┘
+```
+
+#### Why This Works
+
+> You're both the student AND the builder. If you cheat, you're certifying yourself on knowledge you don't have — and the code you write for Payonex will immediately expose the gap. The certificates are for your portfolio and your confidence, not for an employer's checkbox. The real exam is: can you build the system?
+
 ---
 
 ## 6. Certification Names & Branding
@@ -431,14 +602,14 @@ Minimalist dark theme (like the architecture HTML diagrams you already built)
 
 | Level | Abbreviation | Full Name | Badge Color |
 |-------|-------------|-----------|-------------|
-| 1 | **VCPF** | PayForge Certified — Payment Foundations | Blue |
-| 2 | **VCPE** | PayForge Certified — Platform Engineer | Cyan |
-| 3 | **VCPSA** | PayForge Certified — Payment Systems Architect | Violet |
-| 4 | **VCPA** | PayForge Certified Payment Architect | Gold |
+| 1 | **PAKF** | PayArk Certified — Payment Foundations | Blue |
+| 2 | **PAKE** | PayArk Certified — Platform Engineer | Cyan |
+| 3 | **PAKSA** | PayArk Certified — Payment Systems Architect | Violet |
+| 4 | **PAKA** | PayArk Certified Payment Architect | Gold |
 
 ### Digital Badges
 - SVG badges for each level
-- Verifiable credential IDs (VCPE-YYYY-NNNNN)
+- Verifiable credential IDs (PAKE-YYYY-NNNNN)
 - LinkedIn-shareable (Open Badge standard)
 - QR code linking to verification page
 
@@ -469,24 +640,51 @@ Minimalist dark theme (like the architecture HTML diagrams you already built)
 
 ## 8. Content Creation Workflow
 
-### For Each Module (in order)
+### Roles Per Step
+
+| Step | Who | What |
+|------|-----|------|
+| OUTLINE | Claude Code | Write learning objectives + topic list |
+| CURATE | Claude Code | Find best YouTube clips with start/end timestamps, check official platforms |
+| READING | Claude Code | Write 1-2 page reading material in MDX |
+| AI VIDEO | Builder | Paste script into Synthesia → generate avatar video (domain topics only) |
+| LAB | Claude Code | Design hands-on exercise with starter code |
+| QUIZ | Claude Code | Write 30-50 questions for the question pool |
+| REVIEW | Builder | Study the module end-to-end, flag errors or gaps |
+| PUBLISH | Builder | Push module config to app |
+
+### Per-Module Flow
 
 ```
-1. OUTLINE    — Write learning objectives + topic list (10 min)
-2. CURATE     — Find best YouTube/official videos (30 min)
-3. READING    — Write 1-2 page reading material in MDX (45 min)
-4. LAB        — Design hands-on exercise with starter code (60 min)
-5. QUIZ       — Write 30-50 questions for the question pool (45 min)
-6. REVIEW     — Test the module yourself end-to-end (30 min)
-7. PUBLISH    — Push to app (10 min)
+Claude Code prepares (per module):
+1. OUTLINE    — Learning objectives + topic list
+2. CURATE     — Best YouTube clips with timestamps (videoId + start + end seconds)
+3. READING    — 1-2 page MDX reading material (also serves as Synthesia script)
+4. LAB        — Hands-on exercise with starter code + solution
+5. QUIZ       — 30-50 questions with answers and explanations
+
+Builder's part (per module):
+6. REVIEW     — Study the content, validate accuracy, learn from it
+7. AI VIDEO   — For domain modules (M01-M04, M44): paste script into Synthesia → download MP4
+8. PUBLISH    — Add module config to app, upload any generated videos
 ```
 
-**Estimated time per module:** ~4 hours of content creation
-**Total for 44 modules:** ~176 hours (spread over the build timeline)
+### Time Estimates
+
+| Task | Builder's Time | Claude Code's Time |
+|------|---------------|-------------------|
+| Review + study content | ~60-90 min/module | — |
+| Generate Synthesia video | ~20 min/module (only ~10 modules need this) | — |
+| Publish to app | ~10 min/module | — |
+| Content preparation | — | ~2-3 hrs/module |
+
+**Builder's effort per module:** ~1.5 hours (studying + publishing)
+**Total builder effort for 44 modules:** ~66 hours (spread across the curriculum)
 
 ### Content can be created incrementally
-- Build Level 1 content while studying Level 1 topics
-- Content creation IS the learning — writing quiz questions forces deep understanding
+- Claude Code prepares modules in batches (e.g., all of Level 1 at once)
+- Builder studies them in order — the studying IS the learning
+- Screen recordings only happen during Level 4 Capstone, when the builder has expertise to walk through their own code
 
 ---
 
@@ -530,7 +728,7 @@ Minimalist dark theme (like the architecture HTML diagrams you already built)
 | Average module time | Within 20% of estimated time |
 | Daily streak engagement | Track but don't gamify aggressively |
 | Level exam pass rate | 70-85% first attempt |
-| Time to VCPA (all 4 levels) | 32 weeks (8 months) if full-time study |
+| Time to PAKA (all 4 levels) | 32 weeks (8 months) if full-time study |
 
 ---
 

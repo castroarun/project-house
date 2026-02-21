@@ -1,14 +1,15 @@
 # Payment House — Design Brief
 
+**Product Name:** Payonex
 **Status:** Evolving (Conception Stage)
-**Last Updated:** 2026-02-08
+**Last Updated:** 2026-02-21
 **Source Sessions:** 001-system-architecture, 002-coding-standards-design-patterns
 
 ---
 
 ## Vision
 
-Enterprise-grade payment processing platform for core banking. Handles the complete lifecycle of domestic and cross-border payments across Singapore, Hong Kong, UK, and India.
+**Payonex** — Enterprise-grade payment processing platform for core banking. Handles the complete lifecycle of domestic and cross-border payments across Singapore, Hong Kong, UK, and India.
 
 ## Core Architecture
 

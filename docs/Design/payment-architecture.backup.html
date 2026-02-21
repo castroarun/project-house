@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PayoneX — Enterprise Payment Processing Platform</title>
+<title>Enterprise Payment Processing Platform — Architecture</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#08090d;--bg2:#0f1118;--bg3:#151822;--bg4:#1a1e2e;--bdr:#1f2438;--bdr2:#2a3050;--t1:#e8eaf0;--t2:#8b90a0;--t3:#555a6e;--blue:#3b82f6;--cyan:#06b6d4;--green:#10b981;--amber:#f59e0b;--rose:#f43f5e;--violet:#8b5cf6;--orange:#f97316;--kafka:#e8523f;--r:10px;--tr:0.3s cubic-bezier(0.4,0,0.2,1);--fd:'Outfit',sans-serif;--fm:'JetBrains Mono',monospace}
@@ -16,12 +16,8 @@ body{font-family:var(--fd);background:var(--bg);color:var(--t1);line-height:1.65
 .hdr-b{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:20px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.2);font-size:12px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:1.5px;font-family:var(--fm);margin-bottom:20px}
 .hdr-b::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--blue);box-shadow:0 0 8px var(--blue);animation:pd 2s ease-in-out infinite}
 @keyframes pd{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
-.hdr h1{font-size:clamp(42px,5vw,64px);font-weight:900;letter-spacing:-2px;line-height:1.1;background:linear-gradient(135deg,#fff 0%,var(--blue) 50%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 25px rgba(59,130,246,.25));position:relative;width:fit-content}
-.hdr h1::before{content:'';position:absolute;bottom:-6px;left:0;width:100%;height:2px;background:var(--bdr);border-radius:2px}
-.hdr h1::after{content:'';position:absolute;bottom:-10px;right:-2px;width:10px;height:10px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan),0 0 20px rgba(6,182,212,.4);animation:hdr-glow 2s ease-in-out infinite alternate}
-@keyframes hdr-glow{0%{box-shadow:0 0 8px var(--cyan),0 0 16px rgba(6,182,212,.3)}100%{box-shadow:0 0 14px var(--cyan),0 0 28px rgba(6,182,212,.5)}}
-.hdr-sub{font-size:14px;color:var(--t3);letter-spacing:4px;text-transform:uppercase;font-weight:500;margin-top:16px;font-family:var(--fm)}
-.hdr-s{font-size:17px;color:var(--t2);margin-top:16px;max-width:700px}
+.hdr h1{font-size:clamp(32px,4vw,52px);font-weight:800;letter-spacing:-1.5px;line-height:1.1;background:linear-gradient(135deg,var(--t1),var(--t2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-s{font-size:17px;color:var(--t2);margin-top:12px;max-width:700px}
 .hdr-m{display:flex;gap:24px;margin-top:20px;flex-wrap:wrap}
 .hdr-m span{font-size:13px;font-family:var(--fm);color:var(--t3);display:flex;align-items:center;gap:6px}
 .hdr-m span::before{content:'';width:4px;height:4px;border-radius:50%}
@@ -87,118 +83,6 @@ tr:last-child td{border-bottom:0}tr:hover{background:rgba(255,255,255,.02)}
 .stripe h4{font-size:14px;font-weight:600;margin-bottom:3px}.stripe p{font-size:12.5px;color:var(--t2);line-height:1.6}
 .footer{padding:40px 0;border-top:1px solid var(--bdr);text-align:center;color:var(--t3);font-size:12px;font-family:var(--fm)}
 @media(max-width:768px){.c{padding:0 16px}.g2,.g3,.g4,.g5{grid-template-columns:1fr}.flow-box{padding:16px}}
-
-/* ══════ COLLAPSIBLE METRO MAP ══════ */
-.collapse-trigger{display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:var(--r);border:1px solid var(--bdr);background:var(--bg3);color:var(--t2);font-size:13px;font-family:var(--fd);font-weight:600;cursor:pointer;transition:var(--tr);width:100%;text-align:left;margin-top:16px}
-.collapse-trigger:hover{border-color:var(--bdr2);color:var(--t1);background:var(--bg4)}
-.collapse-trigger .chevron{transition:transform .3s;font-size:10px;color:var(--blue);flex-shrink:0}
-.collapse-trigger.open .chevron{transform:rotate(90deg)}
-.collapse-trigger .ct-badge{font-size:9px;font-family:var(--fm);padding:2px 8px;border-radius:4px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);color:var(--blue);letter-spacing:1px;font-weight:700}
-.collapse-body{max-height:0;overflow:hidden;transition:max-height .5s ease}
-.collapse-body.open{max-height:6000px}
-
-/* ══════ METRO MAP (scoped under .mm) ══════ */
-.mm{position:relative;padding:0 0 20px;max-width:680px;margin:0 auto}
-.mm .mm-trunk{position:absolute;left:120px;top:12px;bottom:140px;width:5px;background:linear-gradient(180deg,transparent 0%,var(--blue) 2%,var(--blue) 98%,transparent 100%);border-radius:3px;z-index:1;overflow:hidden}
-.mm .mm-trunk::before{content:'';position:absolute;left:0;top:0;width:100%;height:80px;background:linear-gradient(180deg,transparent,rgba(59,130,246,.6),transparent);border-radius:3px;animation:mm-pulse 4s ease-in-out infinite}
-@keyframes mm-pulse{0%{top:-80px;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:calc(100% - 80px);opacity:0}}
-
-.mm .mm-st{position:relative;padding-left:170px;padding-right:24px;margin-bottom:0;min-height:80px;display:flex;align-items:flex-start;z-index:2}
-.mm .mm-dot{position:absolute;left:110px;top:12px;width:22px;height:22px;border-radius:50%;border:3px solid var(--blue);background:var(--bg);z-index:3;transition:all .3s}
-.mm .mm-st:hover .mm-dot{transform:scale(1.15);box-shadow:0 0 12px rgba(59,130,246,.3)}
-.mm .mm-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:16px 20px;width:100%;position:relative;transition:border-color .3s,box-shadow .3s}
-.mm .mm-card:hover{border-color:var(--bdr2);box-shadow:0 4px 24px rgba(0,0,0,.3)}
-.mm .mm-card .mm-tier{font-size:10px;font-family:var(--fm);font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
-.mm .mm-card h3{font-size:16px;font-weight:700;letter-spacing:-.3px;margin-bottom:8px;color:var(--t1)}
-.mm .mm-card .mm-desc{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:6px}
-.mm .mm-card .mm-tech{font-size:11px;font-family:var(--fm);color:var(--t3);line-height:1.6}
-.mm .mm-st::before{content:'';position:absolute;left:132px;top:22px;width:38px;height:2px;z-index:2}
-
-/* Station color variants */
-.mm .mm-st.ext .mm-dot{border-color:var(--t3);border-style:dashed}
-.mm .mm-st.ext::before{background:var(--t3)}.mm .mm-st.ext .mm-tier{color:var(--t3)}
-.mm .mm-st.s-blue .mm-dot{border-color:var(--blue)}.mm .mm-st.s-blue::before{background:var(--blue)}.mm .mm-st.s-blue .mm-tier{color:var(--blue)}
-.mm .mm-st.s-cyan .mm-dot{border-color:var(--cyan)}.mm .mm-st.s-cyan::before{background:var(--cyan)}.mm .mm-st.s-cyan .mm-tier{color:var(--cyan)}
-.mm .mm-st.s-amber .mm-dot{border-color:var(--amber)}.mm .mm-st.s-amber::before{background:var(--amber)}.mm .mm-st.s-amber .mm-tier{color:var(--amber)}
-.mm .mm-st.s-green .mm-dot{border-color:var(--green)}.mm .mm-st.s-green::before{background:var(--green)}.mm .mm-st.s-green .mm-tier{color:var(--green)}
-.mm .mm-st.s-violet .mm-dot{border-color:var(--violet)}.mm .mm-st.s-violet::before{background:var(--violet)}.mm .mm-st.s-violet .mm-tier{color:var(--violet)}
-.mm .mm-st.s-rose .mm-dot{border-color:var(--rose)}.mm .mm-st.s-rose::before{background:var(--rose)}.mm .mm-st.s-rose .mm-tier{color:var(--rose)}
-
-/* Special glowing stations */
-.mm .mm-st.sp-green .mm-dot{border-color:var(--green);box-shadow:0 0 16px rgba(16,185,129,.5),0 0 32px rgba(16,185,129,.2);animation:mm-glow-g 2s ease-in-out infinite alternate;display:flex;align-items:center;justify-content:center}
-.mm .mm-st.sp-green .mm-dot .dot-icon{font-size:12px;line-height:1;filter:drop-shadow(0 0 4px rgba(16,185,129,.8))}
-.mm .mm-st.sp-green::before{background:var(--green)}.mm .mm-st.sp-green .mm-tier{color:var(--green)}
-.mm .mm-st.sp-green .mm-card{border-color:rgba(16,185,129,.3);background:linear-gradient(135deg,var(--bg2),rgba(16,185,129,.05))}
-@keyframes mm-glow-g{0%{box-shadow:0 0 12px rgba(16,185,129,.4),0 0 24px rgba(16,185,129,.15)}100%{box-shadow:0 0 20px rgba(16,185,129,.6),0 0 40px rgba(16,185,129,.25)}}
-
-.mm .mm-st.sp-cyan .mm-dot{border-color:var(--cyan);box-shadow:0 0 16px rgba(6,182,212,.5),0 0 32px rgba(6,182,212,.2);animation:mm-glow-c 2s ease-in-out infinite alternate;display:flex;align-items:center;justify-content:center}
-.mm .mm-st.sp-cyan .mm-dot .dot-icon{font-size:12px;line-height:1;filter:drop-shadow(0 0 4px rgba(6,182,212,.8))}
-.mm .mm-st.sp-cyan::before{background:var(--cyan)}.mm .mm-st.sp-cyan .mm-tier{color:var(--cyan)}
-.mm .mm-st.sp-cyan .mm-card{border-color:rgba(6,182,212,.3);background:linear-gradient(135deg,var(--bg2),rgba(6,182,212,.05))}
-@keyframes mm-glow-c{0%{box-shadow:0 0 12px rgba(6,182,212,.4),0 0 24px rgba(6,182,212,.15)}100%{box-shadow:0 0 20px rgba(6,182,212,.6),0 0 40px rgba(6,182,212,.25)}}
-
-/* Kafka interchange */
-.mm .mm-kafka{position:relative;padding-left:170px;margin:0;height:56px;display:flex;align-items:center;z-index:2}
-.mm .mm-kafka .mk-dot{position:absolute;left:114px;top:50%;transform:translateY(-50%);width:14px;height:14px;border-radius:3px;rotate:45deg;background:var(--kafka);z-index:3;box-shadow:0 0 8px rgba(232,82,63,.3)}
-.mm .mm-kafka .mk-label{font-size:11px;font-family:var(--fm);color:var(--kafka);font-weight:600;display:flex;align-items:center;gap:8px}
-.mm .mm-kafka .mk-label::before{content:'KAFKA';font-size:8px;font-weight:700;letter-spacing:1px;padding:2px 6px;border-radius:3px;background:rgba(232,82,63,.12);border:1px solid rgba(232,82,63,.2)}
-.mm .mm-kafka .mk-conn{position:absolute;left:132px;top:50%;width:38px;height:2px;background:var(--kafka);z-index:2}
-
-/* MQ interchange */
-.mm .mm-mq{position:relative;padding-left:170px;margin:0;height:56px;display:flex;align-items:center;z-index:2}
-.mm .mm-mq .mq-dot{position:absolute;left:114px;top:50%;transform:translateY(-50%);width:14px;height:14px;border-radius:2px;background:var(--blue);z-index:3;box-shadow:0 0 8px rgba(59,130,246,.3)}
-.mm .mm-mq .mq-label{font-size:11px;font-family:var(--fm);color:var(--blue);font-weight:600;display:flex;align-items:center;gap:8px}
-.mm .mm-mq .mq-label::before{content:'IBM MQ';font-size:8px;font-weight:700;letter-spacing:1px;padding:2px 6px;border-radius:3px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.2)}
-.mm .mm-mq .mq-conn{position:absolute;left:132px;top:50%;width:38px;height:2px;background:var(--blue);z-index:2}
-
-/* Compliance fan-out */
-.mm .mm-comp{padding-left:170px;padding-right:24px;margin:8px 0;position:relative;z-index:2}
-.mm .mm-comp-label{font-size:10px;font-family:var(--fm);color:var(--amber);letter-spacing:1px;text-transform:uppercase;font-weight:600;margin-bottom:8px}
-.mm .mm-comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px;background:rgba(245,158,11,.03);border:1px solid rgba(245,158,11,.12);border-radius:var(--r)}
-.mm .mm-comp-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg3);border-radius:6px;border:1px solid var(--bdr);font-size:12px}
-.mm .mm-comp-item .ci-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.mm .mm-comp-item .ci-name{font-weight:600;color:var(--t1)}
-.mm .mm-comp-item .ci-sla{font-family:var(--fm);color:var(--t3);font-size:10px;margin-left:auto}
-
-/* MQ Return callout (left side) */
-.mm .mm-mqr{position:absolute;left:-164px;top:8px;width:150px;z-index:4;padding:10px 12px;border-radius:8px;background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.2);text-align:right}
-.mm .mm-mqr::after{content:'';position:absolute;right:-14px;top:18px;width:14px;height:2px;background:rgba(59,130,246,.35)}
-.mm .mm-mqr .mr-arrow{font-size:16px;color:var(--blue);line-height:1;margin-bottom:4px}
-.mm .mm-mqr .mr-badge{display:inline-block;font-size:8px;font-family:var(--fm);font-weight:700;letter-spacing:1px;padding:2px 6px;border-radius:3px;margin-bottom:6px;background:rgba(59,130,246,.12);color:var(--blue);border:1px solid rgba(59,130,246,.2)}
-.mm .mm-mqr .mr-queue{font-size:10px;font-family:var(--fm);font-weight:600;color:var(--blue);margin-bottom:3px}
-.mm .mm-mqr .mr-desc{font-size:10px;color:var(--t3);line-height:1.4}
-
-/* Dev callout (right side) */
-.mm .mm-dev{position:absolute;right:-260px;top:4px;width:230px;z-index:4;padding:12px 14px;border-radius:8px;background:rgba(249,115,22,.06);border:1px dashed rgba(249,115,22,.3);transition:all .3s}
-.mm .mm-dev:hover{border-color:rgba(249,115,22,.5);box-shadow:0 0 20px rgba(249,115,22,.08)}
-.mm .mm-dev .dc-badge{display:inline-block;font-size:8px;font-family:var(--fm);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 8px;border-radius:3px;margin-bottom:8px;background:rgba(249,115,22,.12);color:var(--orange);border:1px solid rgba(249,115,22,.2)}
-.mm .mm-dev .dc-title{font-size:12px;font-weight:700;color:var(--orange);margin-bottom:4px}
-.mm .mm-dev .dc-desc{font-size:11px;color:var(--t2);line-height:1.5}
-.mm .mm-dev .dc-desc strong{color:var(--orange)}
-.mm .mm-dev::before{content:'';position:absolute;left:-16px;top:16px;width:16px;height:1px;background:rgba(249,115,22,.3)}
-
-/* Metro legend */
-.mm-legend{max-width:900px;margin:24px auto 0;padding:0}
-.mm-legend-inner{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:16px 20px}
-.mm-legend h4{font-size:11px;font-family:var(--fm);font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:12px}
-.mm-legend-grid{display:flex;flex-wrap:wrap;gap:14px 24px}
-.mm-legend-item{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--t2)}
-
-/* Spacer */
-.mm .mm-spc{height:8px}
-
-/* Metro responsive */
-@media(max-width:768px){
-  .mm .mm-trunk{left:40px}
-  .mm .mm-st{padding-left:90px}
-  .mm .mm-dot{left:30px}
-  .mm .mm-st::before{left:52px;width:38px}
-  .mm .mm-kafka{padding-left:90px}.mm .mm-kafka .mk-dot{left:34px}.mm .mm-kafka .mk-conn{left:52px;width:38px}
-  .mm .mm-mq{padding-left:90px}.mm .mm-mq .mq-dot{left:34px}.mm .mm-mq .mq-conn{left:52px;width:38px}
-  .mm .mm-comp{padding-left:90px}
-  .mm .mm-mqr,.mm .mm-dev{display:none}
-  .mm .mm-comp-grid{grid-template-columns:1fr}
-}
 </style>
 </head>
 <body>
@@ -206,8 +90,7 @@ tr:last-child td{border-bottom:0}tr:hover{background:rgba(255,255,255,.02)}
 <div class="c">
 <header class="hdr">
 <div class="hdr-b">System Architecture v2.0</div>
-<h1>PayoneX</h1>
-<p class="hdr-sub">Enterprise Payment Processing Platform</p>
+<h1>Enterprise Payment<br>Processing Platform</h1>
 <p class="hdr-s">Kafka-driven, event-sourced microservices architecture for core banking payments across Singapore, Hong Kong, UK, and India — with self-healing infrastructure, per-country clearing house configurations, and autonomous recovery.</p>
 <div class="hdr-m">
 <span class="m1">Apache Kafka Backbone</span>
@@ -295,16 +178,12 @@ tr:last-child td{border-bottom:0}tr:hover{background:rgba(255,255,255,.02)}
 <section id="inflow">
 <div class="sl">Section 01a</div>
 <h2 class="st">Inbound Payment Flow</h2>
-<p class="sd">Complete end-to-end flow for an incoming payment. Example: DBS debits Alice SGD 500 via FAST → PayoneX receives pacs.008 → credits Bob's account. Two-stage pacs.002 model: immediate ACTC technical ACK, then final ACSC settlement status after full processing.</p>
+<p class="sd">Complete end-to-end flow for an incoming payment. Example: DBS debits Alice SGD 500 via FAST → Payonex receives pacs.008 → credits John's account. Two-stage pacs.002 model: immediate ACTC technical ACK, then final ACSC settlement status after full processing.</p>
 
-<!-- ═══ L→R SIMPLE VIEW (always visible) ═══ -->
-<div class="flow-box" data-label="INBOUND — LEFT TO RIGHT (FAST · DBS → PAYONEX)" style="padding:36px 24px 16px;overflow-x:auto;margin-bottom:24px">
+<!-- Horizontal L→R Overview -->
+<div class="flow-box" data-label="INBOUND — LEFT TO RIGHT" style="padding:36px 24px 16px;overflow-x:auto;margin-bottom:24px">
 <div style="display:flex;align-items:center;gap:4px;min-width:max-content">
-<div class="fn n-ex" style="min-width:auto;padding:8px 12px"><div class="ni2" style="font-size:8px">ORIGINATOR</div><div class="nl" style="font-size:11px">DBS</div><div class="ns">pacs.008 out</div></div>
-<span class="arr">→</span>
-<div class="fn n-gn" style="min-width:auto;padding:8px 12px"><div class="ni2" style="font-size:8px">CLEARING</div><div class="nl" style="font-size:11px">FAST</div><div class="ns">ABS/NETS</div></div>
-<span class="arr">→</span>
-<div style="display:flex;flex-direction:column;align-items:center;padding:0 4px"><div style="width:24px;height:24px;border-radius:4px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);display:flex;align-items:center;justify-content:center"><span class="blu" style="font-size:10px;font-weight:700">MQ</span></div><div class="mono blu" style="font-size:7px;margin-top:2px">inbound</div></div>
+<div class="fn n-ex" style="min-width:auto;padding:8px 12px"><div class="ni2" style="font-size:8px">EXTERNAL</div><div class="nl" style="font-size:11px">FAST</div><div class="ns">pacs.008 in</div></div>
 <span class="arr">→</span>
 <div class="fn n-bl" style="min-width:auto;padding:8px 12px"><div class="ni2" style="font-size:8px">TIER 1</div><div class="nl" style="font-size:11px">Ingest</div><div class="ns">Dedup · Validate</div></div>
 <span class="arr">→</span>
@@ -314,225 +193,100 @@ tr:last-child td{border-bottom:0}tr:hover{background:rgba(255,255,255,.02)}
 <div class="fn n-cy" style="min-width:auto;padding:8px 12px"><div class="ni2" style="font-size:8px">TIER 2</div><div class="nl" style="font-size:11px">Process</div><div class="ns">Lookup · Enrich</div></div>
 <div style="display:flex;flex-direction:column;align-items:center;padding:0 4px"><div style="width:24px;height:24px;border-radius:6px;background:rgba(232,82,63,.12);border:1px solid rgba(232,82,63,.25);display:flex;align-items:center;justify-content:center"><span class="kaf" style="font-size:12px">⬡</span></div><div class="mono kaf" style="font-size:7px;margin-top:2px">enriched</div></div>
 <span class="arr">→</span>
-<div class="fn n-am" style="min-width:auto;padding:8px 12px"><div class="ni2" style="font-size:8px">TIER 3</div><div class="nl" style="font-size:11px">Compliance</div><div class="ns">4× parallel</div></div>
+<div class="fn n-am" style="min-width:auto;padding:8px 12px"><div class="ni2" style="font-size:8px">TIER 3</div><div class="nl" style="font-size:11px">Compliance</div><div class="ns">Parallel screen</div></div>
 <div style="display:flex;flex-direction:column;align-items:center;padding:0 4px"><div style="width:24px;height:24px;border-radius:6px;background:rgba(232,82,63,.12);border:1px solid rgba(232,82,63,.25);display:flex;align-items:center;justify-content:center"><span class="kaf" style="font-size:12px">⬡</span></div><div class="mono kaf" style="font-size:7px;margin-top:2px">compliance</div></div>
 <span class="arr">→</span>
 <div class="fn n-vi" style="min-width:auto;padding:8px 12px"><div class="ni2" style="font-size:8px">TIER 5</div><div class="nl" style="font-size:11px">Account</div><div class="ns">Credit · GL Post</div></div>
 <span class="arr">→</span>
 <div style="padding:8px 14px;border-radius:8px;background:rgba(6,182,212,.15);border:2px solid rgba(6,182,212,.4);text-align:center"><div class="mono cyn" style="font-size:11px;font-weight:700">✓ ACSC</div><div class="mono dim" style="font-size:9px">&lt;5s final</div></div>
-<div style="display:flex;flex-direction:column;align-items:center;padding:0 4px"><div style="width:24px;height:24px;border-radius:6px;background:rgba(232,82,63,.12);border:1px solid rgba(232,82,63,.25);display:flex;align-items:center;justify-content:center"><span class="kaf" style="font-size:12px">⬡</span></div><div class="mono kaf" style="font-size:7px;margin-top:2px">status.changes</div></div>
 <span class="arr">→</span>
 <div class="fn n-ro" style="min-width:auto;padding:8px 12px"><div class="ni2" style="font-size:8px">TIER 6</div><div class="nl" style="font-size:11px">Report</div><div class="ns">Recon · Notify</div></div>
 </div>
 </div>
-<div class="mono dim" style="font-size:10px;margin-top:-16px;margin-bottom:0;padding-left:4px">No Tier 4 Clearing for inbound — clearing house (FAST) is the entry point, not a destination. MQ return paths (ACTC + ACSC pacs.002) go back to FAST via IBM MQ Outbound.</div>
 
-<!-- ═══ COLLAPSIBLE METRO MAP ═══ -->
-<button class="collapse-trigger" onclick="toggleCollapse(this)">
-  <span class="chevron">&#9654;</span>
-  <span class="ct-badge">METRO MAP</span>
-  Detailed Inbound Flow — Transit Diagram
-</button>
-<div class="collapse-body">
-<div class="flow-box" data-label="INBOUND — METRO MAP (FAST · DBS → PAYONEX)" style="padding:40px 24px 16px;overflow:visible;margin-top:12px">
-<div class="mm">
-  <div class="mm-trunk"></div>
+<!-- Detailed Vertical Flow -->
+<div class="flow-box" data-label="INBOUND FLOW — FAST PAYMENT EXAMPLE (DBS → PAYONEX)" style="padding-top:44px">
+<div style="text-align:center">
 
-  <!-- Station 0: DBS -->
-  <div class="mm-st ext" style="position:relative">
-    <div class="mm-dot"></div>
-    <div class="mm-card">
-      <div class="mm-tier">Originating Bank</div>
-      <h3>DBS initiates Credit Transfer</h3>
-      <div class="mm-desc">Alice sends SGD 500 to Bob &middot; DBS constructs pacs.008</div>
-      <div class="mm-tech">ISO 20022 &middot; pacs.008.001.08</div>
-    </div>
-    <div class="mm-dev">
-      <div class="dc-badge">DEV Simulation</div>
-      <div class="dc-title">Phantom CLI / Test Harness</div>
-      <div class="dc-desc">Generates sample <strong>pacs.008</strong> messages with configurable scenarios (amount, currency, sender BIC)</div>
-    </div>
-  </div>
-
-  <div class="mm-spc"></div>
-
-  <!-- Station 1: FAST Clearing -->
-  <div class="mm-st s-green" style="position:relative">
-    <div class="mm-dot" style="width:28px;height:28px;left:107px;top:10px;box-shadow:0 0 16px rgba(16,185,129,.35);border-width:4px"></div>
-    <div class="mm-card" style="border-color:rgba(16,185,129,.3);background:linear-gradient(135deg,var(--bg2),rgba(16,185,129,.05))">
-      <div class="mm-tier">Clearing House &mdash; FAST Network</div>
-      <h3>FAST delivers pacs.008 to PayoneX</h3>
-      <div class="mm-desc">ABS / NETS real-time clearing &middot; Routed to PayoneX MQ Inbound Queue</div>
-      <div class="mm-tech">IBM MQ &middot; Real-time settlement &middot; This is where the payment enters our system</div>
-    </div>
-    <div class="mm-dev">
-      <div class="dc-badge">DEV Simulation</div>
-      <div class="dc-title">Phantom Simulator</div>
-      <div class="dc-desc">Docker container mimics <strong>FAST clearing</strong> &mdash; injects pacs.008 onto <strong>MQ Inbound</strong> queue, waits for pacs.002 response</div>
-    </div>
-  </div>
-
-  <!-- MQ Inbound -->
-  <div class="mm-mq">
-    <div class="mq-dot"></div>
-    <div class="mq-conn"></div>
-    <div class="mq-label">MQ.INBOUND.FAST.001</div>
-  </div>
-
-  <!-- Station 2: Tier 1 -->
-  <div class="mm-st s-blue">
-    <div class="mm-dot"></div>
-    <div class="mm-card">
-      <div class="mm-tier">Tier 1 &mdash; Ingestion Gateway</div>
-      <h3>Receive &amp; Validate</h3>
-      <div class="mm-desc">MQ Consume &middot; Dedup (Redis) &middot; XSD Validate &middot; Envelope Wrap</div>
-      <div class="mm-tech">Assign UUID v7 &middot; Parse pacs.008 header</div>
-    </div>
-  </div>
-
-  <div class="mm-spc"></div>
-
-  <!-- ACTC ACK -->
-  <div class="mm-st sp-green" style="position:relative">
-    <div class="mm-dot"><span class="dot-icon">⚡</span></div>
-    <div class="mm-card">
-      <div class="mm-tier">&#9889; ACTC Acknowledgement</div>
-      <h3>Immediate pacs.002 ACTC &middot; &lt;500ms</h3>
-      <div class="mm-desc">AcceptedTechnicalValidation &mdash; sent back to FAST via MQ Outbound</div>
-      <div class="mm-tech">pacs.002.001.10 &middot; ACTC status code &middot; SLA &lt; 500ms</div>
-    </div>
-    <div class="mm-mqr">
-      <div class="mr-arrow">&#8593; Back to Clearing House</div>
-      <div class="mr-badge">IBM MQ</div>
-      <div class="mr-queue">MQ.OUTBOUND.FAST.001</div>
-      <div class="mr-desc">pacs.002 ACTC response sent back to FAST</div>
-    </div>
-  </div>
-
-  <!-- Kafka: payments.inbound.raw -->
-  <div class="mm-kafka">
-    <div class="mk-dot"></div>
-    <div class="mk-conn"></div>
-    <div class="mk-label">payments.inbound.raw</div>
-  </div>
-
-  <!-- Station 3: Tier 2 -->
-  <div class="mm-st s-cyan">
-    <div class="mm-dot"></div>
-    <div class="mm-card">
-      <div class="mm-tier">Tier 2 &mdash; Message Processing</div>
-      <h3>Enrich &amp; Resolve</h3>
-      <div class="mm-desc">Beneficiary Lookup &middot; Business Validation &middot; Enrichment</div>
-      <div class="mm-tech">BIC/IBAN resolve &middot; FX rates &middot; Fee calc</div>
-    </div>
-  </div>
-
-  <!-- Kafka: payments.enriched -->
-  <div class="mm-kafka">
-    <div class="mk-dot"></div>
-    <div class="mk-conn"></div>
-    <div class="mk-label">payments.enriched</div>
-  </div>
-
-  <!-- Station 4: Tier 3 Compliance -->
-  <div class="mm-st s-amber">
-    <div class="mm-dot"></div>
-    <div class="mm-card">
-      <div class="mm-tier">Tier 3 &mdash; Compliance Engine</div>
-      <h3>Parallel Screening</h3>
-      <div class="mm-desc">Internal async saga &middot; 4 engines run simultaneously &middot; ALL must PASS</div>
-      <div class="mm-tech">Saga orchestrator &middot; Circuit breaker per check &middot; Timeout fallback</div>
-    </div>
-  </div>
-
-  <!-- Compliance fan-out -->
-  <div class="mm-comp">
-    <div class="mm-comp-label">Parallel Fan-Out &rarr; Fan-In</div>
-    <div class="mm-comp-grid">
-      <div class="mm-comp-item"><div class="ci-dot" style="background:var(--rose)"></div><span class="ci-name">Sanctions</span><span class="ci-sla">OFAC/EU/UN/MAS &lt;200ms</span></div>
-      <div class="mm-comp-item"><div class="ci-dot" style="background:var(--amber)"></div><span class="ci-name">AML</span><span class="ci-sla">Tx Monitor &lt;2s</span></div>
-      <div class="mm-comp-item"><div class="ci-dot" style="background:var(--violet)"></div><span class="ci-name">Fraud</span><span class="ci-sla">ML Scoring &lt;100ms</span></div>
-      <div class="mm-comp-item"><div class="ci-dot" style="background:var(--cyan)"></div><span class="ci-name">PEP Screen</span><span class="ci-sla">&lt;500ms</span></div>
-    </div>
-  </div>
-
-  <!-- Kafka: payments.compliance.passed -->
-  <div class="mm-kafka">
-    <div class="mk-dot"></div>
-    <div class="mk-conn"></div>
-    <div class="mk-label">payments.compliance.passed</div>
-  </div>
-
-  <div class="mm-spc"></div>
-
-  <!-- Station 5: Tier 5 Accounting -->
-  <div class="mm-st s-violet">
-    <div class="mm-dot"></div>
-    <div class="mm-card">
-      <div class="mm-tier">Tier 5 &mdash; Accounting &amp; Settlement</div>
-      <h3>Double-Entry Ledger</h3>
-      <div class="mm-desc">Double-Entry Ledger &middot; Saga Orchestration &middot; GL Posting</div>
-      <div class="mm-tech">Nostro/Vostro &middot; Compensating transactions &middot; Idempotent writes</div>
-    </div>
-  </div>
-
-  <div class="mm-spc"></div>
-
-  <!-- ACSC Final -->
-  <div class="mm-st sp-cyan" style="position:relative">
-    <div class="mm-dot"><span class="dot-icon">✓</span></div>
-    <div class="mm-card">
-      <div class="mm-tier">&#10003; ACSC Final Confirmation</div>
-      <h3>Final pacs.002 ACSC &middot; &lt;5s E2E</h3>
-      <div class="mm-desc">AcceptedSettlementCompleted &mdash; sent back to FAST via MQ Outbound</div>
-      <div class="mm-tech">pacs.002.001.10 &middot; ACSC status code &middot; End-to-end SLA &lt; 5 seconds</div>
-    </div>
-    <div class="mm-mqr">
-      <div class="mr-arrow">&#8593; Back to Clearing House</div>
-      <div class="mr-badge">IBM MQ</div>
-      <div class="mr-queue">MQ.OUTBOUND.FAST.001</div>
-      <div class="mr-desc">pacs.002 ACSC final &mdash; settled &amp; irrevocable</div>
-    </div>
-  </div>
-
-  <!-- Kafka: payments.status.changes -->
-  <div class="mm-kafka">
-    <div class="mk-dot"></div>
-    <div class="mk-conn"></div>
-    <div class="mk-label">payments.status.changes</div>
-  </div>
-
-  <!-- Station 6: Tier 6 Reporting -->
-  <div class="mm-st s-rose">
-    <div class="mm-dot"></div>
-    <div class="mm-card">
-      <div class="mm-tier">Tier 6 &mdash; Reporting &amp; Analytics</div>
-      <h3>Real-Time Dashboards</h3>
-      <div class="mm-desc">Real-Time Dashboards &middot; Regulatory Reports &middot; EOD Recon</div>
-      <div class="mm-tech">ClickHouse analytics &middot; GraphQL API &middot; MAS/HKMA compliance</div>
-    </div>
-  </div>
-</div><!-- /mm -->
-
-<!-- Metro Legend -->
-<div class="mm-legend">
-  <div class="mm-legend-inner">
-    <h4>Legend</h4>
-    <div class="mm-legend-grid">
-      <div class="mm-legend-item"><div style="width:20px;height:4px;border-radius:2px;background:var(--blue)"></div><span>Trunk Line</span></div>
-      <div class="mm-legend-item"><div style="width:10px;height:10px;border-radius:50%;border:2px dashed var(--t3);background:var(--bg)"></div><span>External</span></div>
-      <div class="mm-legend-item"><div style="width:10px;height:10px;border-radius:50%;border:2px solid var(--blue);background:var(--bg)"></div><span>Tier Station</span></div>
-      <div class="mm-legend-item"><div style="width:10px;height:10px;border-radius:50%;border:2px solid var(--green);box-shadow:0 0 8px rgba(16,185,129,.5)"></div><span>pacs.002</span></div>
-      <div class="mm-legend-item"><div style="width:8px;height:8px;border-radius:2px;rotate:45deg;background:var(--kafka)"></div><span>Kafka</span></div>
-      <div class="mm-legend-item"><div style="width:8px;height:8px;border-radius:2px;background:var(--blue);box-shadow:0 0 4px rgba(59,130,246,.3)"></div><span>IBM MQ</span></div>
-      <div class="mm-legend-item"><div style="width:14px;height:8px;border-radius:3px;border:1px dashed rgba(249,115,22,.5);background:rgba(249,115,22,.08)"></div><span style="color:var(--orange)">Phantom (DEV)</span></div>
-    </div>
-  </div>
+<!-- Step 1: External clearing sends pacs.008 -->
+<div style="margin-bottom:6px">
+<div class="fn n-ex" style="min-width:500px">
+<div class="ni2">EXTERNAL · CLEARING HOUSE</div>
+<div class="nl">FAST Network delivers pacs.008</div>
+<div class="ns">DBS debits Alice SGD 500 · Message arrives on MQ Inbound Queue</div>
 </div>
+</div>
+<div style="color:var(--t3);font-size:18px;margin:4px 0">▾</div>
+
+<!-- Step 2: Tier 1 — Ingestion -->
+<div class="fn n-bl" style="min-width:500px">
+<div class="ni2">TIER 1 — INGESTION GATEWAY</div>
+<div class="nl">MQ Consume · Dedup (Redis) · XSD Schema Validate · Envelope Wrap</div>
+<div class="ns">Assign UUID v7 · Parse pacs.008 header · Extract key fields</div>
+</div>
+
+<!-- ACTC ACK — highlighted -->
+<div style="margin:14px auto;max-width:500px;padding:16px 20px;border-radius:var(--r);background:rgba(16,185,129,.1);border:2px solid rgba(16,185,129,.4);text-align:center;box-shadow:0 0 24px rgba(16,185,129,.12)">
+<div style="display:flex;align-items:center;justify-content:center;gap:8px">
+<span style="font-size:18px">⚡</span>
+<span class="mono grn" style="font-size:15px;font-weight:700">IMMEDIATE pacs.002 ACTC</span>
+</div>
+<div class="mono dim" style="font-size:11px;margin-top:6px">Technical acknowledgment sent back to FAST within <strong class="grn">&lt;500ms</strong></div>
+<div class="mono dim" style="font-size:10px;margin-top:2px">Status: ACTC (AcceptedTechnicalValidation) · "We received it, structurally valid"</div>
+</div>
+
+<div class="kb">▸ KAFKA <span class="kt">payments.inbound.raw</span> ◂</div>
+
+<!-- Step 3: Tier 2 — Message Processing -->
+<div class="fn n-cy" style="min-width:500px">
+<div class="ni2">TIER 2 — MESSAGE PROCESSING</div>
+<div class="nl">Beneficiary Lookup · Business Validation · Enrichment</div>
+<div class="ns">Verify John's account exists · BIC/IBAN resolve · FX rates · Fee calculation</div>
+</div>
+
+<div class="kb"><span class="kt">payments.enriched</span></div>
+
+<!-- Step 4: Tier 3 — Compliance -->
+<div style="margin:8px 0">
+<div class="fn n-am"><div class="ni2">SANCTIONS</div><div class="nl">OFAC·EU·UN·MAS</div><div class="ns">&lt;200ms</div></div>
+<div class="fn n-am"><div class="ni2">AML</div><div class="nl">Tx Monitor</div><div class="ns">&lt;2s</div></div>
+<div class="fn n-am"><div class="ni2">FRAUD</div><div class="nl">ML Scoring</div><div class="ns">&lt;100ms</div></div>
+<div class="fn n-am"><div class="ni2">PEP</div><div class="nl">PEP Screen</div><div class="ns">&lt;500ms</div></div>
+</div>
+<div class="mono dim" style="font-size:11px;margin:4px 0">TIER 3 — COMPLIANCE · Parallel fan-out/fan-in · ALL must PASS</div>
+
+<div class="kb"><span class="kt">payments.compliance.response</span></div>
+
+<!-- Step 5: Tier 5 — Accounting Saga -->
+<div class="fn n-vi" style="min-width:500px">
+<div class="ni2">TIER 5 — ACCOUNTING SAGA</div>
+<div class="nl">Credit John's Account · Fee Posting · GL Entry</div>
+<div class="ns">Double-entry: Nostro DR → John's Account CR · Append to event-sourced ledger</div>
+</div>
+
+<!-- ACSC Final — highlighted -->
+<div style="margin:14px auto;max-width:500px;padding:16px 20px;border-radius:var(--r);background:rgba(6,182,212,.1);border:2px solid rgba(6,182,212,.4);text-align:center;box-shadow:0 0 24px rgba(6,182,212,.12)">
+<div style="display:flex;align-items:center;justify-content:center;gap:8px">
+<span style="font-size:18px">✓</span>
+<span class="mono cyn" style="font-size:15px;font-weight:700">FINAL pacs.002 ACSC</span>
+</div>
+<div class="mono dim" style="font-size:11px;margin-top:6px">Settlement confirmed → sent back to FAST via Tier 1 outbound · <strong class="cyn">&lt;5s</strong> E2E</div>
+<div class="mono dim" style="font-size:10px;margin-top:2px">Status: ACSC (AcceptedSettlementCompleted) · "Funds credited to beneficiary"</div>
+</div>
+
+<div class="kb"><span class="kt">payments.status.changes</span> <span class="kt">payments.notifications</span></div>
+
+<!-- Step 6: Tier 6 — Reporting -->
+<div class="fn n-ro" style="min-width:500px">
+<div class="ni2">TIER 6 — REPORTING & RECONCILIATION</div>
+<div class="nl">Dashboard Update · Notification · EOD Recon Entry</div>
+<div class="ns">ClickHouse analytics · GraphQL push to ops portal · Audit trail complete</div>
+</div>
+
 </div>
 </div>
 
-<!-- SLA callout (always visible) -->
+<!-- SLA callout -->
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:20px">
 <div class="card" style="border-left:3px solid var(--green);text-align:center"><div class="sla-v grn" style="font-size:20px">&lt;500ms</div><p style="font-size:12px;font-weight:600">1st pacs.002 (ACTC)</p><p class="mono dim" style="font-size:10px">Technical ACK</p></div>
 <div class="card" style="border-left:3px solid var(--cyan);text-align:center"><div class="sla-v cyn" style="font-size:20px">&lt;5s</div><p style="font-size:12px;font-weight:600">2nd pacs.002 (ACSC)</p><p class="mono dim" style="font-size:10px">Settlement complete</p></div>
@@ -578,235 +332,132 @@ tr:last-child td{border-bottom:0}tr:hover{background:rgba(255,255,255,.02)}
 </div>
 </div>
 
-<!-- ═══ COLLAPSIBLE OUTBOUND METRO MAP ═══ -->
-<button class="collapse-trigger" onclick="toggleCollapse(this)">
-  <span class="chevron">&#9654;</span>
-  <span class="ct-badge">METRO MAP</span>
-  Detailed Outbound Flow — Transit Diagram
-</button>
-<div class="collapse-body">
-<div class="flow-box" data-label="OUTBOUND — METRO MAP (PAYONEX → DBS VIA FAST)" style="padding:40px 24px 16px;overflow:visible;margin-top:12px">
-<div class="mm">
-  <div class="mm-trunk"></div>
+<!-- Detailed Vertical Flow -->
+<div class="flow-box" data-label="OUTBOUND FLOW — FAST PAYMENT EXAMPLE (PAYONEX → DBS)" style="padding-top:44px">
+<div style="text-align:center">
 
-  <!-- Station 0: Internal Channel -->
-  <div class="mm-st ext">
-    <div class="mm-dot"></div>
-    <div class="mm-card">
-      <div class="mm-tier">Internal &mdash; Payment Instruction</div>
-      <h3>John initiates SGD 500 to Alice (DBS)</h3>
-      <div class="mm-desc">Via REST API / gRPC / pain.001 from internal channel</div>
-      <div class="mm-tech">ISO 20022 pain.001 &middot; Internal canonical format</div>
-    </div>
-  </div>
-
-  <div class="mm-spc"></div>
-
-  <!-- Station 1: Tier 1 Ingestion -->
-  <div class="mm-st s-blue">
-    <div class="mm-dot"></div>
-    <div class="mm-card">
-      <div class="mm-tier">Tier 1 &mdash; Ingestion Gateway</div>
-      <h3>Dedup &amp; Envelope Wrap</h3>
-      <div class="mm-desc">Redis dedup &middot; Assign UUID v7 &middot; Protocol normalization</div>
-      <div class="mm-tech">Internal canonical format &middot; Parse instruction header</div>
-    </div>
-  </div>
-
-  <!-- Kafka: payments.inbound.raw -->
-  <div class="mm-kafka">
-    <div class="mk-dot"></div>
-    <div class="mk-conn"></div>
-    <div class="mk-label">payments.inbound.raw</div>
-  </div>
-
-  <!-- Station 2: Tier 2 Build -->
-  <div class="mm-st s-cyan">
-    <div class="mm-dot"></div>
-    <div class="mm-card">
-      <div class="mm-tier">Tier 2 &mdash; Message Processing</div>
-      <h3>Build pacs.008 &amp; Route</h3>
-      <div class="mm-desc">BIC/IBAN resolve &middot; FX rate lookup &middot; Fee calculation &middot; Routing decision</div>
-      <div class="mm-tech">Construct ISO 20022 pacs.008 &middot; Route: FAST (real-time, SGD)</div>
-    </div>
-  </div>
-
-  <!-- Kafka: payments.enriched -->
-  <div class="mm-kafka">
-    <div class="mk-dot"></div>
-    <div class="mk-conn"></div>
-    <div class="mk-label">payments.enriched</div>
-  </div>
-
-  <!-- Station 3: Tier 3 Compliance -->
-  <div class="mm-st s-amber">
-    <div class="mm-dot"></div>
-    <div class="mm-card">
-      <div class="mm-tier">Tier 3 &mdash; Compliance Engine</div>
-      <h3>Parallel Screening</h3>
-      <div class="mm-desc">Internal async saga &middot; 4 engines run simultaneously &middot; ALL must PASS</div>
-      <div class="mm-tech">Saga orchestrator &middot; Circuit breaker per check &middot; Timeout fallback</div>
-    </div>
-  </div>
-
-  <!-- Compliance fan-out -->
-  <div class="mm-comp">
-    <div class="mm-comp-label">Parallel Fan-Out &rarr; Fan-In</div>
-    <div class="mm-comp-grid">
-      <div class="mm-comp-item"><div class="ci-dot" style="background:var(--rose)"></div><span class="ci-name">Sanctions</span><span class="ci-sla">OFAC/EU/UN/MAS &lt;200ms</span></div>
-      <div class="mm-comp-item"><div class="ci-dot" style="background:var(--amber)"></div><span class="ci-name">AML</span><span class="ci-sla">Tx Monitor &lt;2s</span></div>
-      <div class="mm-comp-item"><div class="ci-dot" style="background:var(--violet)"></div><span class="ci-name">Fraud</span><span class="ci-sla">ML Scoring &lt;100ms</span></div>
-      <div class="mm-comp-item"><div class="ci-dot" style="background:var(--cyan)"></div><span class="ci-name">PEP Screen</span><span class="ci-sla">&lt;500ms</span></div>
-    </div>
-  </div>
-
-  <!-- Kafka: payments.compliance.response -->
-  <div class="mm-kafka">
-    <div class="mk-dot"></div>
-    <div class="mk-conn"></div>
-    <div class="mk-label">payments.compliance.response</div>
-  </div>
-
-  <!-- Station 4: Tier 5 Pre-Clearing Saga -->
-  <div class="mm-st s-violet">
-    <div class="mm-dot"></div>
-    <div class="mm-card">
-      <div class="mm-tier">Tier 5 &mdash; Pre-Clearing Saga (Part 1 of 2)</div>
-      <h3>&#9312; Debit &middot; &#9313; Fees &middot; &#9314; FX Convert</h3>
-      <div class="mm-desc">Debit John's account &rarr; Suspense &middot; Calculate fees &rarr; Fee Income GL &middot; FX if cross-currency</div>
-      <div class="mm-tech">Funds held in suspense until clearing confirms &middot; Compensating transactions on RJCT</div>
-    </div>
-  </div>
-
-  <!-- Kafka: payments.clearing.outbound -->
-  <div class="mm-kafka">
-    <div class="mk-dot"></div>
-    <div class="mk-conn"></div>
-    <div class="mk-label">payments.clearing.outbound</div>
-  </div>
-
-  <!-- Station 5: Tier 4 Clearing Adapter -->
-  <div class="mm-st s-green" style="position:relative">
-    <div class="mm-dot"></div>
-    <div class="mm-card">
-      <div class="mm-tier">Tier 4 &mdash; Clearing Adapter (FAST)</div>
-      <h3>Submit pacs.008 to Clearing</h3>
-      <div class="mm-desc">FastClearingAdapter.submit() &middot; Strategy Pattern &middot; Async non-blocking</div>
-      <div class="mm-tech">pacs.008 placed on MQ Outbound Queue &middot; Awaits pacs.002 response</div>
-    </div>
-  </div>
-
-  <!-- MQ Outbound -->
-  <div class="mm-mq">
-    <div class="mq-dot"></div>
-    <div class="mq-conn"></div>
-    <div class="mq-label">MQ.OUTBOUND.FAST.001</div>
-  </div>
-
-  <!-- Station 6: FAST / Phantom -->
-  <div class="mm-st s-green" style="position:relative">
-    <div class="mm-dot" style="width:28px;height:28px;left:107px;top:10px;box-shadow:0 0 16px rgba(16,185,129,.35);border-width:4px"></div>
-    <div class="mm-card" style="border-color:rgba(16,185,129,.3);background:linear-gradient(135deg,var(--bg2),rgba(16,185,129,.05))">
-      <div class="mm-tier">Clearing House &mdash; FAST Network</div>
-      <h3>FAST processes pacs.008 &middot; Returns pacs.002</h3>
-      <div class="mm-desc">ABS / NETS validates &amp; settles &middot; Returns pacs.002 (ACSC or RJCT)</div>
-      <div class="mm-tech">Response placed on MQ Inbound Queue &middot; Full round-trip</div>
-    </div>
-    <div class="mm-dev">
-      <div class="dc-badge">DEV Simulation</div>
-      <div class="dc-title">Phantom Simulator</div>
-      <div class="dc-desc">Docker container mimics <strong>FAST clearing</strong> &mdash; configurable: Success (ACSC), Rejection (RJCT), Timeout, Partial</div>
-    </div>
-  </div>
-
-  <!-- MQ Inbound (response) -->
-  <div class="mm-mq">
-    <div class="mq-dot"></div>
-    <div class="mq-conn"></div>
-    <div class="mq-label">MQ.INBOUND.FAST.001</div>
-  </div>
-
-  <!-- Station 7: Tier 1 Response -->
-  <div class="mm-st s-blue">
-    <div class="mm-dot"></div>
-    <div class="mm-card">
-      <div class="mm-tier">Tier 1 &mdash; Ingestion Gateway (Response)</div>
-      <h3>Receive pacs.002 &amp; Parse</h3>
-      <div class="mm-desc">MQ Consume &middot; Dedup &middot; Detect clearing response by message type</div>
-      <div class="mm-tech">Same bidirectional gateway &middot; Parse ACTC/ACSC/RJCT status</div>
-    </div>
-  </div>
-
-  <!-- Kafka: payments.clearing.response -->
-  <div class="mm-kafka">
-    <div class="mk-dot"></div>
-    <div class="mk-conn"></div>
-    <div class="mk-label">payments.clearing.response</div>
-  </div>
-
-  <!-- Station 8: Tier 2 Correlate -->
-  <div class="mm-st s-cyan">
-    <div class="mm-dot"></div>
-    <div class="mm-card">
-      <div class="mm-tier">Tier 2 &mdash; Correlation Engine</div>
-      <h3>Match via OrgnlTxId</h3>
-      <div class="mm-desc">pacs.002 contains OrgnlMsgId + OrgnlTxId &rarr; lookup original payment</div>
-      <div class="mm-tech">Route matched payment to Accounting &middot; State transition update</div>
-    </div>
-  </div>
-
-  <!-- Kafka: payments.accounting.booked -->
-  <div class="mm-kafka">
-    <div class="mk-dot"></div>
-    <div class="mk-conn"></div>
-    <div class="mk-label">payments.accounting.booked</div>
-  </div>
-
-  <!-- Station 9: Tier 5 Post-Clearing Saga -->
-  <div class="mm-st sp-cyan" style="position:relative">
-    <div class="mm-dot"><span class="dot-icon">✓</span></div>
-    <div class="mm-card">
-      <div class="mm-tier">Tier 5 &mdash; Post-Clearing Saga (Part 2 of 2)</div>
-      <h3>&#9315; Settle Nostro &middot; &#9316; GL Posting</h3>
-      <div class="mm-desc">Suspense &rarr; Nostro/Vostro &middot; Post to Core Banking GL &middot; Payment complete</div>
-      <div class="mm-tech">If RJCT &rarr; compensate: reverse debit, refund fees, release suspense</div>
-    </div>
-  </div>
-
-  <!-- Kafka: payments.status.changes -->
-  <div class="mm-kafka">
-    <div class="mk-dot"></div>
-    <div class="mk-conn"></div>
-    <div class="mk-label">payments.status.changes</div>
-  </div>
-
-  <!-- Station 10: Tier 6 Reporting -->
-  <div class="mm-st s-rose">
-    <div class="mm-dot"></div>
-    <div class="mm-card">
-      <div class="mm-tier">Tier 6 &mdash; Reporting &amp; Analytics</div>
-      <h3>Real-Time Dashboards</h3>
-      <div class="mm-desc">Dashboard Update &middot; Customer Notification &middot; EOD Recon Entry</div>
-      <div class="mm-tech">ClickHouse analytics &middot; Status: COMPLETED &middot; Audit trail sealed</div>
-    </div>
-  </div>
-</div><!-- /mm -->
-
-<!-- Metro Legend -->
-<div class="mm-legend">
-  <div class="mm-legend-inner">
-    <h4>Legend</h4>
-    <div class="mm-legend-grid">
-      <div class="mm-legend-item"><div style="width:20px;height:4px;border-radius:2px;background:var(--blue)"></div><span>Trunk Line</span></div>
-      <div class="mm-legend-item"><div style="width:10px;height:10px;border-radius:50%;border:2px dashed var(--t3);background:var(--bg)"></div><span>External / Internal</span></div>
-      <div class="mm-legend-item"><div style="width:10px;height:10px;border-radius:50%;border:2px solid var(--blue);background:var(--bg)"></div><span>Tier Station</span></div>
-      <div class="mm-legend-item"><div style="width:10px;height:10px;border-radius:50%;border:2px solid var(--cyan);box-shadow:0 0 8px rgba(6,182,212,.5)"></div><span>Settlement ✓</span></div>
-      <div class="mm-legend-item"><div style="width:8px;height:8px;border-radius:2px;rotate:45deg;background:var(--kafka)"></div><span>Kafka</span></div>
-      <div class="mm-legend-item"><div style="width:8px;height:8px;border-radius:2px;background:var(--blue);box-shadow:0 0 4px rgba(59,130,246,.3)"></div><span>IBM MQ</span></div>
-      <div class="mm-legend-item"><div style="width:14px;height:8px;border-radius:3px;border:1px dashed rgba(249,115,22,.5);background:rgba(249,115,22,.08)"></div><span style="color:var(--orange)">Phantom (DEV)</span></div>
-    </div>
-  </div>
+<!-- Step 1: Internal channel -->
+<div style="margin-bottom:6px">
+<div class="fn n-ex" style="min-width:500px">
+<div class="ni2">INTERNAL · PAYMENT INSTRUCTION</div>
+<div class="nl">John initiates SGD 500 to Alice (DBS)</div>
+<div class="ns">Via REST API / gRPC / pain.001 from internal channel</div>
 </div>
+</div>
+<div style="color:var(--t3);font-size:18px;margin:4px 0">▾</div>
+
+<!-- Step 2: Tier 1 — Ingestion -->
+<div class="fn n-bl" style="min-width:500px">
+<div class="ni2">TIER 1 — INGESTION GATEWAY</div>
+<div class="nl">Dedup (Redis) · Envelope Wrap · Assign UUID v7</div>
+<div class="ns">Protocol normalization · Internal canonical format</div>
+</div>
+
+<div class="kb">▸ KAFKA <span class="kt">payments.inbound.raw</span> ◂</div>
+
+<!-- Step 3: Tier 2 — Message Processing -->
+<div class="fn n-cy" style="min-width:500px">
+<div class="ni2">TIER 2 — MESSAGE PROCESSING</div>
+<div class="nl">Validate · Build pacs.008 · BIC Resolve · FX · Fee Calc</div>
+<div class="ns">Construct ISO 20022 pacs.008 payload · Determine routing: FAST (real-time, SGD)</div>
+</div>
+
+<div class="kb"><span class="kt">payments.enriched</span></div>
+
+<!-- Step 4: Tier 3 — Compliance -->
+<div style="margin:8px 0">
+<div class="fn n-am"><div class="ni2">SANCTIONS</div><div class="nl">OFAC·EU·UN·MAS</div><div class="ns">&lt;200ms</div></div>
+<div class="fn n-am"><div class="ni2">AML</div><div class="nl">Tx Monitor</div><div class="ns">&lt;2s</div></div>
+<div class="fn n-am"><div class="ni2">FRAUD</div><div class="nl">ML Scoring</div><div class="ns">&lt;100ms</div></div>
+<div class="fn n-am"><div class="ni2">PEP</div><div class="nl">PEP Screen</div><div class="ns">&lt;500ms</div></div>
+</div>
+<div class="mono dim" style="font-size:11px;margin:4px 0">TIER 3 — COMPLIANCE · Parallel fan-out/fan-in · ALL must PASS</div>
+
+<div class="kb"><span class="kt">payments.compliance.response</span></div>
+
+<!-- Step 5: Tier 5 Part 1 — Pre-Clearing Saga -->
+<div style="margin:14px auto;max-width:500px;padding:16px 20px;border-radius:var(--r);background:rgba(139,92,246,.08);border:2px solid rgba(139,92,246,.3);text-align:center">
+<div class="mono vio" style="font-size:13px;font-weight:700;margin-bottom:8px">TIER 5 — PRE-CLEARING SAGA (Part 1 of 2)</div>
+<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+<div class="fn n-vi" style="min-width:auto;padding:8px 14px"><div class="nl" style="font-size:11px">① Debit John</div><div class="ns">Customer → Suspense</div></div>
+<span class="arr">→</span>
+<div class="fn n-vi" style="min-width:auto;padding:8px 14px"><div class="nl" style="font-size:11px">② Calc Fees</div><div class="ns">Fee Income GL</div></div>
+<span class="arr">→</span>
+<div class="fn n-vi" style="min-width:auto;padding:8px 14px"><div class="nl" style="font-size:11px">③ FX Convert</div><div class="ns">If cross-ccy</div></div>
+</div>
+<div class="mono dim" style="font-size:10px;margin-top:8px">Funds held in suspense account until clearing confirms</div>
+</div>
+
+<div class="kb"><span class="kt">payments.clearing.outbound</span></div>
+
+<!-- Step 6: Tier 4 — Clearing Adapter -->
+<div class="fn n-gn" style="min-width:500px">
+<div class="ni2">TIER 4 — CLEARING ADAPTER (FAST)</div>
+<div class="nl">Submit pacs.008 to MQ Outbound Queue</div>
+<div class="ns">FastClearingAdapter.submit() · Strategy Pattern · Async non-blocking</div>
+</div>
+
+<div style="color:var(--t3);font-size:18px;margin:6px 0">▾</div>
+
+<!-- Step 7: PROD vs DEV split -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:520px;margin:8px auto">
+<div style="padding:16px;border-radius:var(--r);background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.25);text-align:center">
+<div class="mono grn" style="font-size:13px;font-weight:700">PRODUCTION</div>
+<div style="font-size:28px;margin:6px 0">🏦</div>
+<div class="mono dim" style="font-size:11px">FAST Network (ABS/NETS)</div>
+<div class="mono dim" style="font-size:10px;margin-top:4px">Processes pacs.008 · Validates</div>
+<div class="mono dim" style="font-size:10px">Returns pacs.002 via SWIFT</div>
+</div>
+<div style="padding:16px;border-radius:var(--r);background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.25);text-align:center">
+<div class="mono amb" style="font-size:13px;font-weight:700">DEV · PHANTOM</div>
+<div style="font-size:28px;margin:6px 0">👻</div>
+<div class="mono dim" style="font-size:11px">Mock Clearing Simulator</div>
+<div class="mono dim" style="font-size:10px;margin-top:4px">Docker container · MQ listener</div>
+<div class="mono dim" style="font-size:10px">Configurable delay + scenarios</div>
+</div>
+</div>
+<div class="mono dim" style="font-size:10px;margin:4px 0">Both paths return pacs.002 on MQ Inbound Queue → tests full round-trip</div>
+
+<div style="color:var(--t3);font-size:18px;margin:6px 0">▾</div>
+
+<!-- Step 8: Response arrives — Tier 1 receives -->
+<div class="fn n-bl" style="min-width:500px">
+<div class="ni2">TIER 1 — INGESTION GATEWAY (RESPONSE)</div>
+<div class="nl">Receive pacs.002 from MQ Inbound · Dedup · Parse Status</div>
+<div class="ns">Same bidirectional gateway · Detects clearing response by message type</div>
+</div>
+
+<div class="kb">▸ KAFKA <span class="kt">payments.clearing.response</span> ◂</div>
+
+<!-- Step 9: Tier 2 — Correlate -->
+<div class="fn n-cy" style="min-width:500px">
+<div class="ni2">TIER 2 — CORRELATION ENGINE</div>
+<div class="nl">Match via OrgnlTxId · Route to Accounting</div>
+<div class="ns">pacs.002 contains OrgnlMsgId + OrgnlTxId → lookup original payment</div>
+</div>
+
+<div class="kb"><span class="kt">payments.accounting.booked</span></div>
+
+<!-- Step 10: Tier 5 Part 2 — Post-Clearing Saga -->
+<div style="margin:14px auto;max-width:500px;padding:16px 20px;border-radius:var(--r);background:rgba(139,92,246,.08);border:2px solid rgba(139,92,246,.3);text-align:center">
+<div class="mono vio" style="font-size:13px;font-weight:700;margin-bottom:8px">TIER 5 — POST-CLEARING SAGA (Part 2 of 2)</div>
+<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+<div class="fn n-vi" style="min-width:auto;padding:8px 14px"><div class="nl" style="font-size:11px">④ Settle Nostro</div><div class="ns">Suspense → Nostro</div></div>
+<span class="arr">→</span>
+<div class="fn n-vi" style="min-width:auto;padding:8px 14px"><div class="nl" style="font-size:11px">⑤ GL Posting</div><div class="ns">Core Banking GL</div></div>
+</div>
+<div class="mono dim" style="font-size:10px;margin-top:8px">If pacs.002 = RJCT → compensate: reverse debit, refund fees, release suspense</div>
+</div>
+
+<div class="kb"><span class="kt">payments.status.changes</span> <span class="kt">payments.notifications</span></div>
+
+<!-- Step 11: Tier 6 — Reporting -->
+<div class="fn n-ro" style="min-width:500px">
+<div class="ni2">TIER 6 — REPORTING & RECONCILIATION</div>
+<div class="nl">Dashboard Update · Customer Notification · EOD Recon Entry</div>
+<div class="ns">ClickHouse analytics · Status: COMPLETED · Audit trail sealed</div>
+</div>
+
 </div>
 </div>
 
@@ -1097,18 +748,13 @@ tr:last-child td{border-bottom:0}tr:hover{background:rgba(255,255,255,.02)}
 </section>
 
 <footer class="footer">
-PayoneX · Enterprise Payment Processing Platform · Architecture v2.0 · February 2026 · Confidential
+Enterprise Payment Processing Platform · Architecture v2.0 · February 2026 · Confidential
 </footer>
 
 </div>
 
 <script>
 function scrollTo_(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'})}
-function toggleCollapse(btn){
-  btn.classList.toggle('open');
-  const body=btn.nextElementSibling;
-  body.classList.toggle('open');
-}
 document.querySelectorAll('.nb').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('.nb').forEach(x=>x.classList.remove('a'));this.classList.add('a')}));
 // Intersection observer for nav highlighting
 const sections=document.querySelectorAll('section[id]');

@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swimlane — Payment Flow</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#08090d;--bg2:#0f1118;--bg3:#151822;--bg4:#1a1e2e;
+  --bdr:#1f2438;--bdr2:#2a3050;
+  --t1:#e8eaf0;--t2:#8b90a0;--t3:#555a6e;
+  --blue:#3b82f6;--cyan:#06b6d4;--green:#10b981;--amber:#f59e0b;
+  --rose:#f43f5e;--violet:#8b5cf6;--orange:#f97316;--kafka:#e8523f;
+  --r:10px;--fd:'Outfit',sans-serif;--fm:'JetBrains Mono',monospace;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--t1);
+  font-family: var(--fd);
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Page Header ─── */
+.page-header {
+  text-align: center;
+  padding: 48px 24px 36px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.page-header h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--t1);
+  margin-bottom: 6px;
+}
+.page-header h1 span {
+  color: var(--t3);
+  font-weight: 400;
+}
+.page-header .subtitle {
+  font-family: var(--fm);
+  font-size: 0.85rem;
+  color: var(--t2);
+  letter-spacing: 0.5px;
+}
+.page-header .subtitle strong {
+  color: var(--cyan);
+  font-weight: 600;
+}
+
+/* ─── Diagram Container ─── */
+.diagram {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+}
+
+/* ─── Lane ─── */
+.lane {
+  display: flex;
+  align-items: stretch;
+  min-height: 90px;
+  border-radius: var(--r);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ─── Lane Label ─── */
+.lane-label {
+  width: 150px;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px 14px;
+  border-left: 4px solid;
+  position: relative;
+  z-index: 2;
+}
+.lane-label .tier-num {
+  font-family: var(--fm);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  opacity: 0.6;
+  margin-bottom: 2px;
+}
+.lane-label .tier-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+/* ─── Lane Content ─── */
+.lane-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px 24px;
+  position: relative;
+}
+.lane-content .nodes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.lane-content .nodes.parallel {
+  gap: 12px;
+}
+.lane-content .note {
+  font-family: var(--fm);
+  font-size: 0.7rem;
+  color: var(--t3);
+  margin-top: 10px;
+  letter-spacing: 0.3px;
+}
+.lane-content .note strong {
+  color: var(--t2);
+}
+
+/* ─── Service Node ─── */
+.node {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid;
+  font-family: var(--fm);
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: nowrap;
+  background: rgba(0,0,0,0.3);
+  position: relative;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.node:hover {
+  transform: translateY(-1px);
+}
+
+/* Arrow between sequential nodes */
+.arrow {
+  display: inline-flex;
+  align-items: center;
+  color: var(--t3);
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  user-select: none;
+}
+.arrow::after {
+  content: '→';
+}
+
+/* ─── Parallel Compliance Nodes ─── */
+.node.compliance-node {
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px 16px;
+  min-width: 170px;
+  gap: 3px;
+}
+.node.compliance-node .cn-title {
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+.node.compliance-node .cn-detail {
+  font-size: 0.62rem;
+  opacity: 0.6;
+}
+.node.compliance-node .cn-sla {
+  font-size: 0.6rem;
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* ─── Lane Color Themes ─── */
+
+/* External */
+.lane.external {
+  background: rgba(85,90,110,0.08);
+  border: 1px dashed var(--bdr2);
+}
+.lane.external .lane-label { border-left-color: var(--t3); }
+.lane.external .tier-name { color: var(--t2); }
+.lane.external .node {
+  border-color: var(--bdr2);
+  color: var(--t2);
+}
+
+/* Tier 1 — Ingestion (blue) */
+.lane.tier1 { background: rgba(59,130,246,0.06); }
+.lane.tier1 .lane-label { border-left-color: var(--blue); }
+.lane.tier1 .tier-name { color: var(--blue); }
+.lane.tier1 .node {
+  border-color: rgba(59,130,246,0.35);
+  color: var(--blue);
+}
+.lane.tier1 .node:hover { box-shadow: 0 0 12px rgba(59,130,246,0.15); }
+
+/* Tier 2 — Processing (cyan) */
+.lane.tier2 { background: rgba(6,182,212,0.06); }
+.lane.tier2 .lane-label { border-left-color: var(--cyan); }
+.lane.tier2 .tier-name { color: var(--cyan); }
+.lane.tier2 .node {
+  border-color: rgba(6,182,212,0.35);
+  color: var(--cyan);
+}
+.lane.tier2 .node:hover { box-shadow: 0 0 12px rgba(6,182,212,0.15); }
+
+/* Tier 3 — Compliance (amber) */
+.lane.tier3 { background: rgba(245,158,11,0.06); }
+.lane.tier3 .lane-label { border-left-color: var(--amber); }
+.lane.tier3 .tier-name { color: var(--amber); }
+.lane.tier3 .node {
+  border-color: rgba(245,158,11,0.3);
+  color: var(--amber);
+}
+.lane.tier3 .node:hover { box-shadow: 0 0 12px rgba(245,158,11,0.12); }
+
+/* Tier 5 — Accounting (violet) */
+.lane.tier5 { background: rgba(139,92,246,0.06); }
+.lane.tier5 .lane-label { border-left-color: var(--violet); }
+.lane.tier5 .tier-name { color: var(--violet); }
+.lane.tier5 .node {
+  border-color: rgba(139,92,246,0.35);
+  color: var(--violet);
+}
+.lane.tier5 .node:hover { box-shadow: 0 0 12px rgba(139,92,246,0.15); }
+
+/* Tier 6 — Reporting (rose) */
+.lane.tier6 { background: rgba(244,63,94,0.06); }
+.lane.tier6 .lane-label { border-left-color: var(--rose); }
+.lane.tier6 .tier-name { color: var(--rose); }
+.lane.tier6 .node {
+  border-color: rgba(244,63,94,0.35);
+  color: var(--rose);
+}
+.lane.tier6 .node:hover { box-shadow: 0 0 12px rgba(244,63,94,0.15); }
+
+/* ─── Kafka Rail ─── */
+.kafka-rail {
+  width: 100%;
+  height: 38px;
+  background: linear-gradient(90deg, rgba(232,82,63,0.04) 0%, rgba(232,82,63,0.10) 50%, rgba(232,82,63,0.04) 100%);
+  border-top: 1px solid rgba(232,82,63,0.18);
+  border-bottom: 1px solid rgba(232,82,63,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.kafka-rail .rail-label {
+  font-family: var(--fm);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--kafka);
+  letter-spacing: 0.5px;
+  z-index: 2;
+  background: rgba(8,9,13,0.7);
+  padding: 2px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(232,82,63,0.25);
+}
+.kafka-rail .rail-label::before {
+  content: '◆ ';
+  font-size: 0.5rem;
+  vertical-align: middle;
+}
+
+/* Kafka pulse animation */
+.kafka-rail .pulse {
+  position: absolute;
+  top: 0;
+  left: -120px;
+  width: 120px;
+  height: 100%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(232,82,63,0.03) 20%,
+    rgba(232,82,63,0.18) 50%,
+    rgba(232,82,63,0.03) 80%,
+    transparent 100%
+  );
+  animation: kafka-pulse 3s linear infinite;
+  z-index: 1;
+}
+.kafka-rail .pulse:nth-child(2) {
+  animation-delay: 1.5s;
+  opacity: 0.6;
+}
+/* Bright dot traveling across */
+.kafka-rail .dot {
+  position: absolute;
+  top: 50%;
+  left: -8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--kafka);
+  box-shadow: 0 0 10px var(--kafka), 0 0 20px rgba(232,82,63,0.4);
+  transform: translateY(-50%);
+  animation: kafka-dot 4s linear infinite;
+  z-index: 3;
+}
+.kafka-rail .dot:nth-child(3) {
+  animation-delay: 2s;
+  width: 6px;
+  height: 6px;
+  opacity: 0.7;
+}
+.kafka-rail .dot:nth-child(4) {
+  animation-delay: 3.2s;
+  width: 5px;
+  height: 5px;
+  opacity: 0.5;
+}
+
+@keyframes kafka-pulse {
+  0%   { left: -120px; }
+  100% { left: 100%; }
+}
+@keyframes kafka-dot {
+  0%   { left: -8px; opacity: 0; }
+  5%   { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { left: calc(100% + 8px); opacity: 0; }
+}
+
+/* ─── Special ACK / Final Bands ─── */
+.ack-band {
+  width: 100%;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--fm);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ACTC — green glow */
+.ack-band.actc {
+  background: linear-gradient(90deg, rgba(16,185,129,0.04) 0%, rgba(16,185,129,0.12) 50%, rgba(16,185,129,0.04) 100%);
+  color: var(--green);
+  border-top: 1px solid rgba(16,185,129,0.25);
+  border-bottom: 1px solid rgba(16,185,129,0.25);
+  text-shadow: 0 0 20px rgba(16,185,129,0.3);
+}
+.ack-band.actc::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(16,185,129,0.08) 0%, transparent 70%);
+  animation: glow-pulse 2.5s ease-in-out infinite;
+}
+
+/* ACSC — cyan glow */
+.ack-band.acsc {
+  background: linear-gradient(90deg, rgba(6,182,212,0.04) 0%, rgba(6,182,212,0.12) 50%, rgba(6,182,212,0.04) 100%);
+  color: var(--cyan);
+  border-top: 1px solid rgba(6,182,212,0.25);
+  border-bottom: 1px solid rgba(6,182,212,0.25);
+  text-shadow: 0 0 20px rgba(6,182,212,0.3);
+}
+.ack-band.acsc::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(6,182,212,0.08) 0%, transparent 70%);
+  animation: glow-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 1; }
+}
+
+.ack-band .band-text {
+  position: relative;
+  z-index: 2;
+}
+
+/* ─── SLA Summary ─── */
+.sla-summary {
+  max-width: 1400px;
+  margin: 40px auto 0;
+  padding: 0 20px 80px;
+}
+.sla-summary h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--t2);
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+}
+.sla-cards {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.sla-card {
+  flex: 1;
+  min-width: 200px;
+  background: var(--bg2);
+  border: 1px solid var(--bdr);
+  border-radius: var(--r);
+  padding: 20px 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.sla-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+.sla-card.green::before { background: var(--green); }
+.sla-card.cyan::before { background: var(--cyan); }
+.sla-card.blue::before { background: var(--blue); }
+
+.sla-card .sla-label {
+  font-family: var(--fm);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.sla-card .sla-value {
+  font-family: var(--fm);
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+.sla-card.green .sla-value { color: var(--green); }
+.sla-card.cyan .sla-value { color: var(--cyan); }
+.sla-card.blue .sla-value { color: var(--blue); }
+
+.sla-card .sla-desc {
+  font-size: 0.75rem;
+  color: var(--t3);
+  margin-top: 4px;
+}
+
+/* ─── Vertical Dashed Connectors ─── */
+.lane-wrapper {
+  position: relative;
+}
+
+/* ─── External node (wider) ─── */
+.node.ext-node {
+  padding: 10px 20px;
+  font-size: 0.73rem;
+  max-width: 100%;
+  white-space: normal;
+  line-height: 1.6;
+}
+.node.ext-node .ext-proto {
+  display: inline-block;
+  background: rgba(255,255,255,0.06);
+  padding: 1px 7px;
+  border-radius: 4px;
+  margin: 0 3px;
+  font-weight: 600;
+}
+
+/* ─── Compliance fan-out label ─── */
+.fan-label {
+  font-family: var(--fm);
+  font-size: 0.65rem;
+  color: var(--amber);
+  opacity: 0.7;
+  margin-top: 10px;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 900px) {
+  .lane-label {
+    width: 110px;
+    min-width: 110px;
+    padding: 12px 10px;
+  }
+  .lane-label .tier-name { font-size: 0.75rem; }
+  .lane-content { padding: 14px 16px; }
+  .node { font-size: 0.65rem; padding: 6px 10px; }
+  .node.compliance-node { min-width: 140px; }
+  .sla-cards { flex-direction: column; }
+}
+
+/* ─── Faint grid lines on bg ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(31,36,56,0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31,36,56,0.15) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page-header, .diagram, .sla-summary {
+  position: relative;
+  z-index: 1;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header class="page-header">
+  <h1>Swimlane <span>— Payment Flow</span></h1>
+  <p class="subtitle">Inbound FAST Payment &nbsp;( <strong>DBS &rarr; Payonex</strong> )</p>
+</header>
+
+<!-- ═══════════════ DIAGRAM ═══════════════ -->
+<div class="diagram">
+
+  <!-- ───── LANE 0: EXTERNAL ───── -->
+  <div class="lane-wrapper">
+    <div class="lane external">
+      <div class="lane-label">
+        <span class="tier-num">Lane 0</span>
+        <span class="tier-name">EXTERNAL</span>
+      </div>
+      <div class="lane-content">
+        <div class="nodes">
+          <div class="node ext-node">
+            FAST Network &nbsp;&middot;&nbsp;
+            <span class="ext-proto">pacs.008</span>
+            &nbsp;&middot;&nbsp; DBS debits Alice &nbsp;SGD 500
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Kafka Rail ─── -->
+  <div class="kafka-rail">
+    <div class="pulse"></div>
+    <div class="pulse"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <span class="rail-label">fast.inbound.pacs008</span>
+  </div>
+
+  <!-- ───── LANE 1: TIER 1 INGESTION ───── -->
+  <div class="lane-wrapper">
+    <div class="lane tier1">
+      <div class="lane-label">
+        <span class="tier-num">Tier 1</span>
+        <span class="tier-name">INGESTION</span>
+      </div>
+      <div class="lane-content">
+        <div class="nodes">
+          <div class="node">MQ Consume</div>
+          <span class="arrow"></span>
+          <div class="node">Dedup (Redis)</div>
+          <span class="arrow"></span>
+          <div class="node">XSD Validate</div>
+          <span class="arrow"></span>
+          <div class="node">Envelope Wrap</div>
+          <span class="arrow"></span>
+          <div class="node">UUID v7</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── ACTC ACK Band ─── -->
+  <div class="ack-band actc">
+    <span class="band-text">&#9889; &nbsp;IMMEDIATE pacs.002 ACTC &nbsp;&middot;&nbsp; Technical ACK &nbsp;&middot;&nbsp; &lt;500ms</span>
+  </div>
+
+  <!-- ─── Kafka Rail ─── -->
+  <div class="kafka-rail">
+    <div class="pulse"></div>
+    <div class="pulse"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <span class="rail-label">payments.inbound.raw (24 partitions)</span>
+  </div>
+
+  <!-- ───── LANE 2: TIER 2 PROCESSING ───── -->
+  <div class="lane-wrapper">
+    <div class="lane tier2">
+      <div class="lane-label">
+        <span class="tier-num">Tier 2</span>
+        <span class="tier-name">PROCESSING</span>
+      </div>
+      <div class="lane-content">
+        <div class="nodes">
+          <div class="node">Beneficiary Lookup</div>
+          <span class="arrow"></span>
+          <div class="node">Business Validation</div>
+          <span class="arrow"></span>
+          <div class="node">BIC/IBAN Resolve</div>
+          <span class="arrow"></span>
+          <div class="node">FX Rates</div>
+          <span class="arrow"></span>
+          <div class="node">Fee Calc</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Kafka Rail ─── -->
+  <div class="kafka-rail">
+    <div class="pulse"></div>
+    <div class="pulse"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <span class="rail-label">payments.enriched</span>
+  </div>
+
+  <!-- ───── LANE 3: TIER 3 COMPLIANCE ───── -->
+  <div class="lane-wrapper">
+    <div class="lane tier3">
+      <div class="lane-label">
+        <span class="tier-num">Tier 3</span>
+        <span class="tier-name">COMPLIANCE</span>
+      </div>
+      <div class="lane-content">
+        <div class="nodes parallel">
+          <div class="node compliance-node">
+            <span class="cn-title">Sanctions</span>
+            <span class="cn-detail">OFAC / EU / UN / MAS</span>
+            <span class="cn-sla">&lt;200ms</span>
+          </div>
+          <div class="node compliance-node">
+            <span class="cn-title">AML</span>
+            <span class="cn-detail">Tx Monitor</span>
+            <span class="cn-sla">&lt;2s</span>
+          </div>
+          <div class="node compliance-node">
+            <span class="cn-title">Fraud</span>
+            <span class="cn-detail">ML Scoring</span>
+            <span class="cn-sla">&lt;100ms</span>
+          </div>
+          <div class="node compliance-node">
+            <span class="cn-title">PEP</span>
+            <span class="cn-detail">Screen</span>
+            <span class="cn-sla">&lt;500ms</span>
+          </div>
+        </div>
+        <div class="fan-label">Parallel fan-out / fan-in &nbsp;&middot;&nbsp; ALL must PASS</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Kafka Rail ─── -->
+  <div class="kafka-rail">
+    <div class="pulse"></div>
+    <div class="pulse"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <span class="rail-label">payments.compliance.response</span>
+  </div>
+
+  <!-- ───── LANE 4: TIER 5 ACCOUNTING ───── -->
+  <div class="lane-wrapper">
+    <div class="lane tier5">
+      <div class="lane-label">
+        <span class="tier-num">Tier 5</span>
+        <span class="tier-name">ACCOUNTING</span>
+      </div>
+      <div class="lane-content">
+        <div class="nodes">
+          <div class="node">Credit Beneficiary</div>
+          <span class="arrow"></span>
+          <div class="node">Fee Posting</div>
+          <span class="arrow"></span>
+          <div class="node">GL Entry</div>
+          <span class="arrow"></span>
+          <div class="node">Ledger Append</div>
+        </div>
+        <div class="note">Double-entry: <strong>Nostro DR</strong> &rarr; <strong>John's Account CR</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── ACSC FINAL Band ─── -->
+  <div class="ack-band acsc">
+    <span class="band-text">&#10003; &nbsp;FINAL pacs.002 ACSC &nbsp;&middot;&nbsp; Settlement Confirmed &nbsp;&middot;&nbsp; &lt;5s E2E</span>
+  </div>
+
+  <!-- ─── Kafka Rail ─── -->
+  <div class="kafka-rail">
+    <div class="pulse"></div>
+    <div class="pulse"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <span class="rail-label">payments.status.changes &nbsp;&middot;&nbsp; payments.notifications</span>
+  </div>
+
+  <!-- ───── LANE 5: TIER 6 REPORTING ───── -->
+  <div class="lane-wrapper">
+    <div class="lane tier6">
+      <div class="lane-label">
+        <span class="tier-num">Tier 6</span>
+        <span class="tier-name">REPORTING</span>
+      </div>
+      <div class="lane-content">
+        <div class="nodes">
+          <div class="node">Dashboard Update</div>
+          <span class="arrow"></span>
+          <div class="node">Customer Notification</div>
+          <span class="arrow"></span>
+          <div class="node">EOD Recon Entry</div>
+        </div>
+        <div class="note">ClickHouse analytics &nbsp;&middot;&nbsp; GraphQL push</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════ SLA SUMMARY ═══════════════ -->
+<div class="sla-summary">
+  <h2>SLA Targets</h2>
+  <div class="sla-cards">
+    <div class="sla-card green">
+      <div class="sla-label">ACTC Technical ACK</div>
+      <div class="sla-value">&lt;500ms</div>
+      <div class="sla-desc">pacs.002 ACTC returned to sender</div>
+    </div>
+    <div class="sla-card cyan">
+      <div class="sla-label">ACSC Settlement</div>
+      <div class="sla-value">&lt;5s</div>
+      <div class="sla-desc">pacs.002 ACSC final confirmation</div>
+    </div>
+    <div class="sla-card blue">
+      <div class="sla-label">FAST End-to-End</div>
+      <div class="sla-value">&lt;5s</div>
+      <div class="sla-desc">Full payment lifecycle DBS &rarr; Payonex</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
