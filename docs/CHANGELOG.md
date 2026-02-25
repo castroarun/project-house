@@ -7,6 +7,115 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### 2026-02-25 — Isometric Background Pattern + GitHub Pages Deployment
+- **Changed:** Replaced feTurbulence noise texture with isometric diamond SVG pattern on PayArk Academy portal
+  - Clean geometric tessellation at 0.05 opacity, subtle cyan/violet radial overlays
+- **Added:** `docs/Design/bg-pattern-sampler.html` — 10 background pattern options (Dot Grid, Grid Lines, Crosshatch, Honeycomb, Circuit Board, Topographic, Isometric, Noise Grain, Radial Pulse, Plus Signs)
+- **Changed:** Reverted navy blue background experiment back to original near-black palette (`#06070b` base)
+- **Added:** `docs/index.html` — Hub page linking to all three showcase pages
+- **Added:** GitHub Pages deployment serving from `docs/` folder
+  - PayoneX Architecture, PayoneX Portal, PayArk Academy Portal now live
+
+### 2026-02-25 — PayArk Academy Portal: Navy Theme, Collapsible Curriculum, White Certificate
+- **Changed:** Background palette switched from near-black to deep navy blue (inspired by Conexus design)
+  - `--bg: #080a1a`, `--bg2: #0d1030`, `--bg3: #0f1338`, `--bg4: #141845`
+  - Atmosphere gradient: `linear-gradient(170deg, #080a1a → #0d1030 → #111545 → #0a0e28)`
+  - Borders: `#1e2460` / `#2a3070` (indigo-tinted instead of grey)
+- **Changed:** Certificate mock redesigned with white/cream background like a real certificate
+  - Background: `#fffef8 → #fdf8ed` gradient, gold border `rgba(180,150,80,.35)`
+  - Text colors: dark navy `#1a1a2e` for headings, `#8b6914` gold for cert name, `#4b5563` for details
+- **Added:** Collapsible curriculum levels — click level header to expand/collapse module table
+  - PAKF opens by default, PAKE/PAKSA/PAKA collapsed
+  - Smooth CSS grid-template-rows animation, rotating arrow indicator
+- **Changed:** Explore section simplified from card links to inline text mention with link to architecture page
+- **Removed:** PayoneX Platform card and Architecture Deep Dive card from Explore section
+
+### 2026-02-25 — PayArk Academy Portal: Curriculum Section + Explore Cleanup
+- **Added:** Full 44-module course curriculum section (Section 02) after "Not Another Tutorial Playlist"
+  - Level 1 PAKF: 12 modules (M01–M12) — Payment Foundations, 6 weeks
+  - Level 2 PAKE: 16 modules (M13–M28) — Platform Engineer, 8 weeks
+  - Level 3 PAKSA: 16 modules (M29–M44) — Systems Architect, 10 weeks
+  - Level 4 PAKA: 4 capstone sprints (S1–S4) — Build Payment House, 8 weeks
+- **Added:** Summary stats bar (44 modules, 4 certs, 32 weeks, ~200 hrs, 50 q/module)
+- **Added:** Curriculum nav tab in pill navigation
+- **Added:** Architecture Deep Dive link in Explore section
+- **Changed:** Section numbering adjusted (02→03→04→05→06→07) to accommodate new Curriculum section
+- **Removed:** Skill Tree Visualization link from Explore section
+- **Removed:** PayArk Academy App link from Explore section (led to GitHub)
+- **Changed:** Mobile responsive styles for curriculum tables (hide topics column on small screens)
+
+### 2026-02-25 — PayArk Academy Portal (Landing Page)
+- **Added:** `docs/Design/payark-academy-portal.html` — Premium landing page for PayArk Academy, matching PayoneX portal design system
+- **Added:** Gold-bordered PAKA certificate mock in hero section with 3D tilt perspective, gold shimmer animation, seal, and credential layout
+- **Added:** Self-certification messaging — "The builder who wrote the quiz engine can't guarantee a pass"
+- **Added:** 4-level certification path badges (PAKF → PAKE → PAKSA → PAKA) in hero
+- **Added:** Exam Integrity section — 6 anti-cheat cards (5× pool ratio, answer shuffle, forward-only, answers never shown, 48hr cooldown, encrypted at rest)
+- **Added:** Content Sourcing section with animated bar charts — 80% YouTube curated, 15% AI-generated, 5% MDX reading/labs
+- **Added:** Sourcing philosophy panel explaining curation vs creation strategy
+- **Added:** 6 USP comparison cards with "Others vs PayArk" format (Real Codebase, Domain+Engineering, Cheat-Proof, Micro-Modules, 4-Level Progression, Free & Open)
+- **Added:** 4-level certification track as horizontal scroll-snap cards with module lists and exam requirements
+- **Added:** Explore section linking to live app, skill tree, and PayoneX architecture portal
+- **Added:** Same premium design system: scroll-reveal animations, glassmorphism cards, atmospheric background, frosted nav, animated counters
+
+### 2026-02-25 — PayoneX Portal Branding Fix
+- **Changed:** `docs/Design/payonex-portal.html` — Hero h1 now matches `payment-architecture.html` branding exactly (gradient text white→blue→cyan, underline bar, glowing cyan dot with pulse animation)
+- **Changed:** Hero stat "12 Clearing Houses" → "5 Clearing Rails" (honest count: RTGS, Real-Time, Batch, Cross-Border, UPI)
+
+### 2026-02-25 — PayoneX Architecture Portal (Premium Rebuild)
+- **Changed:** `docs/Design/payonex-portal.html` — Complete premium rebuild of the front-door landing page for LinkedIn sharing
+- **Added:** Scroll-reveal animations (IntersectionObserver fade-in/slide-up with stagger delays) across all sections
+- **Added:** Glassmorphism card design with frosted glass backdrop-filter, subtle inner gradients, and hover lift effects
+- **Added:** Animated number counters on hero stats (count-up on scroll into view)
+- **Added:** Atmospheric background with layered radial gradients and masked dot grid overlay
+- **Added:** Frosted glass sticky navigation with scroll shadow, brand wordmark, and IntersectionObserver active state tracking
+- **Added:** Animated Kafka event bus bar with flowing gradient lines and topic pipeline
+- **Added:** 5-phase build roadmap as horizontal scroll-snap cards with phase-colored accents and deliverable lists
+- **Added:** ADR decision cards with question/chose/rationale format
+- **Added:** 4 PayoneX vocabulary cards (Phantom, ACL, Config-Driven Region, Accounting Saga) with colored left-border accents
+- **Added:** 9 engineering patterns in a clean table with colored dots per pattern
+- **Added:** Infrastructure specs table + power protection strategy cards
+- **Added:** Explore section with 4 linked cards (Architecture, Metro Map, Skill Tree, Academy) with hover arrows and tags
+- **Added:** Animated Kafka event bus bar showing full topic pipeline across all 6 tiers
+- **Added:** 5-phase build roadmap with deliverables (Phase 0 Done, Phase 1 Next, Phases 2-4 Planned)
+- **Added:** 4 PayoneX vocabulary concepts: Phantom, ACL, Config-Driven Region, Accounting Saga
+- **Added:** 9 engineering patterns table (Hexagonal, Event Sourcing, DDD, Saga, Strategy, ACL, Circuit Breaker, Outbox, SOLID+CUPID)
+- **Added:** Development infrastructure specs with power protection strategy for Chennai-based dev
+- **Added:** Explore section linking to Architecture, Metro Map, Skill Tree, and PayArk Academy
+
+### 2026-02-25 — Project Status & README Updated with Live Links
+- **Changed:** PROJECT-STATUS.md v2.0 — full inventory of everything done (25 items), live GitHub Pages links for all 12 HTML pages, related repos section, ADR-004 added
+- **Changed:** README — LAUNCHPAD stage updated from `idea` to `building` (25% progress), added "Live Design Pages" section with 7 key HTML links, updated project structure tree (all HTML files + ADRs + LinkedIn posts), roadmap updated with 5 new completed items
+- **Added:** GitHub Pages links consolidated — 7 PayoneX design pages + 4 PayArk skill tree variants
+
+### 2026-02-24 — PayArk Academy App Built (Module 1 MVP)
+- **Added:** New repo `payark-academy` — full Next.js 16 app with TypeScript, Tailwind v4, Supabase auth
+- **Added:** Complete app shell with 7 routes: dashboard, login, curriculum, module overview, content step, quiz
+- **Added:** 44-module curriculum metadata with 4 certification levels (PAKF, PAKE, PAKSA, PAKA)
+- **Added:** Module 1 ("How Payments Work") fully built: 3 video steps, 2 MDX reading articles, 1 lab, 1 quiz
+- **Added:** 3 MDX articles (~1000 words each): Payment Lifecycle, Clearing vs Settlement, Correspondent Banking
+- **Added:** 50-question quiz bank with difficulty spread (30% easy, 50% medium, 20% hard)
+- **Added:** Quiz engine: Fisher-Yates shuffle, per-question timer, forward-only navigation, 70% pass mark
+- **Added:** 14 React components: UI primitives, dashboard cards, module views, quiz engine
+- **Added:** Supabase schema with RLS policies (profiles, module_progress, content_progress, quiz_attempts)
+- **Added:** Dark fintech theme matching PayoneX design tokens
+- **Added:** Build verified — `next build` compiles cleanly with all 7 routes
+
+### 2026-02-21 — PayArk Skill Tree Hybrid Visualization
+- **Added:** `docs/Design/payark-skilltree-hybrid.html` — Standalone showpiece HTML visualization of the PayArk Training Academy curriculum
+- **Added:** Hybrid approach: CSS Grid layout for module cards + D3.js SVG overlay for connection lines + GSAP ScrollTrigger for scroll-driven animations
+- **Added:** All 44 modules (M01-M44) and 4 capstone sprints (S1-S4) rendered as interactive cards across 4 color-coded levels (Blue/Cyan/Violet/Amber)
+- **Added:** Exam gate bars between levels showing certification requirements (PAKF/PAKE/PAKSA/PAKA)
+- **Added:** PAKA certification badge section with gold glow animation
+- **Added:** Exam Integrity Model section — question bank visual, randomization engine cards, anti-cheat layer stack animation, exam session flow steps
+- **Added:** Content Pipeline section — 10 source cards, integration strategy, 5-step production pipeline
+- **Added:** Click-to-open detail panel (slides from right) showing full module info: topics, hands-on project, PayoneX component mapping
+- **Added:** D3.js draws SVG bezier connection lines between sequential module cards within each level
+- **Added:** GSAP ScrollTrigger animations: hero fade-in, card stagger, exam gate scale-in, badge bounce, layer stack slide-in, source card fan-out, connection line draw
+- **Added:** Matches PayoneX design system (dark theme, Outfit + JetBrains Mono fonts, all color tokens)
+
+### 2026-02-21 — LinkedIn Post 2: PayArk Academy Draft
+- **Added:** `docs/linkedin-post-payark-academy.md` — LinkedIn post draft focused on PayArk training academy (44 modules, 4 certifications, exam integrity, sourcing strategy, CTA for co-learners)
+
 ### 2026-02-21 — PayoneX Branding Applied to HTML Pages
 - **Changed:** Architecture HTML — hero title now **PayoneX** with "Enterprise Payment Processing Platform" as subtitle underneath
 - **Changed:** Architecture HTML — page `<title>` set to "PayoneX — Enterprise Payment Processing Platform"

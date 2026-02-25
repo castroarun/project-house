@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayArk — Training Academy Skill Tree</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+:root {
+  --bg: #08090d; --bg2: #0f1118; --bg3: #151822; --bg4: #1a1e2e;
+  --bdr: #1f2438; --bdr2: #2a3050;
+  --t1: #e8eaf0; --t2: #8b90a0; --t3: #555a6e;
+  --blue: #3b82f6; --cyan: #06b6d4; --green: #10b981; --amber: #f59e0b;
+  --rose: #f43f5e; --violet: #8b5cf6; --orange: #f97316;
+  --r: 10px;
+  --tr: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --fd: 'Outfit', sans-serif; --fm: 'JetBrains Mono', monospace;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--fd); background: var(--bg); color: var(--t1); line-height: 1.65; overflow-x: hidden; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bdr2); border-radius: 3px; }
+
+/* Background texture */
+.bgx {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59,130,246,.06), transparent),
+    radial-gradient(circle at 20% 80%, rgba(139,92,246,.04), transparent),
+    linear-gradient(rgba(255,255,255,.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.012) 1px, transparent 1px);
+  background-size: 100%, 100%, 60px 60px, 60px 60px;
+}
+
+/* SVG Overlay for D3 connections */
+#connection-overlay {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 2;
+}
+
+.page-wrap { position: relative; z-index: 1; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+/* ═══════ HERO ═══════ */
+.hero {
+  padding: 100px 0 60px; text-align: center;
+  border-bottom: 1px solid var(--bdr);
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 16px; border-radius: 20px;
+  background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.2);
+  font-size: 11px; font-weight: 600; color: var(--blue);
+  text-transform: uppercase; letter-spacing: 2px; font-family: var(--fm);
+  margin-bottom: 28px;
+}
+.hero-badge .dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--blue);
+  box-shadow: 0 0 8px var(--blue); animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .4; transform: scale(.7); }
+}
+.hero h1 {
+  font-size: clamp(52px, 7vw, 88px); font-weight: 900; letter-spacing: -3px;
+  line-height: 1; margin-bottom: 16px;
+  background: linear-gradient(135deg, #fff 0%, var(--blue) 40%, var(--cyan) 70%, var(--violet) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 40px rgba(59,130,246,.3));
+  position: relative; display: inline-block;
+}
+.hero h1::after {
+  content: ''; position: absolute; bottom: 2px; right: -14px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--cyan); box-shadow: 0 0 12px var(--cyan), 0 0 24px rgba(6,182,212,.4);
+  animation: glow-pulse 2s ease-in-out infinite alternate;
+}
+@keyframes glow-pulse {
+  0% { box-shadow: 0 0 8px var(--cyan), 0 0 16px rgba(6,182,212,.3); }
+  100% { box-shadow: 0 0 16px var(--cyan), 0 0 32px rgba(6,182,212,.5); }
+}
+.hero-sub {
+  font-size: 18px; color: var(--t2); font-weight: 400;
+  letter-spacing: 1px; margin-bottom: 40px;
+}
+.stats-bar {
+  display: flex; justify-content: center; gap: 32px; flex-wrap: wrap;
+}
+.stat-item {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--fm); font-size: 13px; color: var(--t3);
+}
+.stat-item .stat-num {
+  font-weight: 700; font-size: 22px; letter-spacing: -1px;
+}
+.stat-item.s-blue .stat-num { color: var(--blue); }
+.stat-item.s-cyan .stat-num { color: var(--cyan); }
+.stat-item.s-violet .stat-num { color: var(--violet); }
+.stat-item.s-amber .stat-num { color: var(--amber); }
+
+/* ═══════ LEVEL SECTIONS ═══════ */
+.level-section {
+  padding: 80px 0 40px;
+  position: relative;
+}
+.level-header {
+  margin-bottom: 36px;
+}
+.level-label {
+  font-size: 11px; font-family: var(--fm); text-transform: uppercase;
+  letter-spacing: 2.5px; font-weight: 600; margin-bottom: 8px;
+}
+.level-title {
+  font-size: clamp(26px, 3.5vw, 38px); font-weight: 800;
+  letter-spacing: -1px; margin-bottom: 8px;
+}
+.level-meta {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.level-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 6px;
+  font-size: 11px; font-family: var(--fm); font-weight: 700;
+  letter-spacing: 1px;
+}
+.level-info {
+  font-size: 12px; font-family: var(--fm); color: var(--t3);
+}
+
+/* Level color schemes */
+.level-blue .level-label { color: var(--blue); }
+.level-blue .level-title { color: var(--t1); }
+.level-blue .level-badge { background: rgba(59,130,246,.15); color: var(--blue); border: 1px solid rgba(59,130,246,.25); }
+
+.level-cyan .level-label { color: var(--cyan); }
+.level-cyan .level-title { color: var(--t1); }
+.level-cyan .level-badge { background: rgba(6,182,212,.15); color: var(--cyan); border: 1px solid rgba(6,182,212,.25); }
+
+.level-violet .level-label { color: var(--violet); }
+.level-violet .level-title { color: var(--t1); }
+.level-violet .level-badge { background: rgba(139,92,246,.15); color: var(--violet); border: 1px solid rgba(139,92,246,.25); }
+
+.level-amber .level-label { color: var(--amber); }
+.level-amber .level-title { color: var(--t1); }
+.level-amber .level-badge { background: rgba(245,158,11,.15); color: var(--amber); border: 1px solid rgba(245,158,11,.25); }
+
+/* ═══════ MODULE GRID ═══════ */
+.mod-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  position: relative;
+}
+.mod-grid.sprint-grid {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+/* ═══════ MODULE CARDS ═══════ */
+.mod-card {
+  position: relative;
+  border-radius: 8px; padding: 14px 14px 12px;
+  cursor: pointer; transition: all 0.3s ease;
+  min-height: 68px;
+}
+.mod-card:hover {
+  transform: translateY(-2px);
+}
+.mod-card .mod-id {
+  font-family: var(--fm); font-size: 11px; font-weight: 600;
+}
+.mod-card .mod-title {
+  font-size: 12px; color: var(--t2); margin-top: 4px; line-height: 1.4;
+}
+.mod-card .mod-week {
+  position: absolute; top: 6px; right: 8px;
+  font-size: 9px; color: var(--t3); font-family: var(--fm);
+}
+
+/* Card color variants */
+.mod-card.c-blue {
+  background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.2);
+}
+.mod-card.c-blue:hover {
+  border-color: rgba(59,130,246,.5); box-shadow: 0 0 20px rgba(59,130,246,.12);
+}
+.mod-card.c-blue .mod-id { color: var(--blue); }
+
+.mod-card.c-cyan {
+  background: rgba(6,182,212,.08); border: 1px solid rgba(6,182,212,.2);
+}
+.mod-card.c-cyan:hover {
+  border-color: rgba(6,182,212,.5); box-shadow: 0 0 20px rgba(6,182,212,.12);
+}
+.mod-card.c-cyan .mod-id { color: var(--cyan); }
+
+.mod-card.c-violet {
+  background: rgba(139,92,246,.08); border: 1px solid rgba(139,92,246,.2);
+}
+.mod-card.c-violet:hover {
+  border-color: rgba(139,92,246,.5); box-shadow: 0 0 20px rgba(139,92,246,.12);
+}
+.mod-card.c-violet .mod-id { color: var(--violet); }
+
+.mod-card.c-amber {
+  background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.2);
+}
+.mod-card.c-amber:hover {
+  border-color: rgba(245,158,11,.5); box-shadow: 0 0 20px rgba(245,158,11,.12);
+}
+.mod-card.c-amber .mod-id { color: var(--amber); }
+
+/* Sprint cards are larger */
+.sprint-card {
+  min-height: 110px; padding: 18px;
+}
+.sprint-card .sprint-weeks {
+  font-size: 10px; font-family: var(--fm); color: var(--t3); margin-top: 8px;
+}
+.sprint-card .sprint-desc {
+  font-size: 11px; color: var(--t3); margin-top: 6px; line-height: 1.5;
+}
+
+/* ═══════ EXAM GATES ═══════ */
+.exam-gate {
+  margin: 32px 0;
+  padding: 18px 28px;
+  border-radius: var(--r);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+  position: relative; overflow: hidden;
+  transform-origin: left center;
+}
+.exam-gate::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  opacity: 0.06; pointer-events: none;
+}
+.exam-gate .gate-icon {
+  font-size: 20px; flex-shrink: 0;
+}
+.exam-gate .gate-title {
+  font-size: 14px; font-weight: 700; font-family: var(--fd);
+}
+.exam-gate .gate-details {
+  font-size: 12px; font-family: var(--fm); opacity: .7;
+  display: flex; gap: 16px; flex-wrap: wrap;
+}
+.exam-gate .gate-details span {
+  white-space: nowrap;
+}
+
+.exam-gate.g-blue {
+  background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.2); color: var(--blue);
+}
+.exam-gate.g-cyan {
+  background: rgba(6,182,212,.08); border: 1px solid rgba(6,182,212,.2); color: var(--cyan);
+}
+.exam-gate.g-violet {
+  background: rgba(139,92,246,.08); border: 1px solid rgba(139,92,246,.2); color: var(--violet);
+}
+.exam-gate.g-amber {
+  background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.2); color: var(--amber);
+}
+
+/* Animated line under exam gate */
+.exam-gate .gate-line {
+  position: absolute; bottom: 0; left: 0; width: 100%; height: 2px;
+}
+
+/* ═══════ CERTIFICATION BADGE ═══════ */
+.cert-section {
+  padding: 100px 0; text-align: center;
+}
+.cert-badge {
+  display: inline-block; position: relative;
+  width: 280px; height: 280px;
+  border-radius: 50%;
+  border: 3px solid var(--amber);
+  box-shadow: 0 0 40px rgba(245,158,11,.2), 0 0 80px rgba(245,158,11,.08), inset 0 0 40px rgba(245,158,11,.05);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  margin: 0 auto 32px;
+  animation: badge-glow 3s ease-in-out infinite alternate;
+}
+@keyframes badge-glow {
+  0% { box-shadow: 0 0 30px rgba(245,158,11,.15), 0 0 60px rgba(245,158,11,.06); }
+  100% { box-shadow: 0 0 50px rgba(245,158,11,.25), 0 0 100px rgba(245,158,11,.1); }
+}
+.cert-badge .cert-icon {
+  font-size: 42px; margin-bottom: 8px;
+}
+.cert-badge .cert-level {
+  font-size: 10px; font-family: var(--fm); color: var(--amber);
+  letter-spacing: 3px; text-transform: uppercase; font-weight: 600;
+}
+.cert-badge .cert-name {
+  font-size: 16px; font-weight: 800; color: var(--t1);
+  margin-top: 4px; line-height: 1.3;
+}
+.cert-badge .cert-sub {
+  font-size: 11px; color: var(--t3); margin-top: 6px;
+  font-family: var(--fm);
+}
+.cert-text {
+  font-size: 22px; font-weight: 700; color: var(--amber);
+  margin-bottom: 8px;
+}
+.cert-desc {
+  font-size: 14px; color: var(--t2); max-width: 500px; margin: 0 auto;
+}
+
+/* ═══════ INFO SECTIONS (Exam Integrity, Content Pipeline) ═══════ */
+.info-section {
+  padding: 80px 0;
+  border-top: 1px solid var(--bdr);
+}
+.info-section .section-label {
+  font-size: 11px; font-family: var(--fm); color: var(--t3);
+  text-transform: uppercase; letter-spacing: 2.5px; font-weight: 600;
+  margin-bottom: 8px;
+}
+.info-section .section-title {
+  font-size: clamp(24px, 3vw, 34px); font-weight: 700;
+  letter-spacing: -.5px; margin-bottom: 12px;
+}
+.info-section .section-desc {
+  font-size: 14px; color: var(--t2); max-width: 700px;
+  margin-bottom: 40px; line-height: 1.7;
+}
+
+/* Sub-section within info */
+.info-block {
+  margin-bottom: 40px;
+}
+.info-block h3 {
+  font-size: 17px; font-weight: 700; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.info-block h3 .ib-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+
+/* Info cards grid */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.info-card {
+  background: var(--bg3); border: 1px solid var(--bdr);
+  border-radius: var(--r); padding: 16px;
+  transition: var(--tr);
+}
+.info-card:hover {
+  border-color: var(--bdr2); transform: translateY(-1px);
+}
+.info-card h4 {
+  font-size: 13px; font-weight: 700; margin-bottom: 4px;
+}
+.info-card p {
+  font-size: 11px; color: var(--t3); line-height: 1.6;
+}
+.info-card .ic-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 10px; font-family: var(--fm); font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* Layer stack for anti-cheat */
+.layer-stack {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.layer-item {
+  background: var(--bg3); border: 1px solid var(--bdr);
+  border-radius: var(--r); padding: 14px 18px;
+  display: flex; align-items: center; gap: 14px;
+  transition: var(--tr);
+}
+.layer-item:hover { border-color: var(--bdr2); }
+.layer-item .layer-num {
+  width: 28px; height: 28px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-family: var(--fm); font-weight: 700;
+  flex-shrink: 0;
+}
+.layer-item .layer-text h4 { font-size: 13px; font-weight: 700; }
+.layer-item .layer-text p { font-size: 11px; color: var(--t3); margin-top: 2px; }
+
+/* Flow steps */
+.flow-steps {
+  display: flex; flex-direction: column; gap: 0;
+  position: relative; padding-left: 24px;
+}
+.flow-steps::before {
+  content: ''; position: absolute; left: 11px; top: 12px;
+  width: 2px; bottom: 12px;
+  background: var(--bdr);
+}
+.flow-step {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 12px 0; position: relative;
+}
+.flow-step .step-dot {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-family: var(--fm); font-weight: 700;
+  flex-shrink: 0; position: relative; z-index: 1;
+  margin-left: -24px;
+}
+.flow-step .step-content h4 { font-size: 13px; font-weight: 600; }
+.flow-step .step-content p { font-size: 11px; color: var(--t3); margin-top: 2px; }
+
+/* Source cards for content pipeline */
+.source-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+.source-card {
+  background: var(--bg3); border: 1px solid var(--bdr);
+  border-radius: var(--r); padding: 14px;
+  text-align: center; transition: var(--tr);
+}
+.source-card:hover { border-color: var(--bdr2); transform: translateY(-1px); }
+.source-card .src-icon { font-size: 22px; margin-bottom: 6px; }
+.source-card .src-name { font-size: 12px; font-weight: 600; }
+.source-card .src-type { font-size: 10px; color: var(--t3); font-family: var(--fm); margin-top: 2px; }
+
+/* Pipeline steps */
+.pipeline {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+.pipe-step {
+  background: var(--bg3); border: 1px solid var(--bdr);
+  border-radius: var(--r); padding: 16px; text-align: center;
+  position: relative; transition: var(--tr);
+}
+.pipe-step:hover { border-color: var(--bdr2); }
+.pipe-step .pipe-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-family: var(--fm); font-weight: 700;
+  margin-bottom: 8px;
+}
+.pipe-step h4 { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+.pipe-step p { font-size: 10px; color: var(--t3); }
+
+/* ═══════ DETAIL PANEL ═══════ */
+.detail-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.detail-overlay.open { opacity: 1; pointer-events: all; }
+
+.detail-panel {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: 460px; max-width: 90vw; z-index: 1001;
+  background: var(--bg2); border-left: 1px solid var(--bdr);
+  transform: translateX(100%); transition: transform 0.4s cubic-bezier(.4,0,.2,1);
+  overflow-y: auto; padding: 32px;
+}
+.detail-panel.open { transform: translateX(0); }
+
+.detail-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--bg4); border: 1px solid var(--bdr);
+  color: var(--t2); font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--tr);
+}
+.detail-close:hover { border-color: var(--bdr2); color: var(--t1); }
+
+.detail-panel .dp-id {
+  font-size: 12px; font-family: var(--fm); font-weight: 600;
+  margin-bottom: 4px;
+}
+.detail-panel .dp-title {
+  font-size: 22px; font-weight: 800; letter-spacing: -.5px;
+  margin-bottom: 6px;
+}
+.detail-panel .dp-week {
+  font-size: 11px; font-family: var(--fm); color: var(--t3);
+  margin-bottom: 20px;
+}
+.detail-panel .dp-section {
+  margin-bottom: 20px;
+}
+.detail-panel .dp-section h4 {
+  font-size: 11px; font-family: var(--fm); text-transform: uppercase;
+  letter-spacing: 1.5px; font-weight: 600; margin-bottom: 8px;
+}
+.detail-panel .dp-section ul {
+  list-style: none; padding: 0;
+}
+.detail-panel .dp-section ul li {
+  font-size: 12px; color: var(--t2); padding: 4px 0 4px 14px;
+  position: relative; line-height: 1.5;
+}
+.detail-panel .dp-section ul li::before {
+  content: ''; position: absolute; left: 0; top: 10px;
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--t3);
+}
+.detail-panel .dp-section p {
+  font-size: 12px; color: var(--t2); line-height: 1.6;
+}
+.detail-panel .dp-tag {
+  display: inline-block; padding: 3px 10px; border-radius: 6px;
+  font-size: 10px; font-family: var(--fm); font-weight: 500;
+  background: var(--bg4); color: var(--t2); border: 1px solid var(--bdr);
+  margin: 2px;
+}
+
+/* ═══════ FOOTER ═══════ */
+.footer {
+  padding: 40px 0; border-top: 1px solid var(--bdr);
+  text-align: center; color: var(--t3); font-size: 12px; font-family: var(--fm);
+}
+
+/* ═══════ RESPONSIVE ═══════ */
+@media (max-width: 768px) {
+  .container { padding: 0 16px; }
+  .hero { padding: 60px 0 40px; }
+  .stats-bar { gap: 16px; }
+  .stat-item .stat-num { font-size: 18px; }
+  .mod-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .mod-grid.sprint-grid { grid-template-columns: 1fr; }
+  .info-grid { grid-template-columns: 1fr; }
+  .source-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .pipeline { grid-template-columns: 1fr 1fr; }
+  .detail-panel { width: 100%; max-width: 100%; }
+  .exam-gate { padding: 14px 18px; }
+  .exam-gate .gate-details { gap: 8px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bgx"></div>
+
+<div class="page-wrap">
+<svg id="connection-overlay"></svg>
+
+<!-- ═══════════════════════════════════════ HERO ═══════════════════════════════════════ -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge"><span class="dot"></span> Training Academy</div>
+    <h1>PayArk</h1>
+    <p class="hero-sub">From Zero to Payment Architect</p>
+    <div class="stats-bar">
+      <div class="stat-item s-blue"><span class="stat-num">44</span> Modules</div>
+      <div class="stat-item s-cyan"><span class="stat-num">4</span> Certifications</div>
+      <div class="stat-item s-violet"><span class="stat-num">32</span> Weeks</div>
+      <div class="stat-item s-amber"><span class="stat-num">1,500+</span> Questions</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ LEVEL 1 ═══════════════════════════════════════ -->
+<section class="level-section level-blue" id="level-1" data-color="blue">
+  <div class="container">
+    <div class="level-header">
+      <div class="level-label">Level 1</div>
+      <div class="level-title">Payment Foundations</div>
+      <div class="level-meta">
+        <span class="level-badge">PAKF</span>
+        <span class="level-info">12 modules &middot; 6 weeks</span>
+      </div>
+    </div>
+    <div class="mod-grid" id="grid-l1"></div>
+  </div>
+</section>
+
+<!-- Exam Gate 1 -->
+<div class="container">
+  <div class="exam-gate g-blue">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span class="gate-icon">&#9878;</span>
+      <span class="gate-title">PAKF Certification Exam</span>
+    </div>
+    <div class="gate-details">
+      <span>60 Questions</span><span>90 min</span><span>Pass: 70%</span>
+    </div>
+    <div class="gate-line" style="background:linear-gradient(90deg,transparent,var(--blue),transparent);"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ LEVEL 2 ═══════════════════════════════════════ -->
+<section class="level-section level-cyan" id="level-2" data-color="cyan">
+  <div class="container">
+    <div class="level-header">
+      <div class="level-label">Level 2</div>
+      <div class="level-title">Platform Engineer</div>
+      <div class="level-meta">
+        <span class="level-badge">PAKE</span>
+        <span class="level-info">16 modules &middot; 8 weeks</span>
+      </div>
+    </div>
+    <div class="mod-grid" id="grid-l2"></div>
+  </div>
+</section>
+
+<!-- Exam Gate 2 -->
+<div class="container">
+  <div class="exam-gate g-cyan">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span class="gate-icon">&#9878;</span>
+      <span class="gate-title">PAKE Certification Exam</span>
+    </div>
+    <div class="gate-details">
+      <span>80 Questions</span><span>120 min</span><span>Pass: 70%</span>
+    </div>
+    <div class="gate-line" style="background:linear-gradient(90deg,transparent,var(--cyan),transparent);"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ LEVEL 3 ═══════════════════════════════════════ -->
+<section class="level-section level-violet" id="level-3" data-color="violet">
+  <div class="container">
+    <div class="level-header">
+      <div class="level-label">Level 3</div>
+      <div class="level-title">Payment Systems Architect</div>
+      <div class="level-meta">
+        <span class="level-badge">PAKSA</span>
+        <span class="level-info">16 modules &middot; 10 weeks</span>
+      </div>
+    </div>
+    <div class="mod-grid" id="grid-l3"></div>
+  </div>
+</section>
+
+<!-- Exam Gate 3 -->
+<div class="container">
+  <div class="exam-gate g-violet">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span class="gate-icon">&#9878;</span>
+      <span class="gate-title">PAKSA Certification Exam</span>
+    </div>
+    <div class="gate-details">
+      <span>60 MCQ + 1 Design</span><span>180 min</span><span>Pass: 75%</span>
+    </div>
+    <div class="gate-line" style="background:linear-gradient(90deg,transparent,var(--violet),transparent);"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ LEVEL 4 ═══════════════════════════════════════ -->
+<section class="level-section level-amber" id="level-4" data-color="amber">
+  <div class="container">
+    <div class="level-header">
+      <div class="level-label">Level 4</div>
+      <div class="level-title">Capstone &mdash; Build Payment House</div>
+      <div class="level-meta">
+        <span class="level-badge">PAKA</span>
+        <span class="level-info">4 sprints &middot; 8 weeks</span>
+      </div>
+    </div>
+    <div class="mod-grid sprint-grid" id="grid-l4"></div>
+  </div>
+</section>
+
+<!-- Exam Gate 4 (Capstone) -->
+<div class="container">
+  <div class="exam-gate g-amber">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span class="gate-icon">&#9733;</span>
+      <span class="gate-title">PAKA Capstone Assessment</span>
+    </div>
+    <div class="gate-details">
+      <span>3-Layer Eval</span><span>CI + AI Review + Architecture Doc</span><span>Pass: 75%</span>
+    </div>
+    <div class="gate-line" style="background:linear-gradient(90deg,transparent,var(--amber),transparent);"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ CERTIFICATION BADGE ═══════════════════════════════════════ -->
+<section class="cert-section" id="cert">
+  <div class="container">
+    <div class="cert-badge">
+      <div class="cert-icon">&#9733;</div>
+      <div class="cert-level">PAKA</div>
+      <div class="cert-name">PayArk Certified<br>Payment Architect</div>
+      <div class="cert-sub">All 4 Levels Complete</div>
+    </div>
+    <div class="cert-text">The Final Destination</div>
+    <p class="cert-desc">Complete all 44 modules, pass 3 certification exams, and deliver a working Payment House capstone project to earn the PAKA designation.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ EXAM INTEGRITY ═══════════════════════════════════════ -->
+<section class="info-section" id="exam-integrity">
+  <div class="container">
+    <div class="section-label">Assessment Design</div>
+    <div class="section-title">Exam Integrity Model</div>
+    <p class="section-desc">The exam system is designed so that cheating is either impossible or self-defeating. Every attempt is unique, weighted toward your weak areas, and answers are never revealed.</p>
+
+    <!-- Question Bank -->
+    <div class="info-block" id="ib-qbank">
+      <h3>
+        <span class="ib-icon" style="background:rgba(59,130,246,.12);color:var(--blue);">&#128218;</span>
+        Question Bank
+      </h3>
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="ic-badge" style="background:rgba(59,130,246,.12);color:var(--blue);">POOL</div>
+          <h4>5x Exam Size</h4>
+          <p>300 questions in pool for a 60-question exam. Memorizing all 300 means learning the material.</p>
+        </div>
+        <div class="info-card">
+          <div class="ic-badge" style="background:rgba(6,182,212,.12);color:var(--cyan);">GENERATE</div>
+          <h4>AI-Generated Bank</h4>
+          <p>Claude Code generates the entire question bank per module. Builder reviews for accuracy.</p>
+        </div>
+        <div class="info-card">
+          <div class="ic-badge" style="background:rgba(139,92,246,.12);color:var(--violet);">ENCRYPT</div>
+          <h4>Encrypted Storage</h4>
+          <p>Questions stored encrypted in DB. Answer key not stored alongside questions &mdash; computed at grading time.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Randomization Engine -->
+    <div class="info-block" id="ib-random">
+      <h3>
+        <span class="ib-icon" style="background:rgba(6,182,212,.12);color:var(--cyan);">&#127922;</span>
+        Randomization Engine
+      </h3>
+      <div class="info-grid" id="random-cards">
+        <div class="info-card">
+          <h4>Random Selection</h4>
+          <p>Each attempt pulls N questions using a unique seed &mdash; never the same set twice.</p>
+        </div>
+        <div class="info-card">
+          <h4>Answer Shuffling</h4>
+          <p>A/B/C/D positions randomized every attempt. Same question, different layout.</p>
+        </div>
+        <div class="info-card">
+          <h4>Weighted Retry</h4>
+          <p>Questions you got wrong before have higher reappearance chance &mdash; forces genuine learning.</p>
+        </div>
+        <div class="info-card">
+          <h4>Category Coverage</h4>
+          <p>Each attempt guarantees topic coverage. Cannot get lucky with an easy subset.</p>
+        </div>
+        <div class="info-card">
+          <h4>Difficulty Spread</h4>
+          <p>Every attempt: 30% easy, 50% medium, 20% hard &mdash; maintained regardless of randomization.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Anti-Cheat Layers -->
+    <div class="info-block" id="ib-anticheat">
+      <h3>
+        <span class="ib-icon" style="background:rgba(244,63,94,.12);color:var(--rose);">&#128274;</span>
+        Anti-Cheat Layers
+      </h3>
+      <div class="layer-stack" id="anticheat-stack">
+        <div class="layer-item">
+          <div class="layer-num" style="background:rgba(59,130,246,.15);color:var(--blue);">1</div>
+          <div class="layer-text">
+            <h4>Structural</h4>
+            <p>300-question pool for 60-question exam. Encrypted questions, no answer column.</p>
+          </div>
+        </div>
+        <div class="layer-item">
+          <div class="layer-num" style="background:rgba(6,182,212,.15);color:var(--cyan);">2</div>
+          <div class="layer-text">
+            <h4>Temporal</h4>
+            <p>Per-question timer (60-90s). No back-navigation. 48-hour cooldown between reattempts.</p>
+          </div>
+        </div>
+        <div class="layer-item">
+          <div class="layer-num" style="background:rgba(245,158,11,.15);color:var(--amber);">3</div>
+          <div class="layer-text">
+            <h4>Feedback</h4>
+            <p>Correct answers never shown after failure. Only category weakness breakdown displayed.</p>
+          </div>
+        </div>
+        <div class="layer-item">
+          <div class="layer-num" style="background:rgba(16,185,129,.15);color:var(--green);">4</div>
+          <div class="layer-text">
+            <h4>Ultimate</h4>
+            <p>Level 4 (PAKA) is a real project build. Cannot fake a working codebase + architecture document.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exam Session Flow -->
+    <div class="info-block" id="ib-flow">
+      <h3>
+        <span class="ib-icon" style="background:rgba(16,185,129,.12);color:var(--green);">&#9654;</span>
+        Exam Session Flow
+      </h3>
+      <div class="flow-steps" id="exam-flow-steps">
+        <div class="flow-step">
+          <div class="step-dot" style="background:rgba(59,130,246,.2);color:var(--blue);">1</div>
+          <div class="step-content">
+            <h4>Pull Questions</h4>
+            <p>System selects 60 random from 300-question pool using unique seed.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-dot" style="background:rgba(6,182,212,.2);color:var(--cyan);">2</div>
+          <div class="step-content">
+            <h4>Shuffle Answers</h4>
+            <p>Each question gets randomized answer positions (A/B/C/D).</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-dot" style="background:rgba(139,92,246,.2);color:var(--violet);">3</div>
+          <div class="step-content">
+            <h4>Start Timer</h4>
+            <p>Per-question countdown begins. No going back to previous questions.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-dot" style="background:rgba(245,158,11,.2);color:var(--amber);">4</div>
+          <div class="step-content">
+            <h4>Answer Sequentially</h4>
+            <p>Student progresses forward-only through all questions.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-dot" style="background:rgba(16,185,129,.2);color:var(--green);">5</div>
+          <div class="step-content">
+            <h4>Score & Feedback</h4>
+            <p>Pass: certificate unlocked. Fail: 48h cooldown, category breakdown, weak module suggestions.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ CONTENT PIPELINE ═══════════════════════════════════════ -->
+<section class="info-section" id="content-pipeline">
+  <div class="container">
+    <div class="section-label">Content Strategy</div>
+    <div class="section-title">Content Pipeline</div>
+    <p class="section-desc">Curate first, create second. YouTube and official platforms cover 80% of tech topics. AI-generated videos fill domain-specific gaps.</p>
+
+    <!-- Sources -->
+    <div class="info-block" id="ib-sources">
+      <h3>
+        <span class="ib-icon" style="background:rgba(59,130,246,.12);color:var(--blue);">&#128230;</span>
+        Content Sources
+      </h3>
+      <div class="source-grid" id="source-cards">
+        <div class="source-card"><div class="src-icon">&#9654;</div><div class="src-name">YouTube</div><div class="src-type">Free / Curated</div></div>
+        <div class="source-card"><div class="src-icon">&#127891;</div><div class="src-name">Udemy</div><div class="src-type">Paid / Cherry-pick</div></div>
+        <div class="source-card"><div class="src-icon">&#9881;</div><div class="src-name">Confluent Dev</div><div class="src-type">Free / Official Kafka</div></div>
+        <div class="source-card"><div class="src-icon">&#127807;</div><div class="src-name">Spring Academy</div><div class="src-type">Free + Paid</div></div>
+        <div class="source-card"><div class="src-icon">&#128214;</div><div class="src-name">Baeldung</div><div class="src-type">Free + Pro</div></div>
+        <div class="source-card"><div class="src-icon">&#128187;</div><div class="src-name">IBM Developer</div><div class="src-type">Free / MQ Focus</div></div>
+        <div class="source-card"><div class="src-icon">&#127760;</div><div class="src-name">SWIFT Learning</div><div class="src-type">Free / ISO 20022</div></div>
+        <div class="source-card"><div class="src-icon">&#128272;</div><div class="src-name">HashiCorp Learn</div><div class="src-type">Free / Vault</div></div>
+        <div class="source-card"><div class="src-icon">&#9781;</div><div class="src-name">Kubernetes.io</div><div class="src-type">Free / Official</div></div>
+        <div class="source-card"><div class="src-icon">&#129302;</div><div class="src-name">Synthesia AI</div><div class="src-type">AI Video Gen</div></div>
+      </div>
+    </div>
+
+    <!-- Integration Strategy -->
+    <div class="info-block" id="ib-integration">
+      <h3>
+        <span class="ib-icon" style="background:rgba(6,182,212,.12);color:var(--cyan);">&#128279;</span>
+        Integration Strategy
+      </h3>
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="ic-badge" style="background:rgba(16,185,129,.12);color:var(--green);">EMBEDDED</div>
+          <h4>In-App Player</h4>
+          <p>YouTube IFrame API + self-hosted video. Automatic progress tracking with player events.</p>
+        </div>
+        <div class="info-card">
+          <div class="ic-badge" style="background:rgba(245,158,11,.12);color:var(--amber);">EXTERNAL</div>
+          <h4>Link-Out</h4>
+          <p>Udemy, Confluent, Spring Academy. Manual "Mark as Complete" button after finishing.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Production Pipeline -->
+    <div class="info-block" id="ib-pipeline">
+      <h3>
+        <span class="ib-icon" style="background:rgba(139,92,246,.12);color:var(--violet);">&#128736;</span>
+        Production Pipeline
+      </h3>
+      <div class="pipeline" id="pipeline-steps">
+        <div class="pipe-step">
+          <div class="pipe-num" style="background:rgba(59,130,246,.15);color:var(--blue);">1</div>
+          <h4>Outline</h4>
+          <p>Claude writes objectives + topic list</p>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num" style="background:rgba(6,182,212,.15);color:var(--cyan);">2</div>
+          <h4>Curate</h4>
+          <p>Find best YouTube clips with timestamps</p>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num" style="background:rgba(139,92,246,.15);color:var(--violet);">3</div>
+          <h4>Write</h4>
+          <p>MDX reading material + lab designs</p>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num" style="background:rgba(245,158,11,.15);color:var(--amber);">4</div>
+          <h4>Review</h4>
+          <p>Builder studies, validates, learns</p>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num" style="background:rgba(16,185,129,.15);color:var(--green);">5</div>
+          <h4>Publish</h4>
+          <p>Module config pushed to app</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ FOOTER ═══════════════════════════════════════ -->
+<div class="footer">
+  <div class="container">
+    PayArk Training Academy &mdash; Payment House &middot; 44 Modules &middot; 4 Certifications &middot; 32 Weeks
+  </div>
+</div>
+
+</div><!-- /page-wrap -->
+
+<!-- Detail Panel -->
+<div class="detail-overlay" id="detail-overlay"></div>
+<div class="detail-panel" id="detail-panel">
+  <button class="detail-close" id="detail-close">&times;</button>
+  <div id="detail-content"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// MODULE DATA — All 44 modules + 4 sprints
+// ══════════════════════════════════════════════════════════════
+
+const MODULES = {
+  level1: [
+    { id:'M01', short:'How Payments Work', full:'How Payments Work', week:'W1', topics:['Payment lifecycle','Clearing vs settlement','RTGS vs DNS','Correspondent banking','Nostro/vostro'], handsOn:'Map a real SWIFT MT103 message field by field', payonex:'Domain knowledge for all tiers' },
+    { id:'M02', short:'ISO 20022 Decoded', full:'ISO 20022 Decoded', week:'W1', topics:['MX messages','pain.001, pacs.008, pacs.002','XML schema','MT to MX migration'], handsOn:'Parse a real pacs.008 XML, extract key fields', payonex:'Domain knowledge for all tiers' },
+    { id:'M03', short:'Clearing Houses', full:'Clearing Houses Around the World', week:'W2', topics:['MEPS+, FAST, CHATS, FPS','CHAPS, RTGS India, NEFT, UPI','SWIFT gpi','Operating hours, cutoffs, thresholds'], handsOn:'Build a clearing house config matrix from scratch', payonex:'Domain knowledge for all tiers' },
+    { id:'M04', short:'Compliance', full:'Compliance & Screening', week:'W2', topics:['Sanctions (OFAC/EU/UN)','AML, PEP screening','Fraud detection','Investigation workflows, STR reporting'], handsOn:'Design a screening decision tree for a sample payment', payonex:'Domain knowledge for all tiers' },
+    { id:'M05', short:'Java 21', full:'Java 21 for Payment Systems', week:'W3', topics:['Records, sealed classes','Virtual threads','Pattern matching','BigDecimal (mandatory)','Immutability'], handsOn:'Refactor a mutable Payment class to immutable Java record', payonex:'Code quality for all services' },
+    { id:'M06', short:'SOLID Principles', full:'SOLID Principles (Applied)', week:'W3', topics:['SRP, OCP, LSP','ISP, DIP','Payment domain examples'], handsOn:'Identify SOLID violations in a sample payment codebase', payonex:'Code quality for all services' },
+    { id:'M07', short:'CUPID + Finance', full:'CUPID + Financial Disciplines', week:'W4', topics:['Predictability','Domain alignment','Defensive calculations','Auditability'], handsOn:'Write a routing decision that carries its own audit trail', payonex:'Code quality for all services' },
+    { id:'M08', short:'Strategy & Template', full:'Design Patterns I — Strategy & Template', week:'W4', topics:['Strategy pattern (clearing adapters)','Template Method (processing pipeline)'], handsOn:'Build a mini clearing adapter system with 3 adapters', payonex:'Code quality for all services' },
+    { id:'M09', short:'Specification & State', full:'Design Patterns II — Specification & State Machine', week:'W5', topics:['Composable business rules','Payment state machine','Guard conditions'], handsOn:'Implement a payment state machine with valid transitions', payonex:'Code quality for all services' },
+    { id:'M10', short:'Hexagonal Arch', full:'Hexagonal Architecture', week:'W5', topics:['Ports & adapters','Domain isolation','Zero framework imports in domain/'], handsOn:'Restructure a Spring app into hexagonal layers', payonex:'Code quality for all services' },
+    { id:'M11', short:'DDD', full:'Domain-Driven Design', week:'W6', topics:['Bounded contexts','Aggregates, entities','Value objects','Ubiquitous language'], handsOn:'Map the 6 Payment House bounded contexts', payonex:'Code quality for all services' },
+    { id:'M12', short:'Twelve-Factor App', full:'Twelve-Factor App', week:'W6', topics:['Config in env','Stateless processes','Port binding','Dev/prod parity','Logs as streams'], handsOn:'12-factor compliance audit on a sample app', payonex:'Code quality for all services' },
+  ],
+  level2: [
+    { id:'M13', short:'Kafka Fundamentals', full:'Apache Kafka Fundamentals', week:'W1', topics:['Producers, consumers','Consumer groups','Partitions, replication','Retention'], handsOn:'Set up Kafka locally, produce/consume payment messages', payonex:'Kafka backbone (Tiers 1-6)' },
+    { id:'M14', short:'Kafka Deep Dive', full:'Kafka Deep Dive', week:'W1', topics:['Exactly-once semantics','Transactions','Idempotent producers','Compaction, topic design'], handsOn:'Design the 10 Payment House Kafka topics', payonex:'Kafka backbone (Tiers 1-6)' },
+    { id:'M15', short:'Kafka Streams', full:'Kafka Streams & Real-Time', week:'W2', topics:['Stream processing','Materialized views','Windowing, aggregations'], handsOn:'Build a real-time payment volume dashboard from Kafka Streams', payonex:'Kafka backbone (Tiers 1-6)' },
+    { id:'M16', short:'Spring Boot', full:'Spring Boot for Payment Systems', week:'W2', topics:['Profiles, externalized config','Actuator, health checks','Dependency injection'], handsOn:'Multi-profile Spring app with region-specific configs', payonex:'Spring Boot services (all tiers)' },
+    { id:'M17', short:'Spring Kafka', full:'Spring Kafka Integration', week:'W3', topics:['Spring Kafka listeners, producers','Error handlers','DLQ routing'], handsOn:'End-to-end Kafka producer/consumer with retry', payonex:'Spring Boot services (all tiers)' },
+    { id:'M18', short:'PostgreSQL', full:'PostgreSQL for Finance', week:'W3', topics:['ACID, isolation levels','Partitioning, indexing','pg_stat_statements'], handsOn:'Design the payment_master schema with monthly partitions', payonex:'Databases (per-service)' },
+    { id:'M19', short:'Citus Sharding', full:'Citus — Horizontal Sharding', week:'W4', topics:['Distributed PostgreSQL','Shard key selection','Distributed queries'], handsOn:'Shard the ledger_db by account ID', payonex:'Databases (per-service)' },
+    { id:'M20', short:'Redis', full:'Redis for Payment Systems', week:'W4', topics:['Caching, deduplication (TTL 7d)','Idempotency store','Pub/sub'], handsOn:'Build a Redis-backed deduplication gateway', payonex:'Redis layer (Tier 1 dedup)' },
+    { id:'M21', short:'ClickHouse', full:'ClickHouse Analytics', week:'W5', topics:['Columnar storage','MergeTree, materialized views','Aggregation queries'], handsOn:'Load 1M payment records, write analytical queries', payonex:'ClickHouse (Tier 6 reporting)' },
+    { id:'M22', short:'Outbox + Debezium', full:'Transactional Outbox + Debezium', week:'W5', topics:['CDC, WAL capture','Outbox table design','Exactly-once to Kafka'], handsOn:'Implement outbox pattern with Debezium + PostgreSQL', payonex:'Outbox pattern (all producers)' },
+    { id:'M23', short:'Event Sourcing', full:'Event Sourcing in Practice', week:'W6', topics:['Immutable events','Event store','State reconstruction, snapshots'], handsOn:'Build an event-sourced payment aggregate', payonex:'Event sourcing (all tiers)' },
+    { id:'M24', short:'Saga Pattern', full:'Saga Pattern — Distributed Transactions', week:'W6', topics:['5-step accounting saga','Compensating transactions','Saga log'], handsOn:'Implement the accounting saga with failure compensation', payonex:'Saga (Tier 5 accounting)' },
+    { id:'M25', short:'Anti-Corruption Layer', full:'Anti-Corruption Layer', week:'W7', topics:['Per clearing house ACL','External format translation','Domain protection'], handsOn:'Build ACL for a simulated SWIFT response format', payonex:'ACL (Tier 4 clearing adapters)' },
+    { id:'M26', short:'Circuit Breaker', full:'Circuit Breaker & Resilience', week:'W7', topics:['Resilience4j, 3-state breaker','3-tier DLQ','Retry with backoff, bulkhead'], handsOn:'Simulate clearing house failures with circuit breaker recovery', payonex:'Resilience (Tier 4 circuit breakers)' },
+    { id:'M27', short:'REST & gRPC', full:'REST & gRPC API Design', week:'W8', topics:['API Gateway, rate limiting','Protocol translation','Protobuf'], handsOn:'Build a dual REST/gRPC payment submission API', payonex:'API layer (Tier 1 ingestion)' },
+    { id:'M28', short:'Testing', full:'Testing Strategies', week:'W8', topics:['Unit (AAA), integration (Testcontainers)','Contract, E2E','Chaos, performance testing'], handsOn:'Write test suites for a clearing adapter with >90% coverage', payonex:'Testing (all tiers)' },
+  ],
+  level3: [
+    { id:'M29', short:'Docker', full:'Docker for Payment Microservices', week:'W1', topics:['Multi-stage builds','Single image strategy','Optimization','Docker Compose'], handsOn:'Dockerize 3 payment microservices + Kafka + PG', payonex:'Infrastructure (K8s, Istio)' },
+    { id:'M30', short:'K8s Fundamentals', full:'Kubernetes Fundamentals', week:'W1', topics:['Pods, Deployments, Services','ConfigMaps, Secrets','HPA, PDB'], handsOn:'Deploy payment services to a local K8s cluster', payonex:'Infrastructure (K8s, Istio)' },
+    { id:'M31', short:'K8s Advanced', full:'Kubernetes Advanced', week:'W2', topics:['StatefulSets (Kafka)','Network policies, RBAC','Resource limits, affinity'], handsOn:'Production-grade K8s manifests for Payment House', payonex:'Infrastructure (K8s, Istio)' },
+    { id:'M32', short:'Istio Service Mesh', full:'Istio Service Mesh', week:'W2', topics:['mTLS, traffic management','Canary deployments','Fault injection, Kiali'], handsOn:'Canary deploy a clearing adapter with 95/5 traffic split', payonex:'Infrastructure (K8s, Istio)' },
+    { id:'M33', short:'HashiCorp Vault', full:'HashiCorp Vault', week:'W3', topics:['Dynamic secrets','Auto-rotation','Encryption-as-a-service','Policies'], handsOn:'Vault-managed database credentials for payment services', payonex:'Secrets & config (cross-cutting)' },
+    { id:'M34', short:'Consul / etcd', full:'Consul / etcd for Config', week:'W3', topics:['Distributed config','Hot-reload','Service discovery','Country configs'], handsOn:'Hot-reload clearing house cutoff times without restart', payonex:'Secrets & config (cross-cutting)' },
+    { id:'M35', short:'Prometheus + Grafana', full:'Prometheus + Grafana', week:'W4', topics:['Custom metrics','PromQL, golden signals','Alerting rules, Thanos'], handsOn:'Build a Payment House operations dashboard', payonex:'Observability (cross-cutting)' },
+    { id:'M36', short:'OpenTelemetry', full:'OpenTelemetry + Distributed Tracing', week:'W4', topics:['Span propagation','Jaeger, trace sampling','Correlation IDs'], handsOn:'Trace a payment end-to-end across 6 services', payonex:'Observability (cross-cutting)' },
+    { id:'M37', short:'ELK Stack', full:'ELK Stack + Structured Logging', week:'W5', topics:['Structured JSON logs','MDC correlation ID','Filebeat, Logstash, Kibana'], handsOn:'Centralized logging with payment correlation search', payonex:'Observability (cross-cutting)' },
+    { id:'M38', short:'Self-Healing', full:'Self-Healing Infrastructure', week:'W5', topics:['K8s probes','Anomaly detection','Auto-scaling','DLQ auto-replay'], handsOn:'Simulate failures, verify auto-recovery', payonex:'Self-healing (cross-cutting)' },
+    { id:'M39', short:'Multi-Region', full:'Multi-Region Deployment', week:'W6', topics:['MirrorMaker 2','Cross-region replication','RPO/RTO, DR failover'], handsOn:'Set up 2-region Kafka replication with failover test', payonex:'Multi-region (deployment)' },
+    { id:'M40', short:'Security Arch', full:'Security Architecture', week:'W7', topics:['TLS 1.3, field-level encryption','PII protection','RBAC, Kafka ACLs'], handsOn:'Encrypt PII fields in payment messages with Vault KEKs', payonex:'Security (cross-cutting)' },
+    { id:'M41', short:'CI/CD Pipeline', full:'CI/CD Pipeline', week:'W8', topics:['GitLab CI, ArgoCD','GitOps','Conventional commits','Semantic versioning'], handsOn:'Build a full CI/CD pipeline for a payment microservice', payonex:'CI/CD pipeline' },
+    { id:'M42', short:'Performance Eng', full:'Performance Engineering', week:'W9', topics:['Load testing (Gatling/k6)','p99 tuning','JVM optimization','Connection pools'], handsOn:'Load test the ingestion gateway to 10K msg/s', payonex:'Performance (SLA targets)' },
+    { id:'M43', short:'Regulatory', full:'Regulatory Compliance & Reporting', week:'W10', topics:['LVT reports, STR filing','EOD reconciliation','7-year archive, audit'], handsOn:'Build an automated reconciliation engine', payonex:'Regulatory (Tier 6 reporting)' },
+    { id:'M44', short:'System Design', full:'System Design — Payment Platform', week:'W10', topics:['Full system design exercise','Whiteboard the complete Payment House','6-tier architecture from scratch'], handsOn:'Design document: 6-tier architecture from scratch', payonex:'Full architecture' },
+  ],
+  level4: [
+    { id:'S1', short:'Ingestion Gateway', full:'Sprint 1 — Kafka + Ingestion Gateway', weeks:'W1-W2', desc:'Kafka cluster + Ingestion Gateway with IBM MQ bridge + dedup', topics:['Kafka cluster setup','Ingestion Gateway','IBM MQ bridge','Deduplication layer'], handsOn:'Working ingestion pipeline end-to-end', payonex:'Tier 1: Ingestion' },
+    { id:'S2', short:'Message Processing', full:'Sprint 2 — Message Processor + Enrichment', weeks:'W3-W4', desc:'Message Processor + Enrichment + Payment Master DB', topics:['Message processor service','Data enrichment','Payment Master DB','Schema design'], handsOn:'End-to-end message processing pipeline', payonex:'Tier 2-3: Processing & Enrichment' },
+    { id:'S3', short:'Compliance + Clearing', full:'Sprint 3 — Compliance & Clearing', weeks:'W5-W6', desc:'Compliance screening (mock) + Clearing adapter (1 country) + Circuit breaker', topics:['Mock compliance screening','Clearing adapter (1 country)','Circuit breaker pattern','Resilience testing'], handsOn:'Payment flows through compliance and clearing', payonex:'Tier 4: Clearing & Compliance' },
+    { id:'S4', short:'Accounting + Observability', full:'Sprint 4 — Accounting & Observability', weeks:'W7-W8', desc:'Accounting saga + Reporting dashboard + E2E test + Observability', topics:['Accounting saga','Reporting dashboard','End-to-end tests','Full observability stack'], handsOn:'Complete working Payment House subset', payonex:'Tier 5-6: Accounting & Reporting' },
+  ]
+};
+
+// ══════════════════════════════════════════════════════════════
+// RENDER MODULE CARDS
+// ══════════════════════════════════════════════════════════════
+
+function renderModuleCards() {
+  const colorMap = { level1:'c-blue', level2:'c-cyan', level3:'c-violet', level4:'c-amber' };
+  const gridMap = { level1:'grid-l1', level2:'grid-l2', level3:'grid-l3', level4:'grid-l4' };
+
+  Object.entries(MODULES).forEach(([level, modules]) => {
+    const grid = document.getElementById(gridMap[level]);
+    const colorClass = colorMap[level];
+
+    modules.forEach(mod => {
+      const card = document.createElement('div');
+      const isSprint = level === 'level4';
+      card.className = `mod-card ${colorClass}${isSprint ? ' sprint-card' : ''}`;
+      card.dataset.moduleId = mod.id;
+      card.dataset.level = level;
+
+      if (isSprint) {
+        card.innerHTML = `
+          <div class="mod-week">${mod.weeks}</div>
+          <div class="mod-id">${mod.id}</div>
+          <div class="mod-title">${mod.short}</div>
+          <div class="sprint-desc">${mod.desc}</div>
+        `;
+      } else {
+        card.innerHTML = `
+          <div class="mod-week">${mod.week}</div>
+          <div class="mod-id">${mod.id}</div>
+          <div class="mod-title">${mod.short}</div>
+        `;
+      }
+
+      card.addEventListener('click', () => openDetail(mod, level));
+      grid.appendChild(card);
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// DETAIL PANEL
+// ══════════════════════════════════════════════════════════════
+
+function openDetail(mod, level) {
+  const overlay = document.getElementById('detail-overlay');
+  const panel = document.getElementById('detail-panel');
+  const content = document.getElementById('detail-content');
+
+  const colorVar = { level1:'--blue', level2:'--cyan', level3:'--violet', level4:'--amber' }[level];
+  const levelName = { level1:'Level 1 — Payment Foundations', level2:'Level 2 — Platform Engineer', level3:'Level 3 — Payment Systems Architect', level4:'Level 4 — Capstone' }[level];
+
+  const topicsHtml = mod.topics.map(t => `<li>${t}</li>`).join('');
+
+  content.innerHTML = `
+    <div class="dp-id" style="color:var(${colorVar})">${mod.id}</div>
+    <div class="dp-title">${mod.full}</div>
+    <div class="dp-week">${mod.week || mod.weeks || ''} &middot; ${levelName}</div>
+
+    <div class="dp-section">
+      <h4 style="color:var(${colorVar})">Topics Covered</h4>
+      <ul>${topicsHtml}</ul>
+    </div>
+
+    <div class="dp-section">
+      <h4 style="color:var(${colorVar})">Hands-On Project</h4>
+      <p>${mod.handsOn}</p>
+    </div>
+
+    <div class="dp-section">
+      <h4 style="color:var(${colorVar})">PayoneX Mapping</h4>
+      <span class="dp-tag">${mod.payonex}</span>
+    </div>
+  `;
+
+  overlay.classList.add('open');
+  panel.classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.remove('open');
+  document.getElementById('detail-panel').classList.remove('open');
+}
+
+document.getElementById('detail-close').addEventListener('click', closeDetail);
+document.getElementById('detail-overlay').addEventListener('click', closeDetail);
+
+// ══════════════════════════════════════════════════════════════
+// D3 SVG CONNECTION LINES
+// ══════════════════════════════════════════════════════════════
+
+function drawConnections() {
+  const svg = d3.select('#connection-overlay');
+  const pageWrap = document.querySelector('.page-wrap');
+  const pageRect = pageWrap.getBoundingClientRect();
+
+  // Size SVG to full page
+  svg.attr('width', pageWrap.scrollWidth)
+     .attr('height', pageWrap.scrollHeight);
+
+  svg.selectAll('*').remove();
+
+  const colorMap = {
+    'level-1': '#3b82f6',
+    'level-2': '#06b6d4',
+    'level-3': '#8b5cf6',
+    'level-4': '#f59e0b'
+  };
+
+  document.querySelectorAll('.level-section').forEach(section => {
+    const sectionId = section.id;
+    const color = colorMap[sectionId] || '#3b82f6';
+    const cards = section.querySelectorAll('.mod-card');
+
+    if (cards.length < 2) return;
+
+    const group = svg.append('g').attr('class', `connections-${sectionId}`);
+
+    for (let i = 1; i < cards.length; i++) {
+      const prev = cards[i - 1];
+      const curr = cards[i];
+
+      const prevRect = prev.getBoundingClientRect();
+      const currRect = curr.getBoundingClientRect();
+
+      // Account for page scroll offset
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+
+      const x1 = prevRect.left + prevRect.width / 2 + scrollX;
+      const y1 = prevRect.top + prevRect.height / 2 + scrollY;
+      const x2 = currRect.left + currRect.width / 2 + scrollX;
+      const y2 = currRect.top + currRect.height / 2 + scrollY;
+
+      // Check if same row (y difference small)
+      const sameRow = Math.abs(y1 - y2) < 20;
+
+      let pathD;
+      if (sameRow) {
+        // Straight horizontal with slight curve
+        const midX = (x1 + x2) / 2;
+        pathD = `M${x1},${y1} C${midX},${y1} ${midX},${y2} ${x2},${y2}`;
+      } else {
+        // Curve from end of prev row to start of next row
+        const cpx1 = x1 + (x2 - x1) * 0.3;
+        const cpx2 = x1 + (x2 - x1) * 0.7;
+        pathD = `M${x1},${y1} C${cpx1},${y1} ${cpx2},${y2} ${x2},${y2}`;
+      }
+
+      const path = group.append('path')
+        .attr('d', pathD)
+        .attr('fill', 'none')
+        .attr('stroke', color)
+        .attr('stroke-width', 1.2)
+        .attr('stroke-opacity', 0.15)
+        .attr('class', `connection-line cl-${sectionId}`);
+
+      // Set up dash for animation
+      const totalLength = path.node().getTotalLength();
+      path.attr('stroke-dasharray', totalLength)
+          .attr('stroke-dashoffset', totalLength);
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// GSAP SCROLL ANIMATIONS
+// ══════════════════════════════════════════════════════════════
+
+function initAnimations() {
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Hero animations
+  gsap.from('.hero h1', { opacity: 0, y: 40, duration: 1, ease: 'power3.out', delay: 0.2 });
+  gsap.from('.hero-badge', { opacity: 0, y: 20, duration: 0.6, ease: 'power2.out', delay: 0.1 });
+  gsap.from('.hero-sub', { opacity: 0, y: 20, duration: 0.6, ease: 'power2.out', delay: 0.5 });
+  gsap.from('.stat-item', { opacity: 0, y: 20, stagger: 0.1, duration: 0.5, ease: 'power2.out', delay: 0.7 });
+
+  // Level sections
+  document.querySelectorAll('.level-section').forEach(section => {
+    const sectionId = section.id;
+
+    // Header fade in
+    gsap.from(section.querySelector('.level-header'), {
+      scrollTrigger: { trigger: section, start: 'top 80%', toggleActions: 'play none none none' },
+      opacity: 0, y: 30, duration: 0.6, ease: 'power2.out'
+    });
+
+    // Module cards stagger
+    const cards = section.querySelectorAll('.mod-card');
+    gsap.from(cards, {
+      scrollTrigger: { trigger: section, start: 'top 70%', toggleActions: 'play none none none' },
+      opacity: 0, y: 20, stagger: 0.04, duration: 0.4, ease: 'power2.out',
+      onComplete: () => {
+        // Animate connection lines after cards are revealed
+        animateConnectionLines(sectionId);
+      }
+    });
+  });
+
+  // Exam gates
+  document.querySelectorAll('.exam-gate').forEach(gate => {
+    gsap.from(gate, {
+      scrollTrigger: { trigger: gate, start: 'top 85%', toggleActions: 'play none none none' },
+      opacity: 0, scaleX: 0, transformOrigin: 'left center', duration: 0.6, ease: 'power3.out'
+    });
+  });
+
+  // Certification badge
+  gsap.from('.cert-badge', {
+    scrollTrigger: { trigger: '.cert-section', start: 'top 70%', toggleActions: 'play none none none' },
+    opacity: 0, scale: 0.6, duration: 0.8, ease: 'back.out(1.4)'
+  });
+  gsap.from('.cert-text', {
+    scrollTrigger: { trigger: '.cert-section', start: 'top 60%', toggleActions: 'play none none none' },
+    opacity: 0, y: 20, duration: 0.5, delay: 0.3
+  });
+  gsap.from('.cert-desc', {
+    scrollTrigger: { trigger: '.cert-section', start: 'top 60%', toggleActions: 'play none none none' },
+    opacity: 0, y: 20, duration: 0.5, delay: 0.5
+  });
+
+  // Exam Integrity — Question Bank cards
+  gsap.from('#ib-qbank .info-card', {
+    scrollTrigger: { trigger: '#ib-qbank', start: 'top 75%', toggleActions: 'play none none none' },
+    opacity: 0, y: 20, stagger: 0.1, duration: 0.5
+  });
+
+  // Randomization Engine cards
+  gsap.from('#random-cards .info-card', {
+    scrollTrigger: { trigger: '#ib-random', start: 'top 75%', toggleActions: 'play none none none' },
+    opacity: 0, y: 20, stagger: 0.08, duration: 0.4
+  });
+
+  // Anti-Cheat layers stack animation
+  gsap.from('#anticheat-stack .layer-item', {
+    scrollTrigger: { trigger: '#ib-anticheat', start: 'top 75%', toggleActions: 'play none none none' },
+    opacity: 0, x: -30, stagger: 0.12, duration: 0.5, ease: 'power2.out'
+  });
+
+  // Exam flow steps
+  gsap.from('#exam-flow-steps .flow-step', {
+    scrollTrigger: { trigger: '#ib-flow', start: 'top 75%', toggleActions: 'play none none none' },
+    opacity: 0, x: -20, stagger: 0.1, duration: 0.4, ease: 'power2.out'
+  });
+
+  // Content Pipeline — Source cards fan out
+  gsap.from('#source-cards .source-card', {
+    scrollTrigger: { trigger: '#ib-sources', start: 'top 75%', toggleActions: 'play none none none' },
+    opacity: 0, scale: 0.8, stagger: 0.05, duration: 0.4, ease: 'back.out(1.2)'
+  });
+
+  // Integration strategy
+  gsap.from('#ib-integration .info-card', {
+    scrollTrigger: { trigger: '#ib-integration', start: 'top 80%', toggleActions: 'play none none none' },
+    opacity: 0, y: 20, stagger: 0.1, duration: 0.5
+  });
+
+  // Pipeline steps
+  gsap.from('#pipeline-steps .pipe-step', {
+    scrollTrigger: { trigger: '#ib-pipeline', start: 'top 80%', toggleActions: 'play none none none' },
+    opacity: 0, y: 20, stagger: 0.1, duration: 0.4, ease: 'power2.out'
+  });
+
+  // Section headers for info sections
+  document.querySelectorAll('.info-section').forEach(sec => {
+    gsap.from(sec.querySelector('.section-label'), {
+      scrollTrigger: { trigger: sec, start: 'top 80%', toggleActions: 'play none none none' },
+      opacity: 0, y: 20, duration: 0.5
+    });
+    gsap.from(sec.querySelector('.section-title'), {
+      scrollTrigger: { trigger: sec, start: 'top 80%', toggleActions: 'play none none none' },
+      opacity: 0, y: 20, duration: 0.5, delay: 0.1
+    });
+    const desc = sec.querySelector('.section-desc');
+    if (desc) {
+      gsap.from(desc, {
+        scrollTrigger: { trigger: sec, start: 'top 80%', toggleActions: 'play none none none' },
+        opacity: 0, y: 20, duration: 0.5, delay: 0.2
+      });
+    }
+  });
+
+  // Info block headers
+  document.querySelectorAll('.info-block h3').forEach(h3 => {
+    gsap.from(h3, {
+      scrollTrigger: { trigger: h3, start: 'top 85%', toggleActions: 'play none none none' },
+      opacity: 0, x: -20, duration: 0.4
+    });
+  });
+}
+
+function animateConnectionLines(sectionId) {
+  const lines = document.querySelectorAll(`.cl-${sectionId}`);
+  lines.forEach((line, i) => {
+    const length = line.getTotalLength();
+    gsap.to(line, {
+      strokeDashoffset: 0,
+      duration: 0.6,
+      delay: i * 0.03,
+      ease: 'power2.out'
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// INITIALIZATION
+// ══════════════════════════════════════════════════════════════
+
+function init() {
+  renderModuleCards();
+
+  // Small delay to let DOM settle, then draw connections + init animations
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      drawConnections();
+      initAnimations();
+    });
+  });
+
+  // Redraw connections on resize (debounced)
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      drawConnections();
+    }, 250);
+  });
+
+  // Escape key closes detail panel
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeDetail();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

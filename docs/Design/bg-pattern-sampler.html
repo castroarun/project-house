@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Background Pattern Sampler — PayArk Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Outfit', sans-serif; background: #06070b; color: #eaecf2; }
+
+.header {
+  text-align: center; padding: 40px 20px 20px;
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(6,7,11,.9); backdrop-filter: blur(12px);
+  border-bottom: 1px solid #1c2035;
+}
+.header h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+.header h1 span { color: #06b6d4; }
+.header p { font-size: 13px; color: #4e5570; margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+
+.panel {
+  height: 100vh; position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid #1c2035;
+}
+.panel-label {
+  position: absolute; top: 16px; left: 20px; z-index: 5;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.panel-label .name {
+  font-size: 11px; font-family: 'JetBrains Mono', monospace; font-weight: 600;
+  color: #06b6d4; text-transform: uppercase; letter-spacing: 2px;
+  background: rgba(6,7,11,.8); padding: 4px 10px; border-radius: 6px;
+  backdrop-filter: blur(8px); border: 1px solid #1c2035;
+}
+.panel-label .desc {
+  font-size: 10px; color: #4e5570; font-family: 'JetBrains Mono', monospace;
+  background: rgba(6,7,11,.7); padding: 3px 8px; border-radius: 4px;
+  max-width: 280px; line-height: 1.5;
+}
+
+/* Sample card to show how content looks on each bg */
+.sample-card {
+  background: #12141f; border: 1px solid #1c2035; border-radius: 12px;
+  padding: 28px; max-width: 340px; z-index: 2; position: relative;
+  box-shadow: 0 12px 40px rgba(0,0,0,.3);
+}
+.sample-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.sample-card h3 .ark { color: #06b6d4; }
+.sample-card p { font-size: 13px; color: #8890a8; line-height: 1.65; }
+.sample-card .pills { display: flex; gap: 6px; margin-top: 12px; }
+.sample-card .pill {
+  padding: 4px 10px; border-radius: 6px; font-size: 11px;
+  font-family: 'JetBrains Mono', monospace; background: #1a1d2b;
+  border: 1px solid #1c2035; color: #8890a8;
+}
+.sample-card .pill span { font-weight: 700; }
+
+/* ═══════════════════════════════════════════════
+   PATTERN 1: Dot Grid (current PayoneX style)
+   ═══════════════════════════════════════════════ */
+.p1 { background: #06070b; }
+.p1::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.p1::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 50% 50% at 80% 20%, rgba(6,182,212,.05), transparent 60%),
+    radial-gradient(circle at 20% 70%, rgba(139,92,246,.03), transparent 50%);
+}
+
+/* ═══════════════════════════════════════════════
+   PATTERN 2: Subtle Grid Lines
+   ═══════════════════════════════════════════════ */
+.p2 { background: #06070b; }
+.p2::before {
+  content: ''; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.p2::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 70% 15%, rgba(6,182,212,.06), transparent),
+    radial-gradient(circle at 30% 80%, rgba(234,179,8,.03), transparent 50%);
+}
+
+/* ═══════════════════════════════════════════════
+   PATTERN 3: Diagonal Crosshatch
+   ═══════════════════════════════════════════════ */
+.p3 { background: #06070b; }
+.p3::before {
+  content: ''; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(45deg, rgba(255,255,255,.012) 1px, transparent 1px),
+    linear-gradient(-45deg, rgba(255,255,255,.012) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.p3::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 75% 10%, rgba(6,182,212,.05), transparent 50%),
+    radial-gradient(circle at 10% 60%, rgba(139,92,246,.04), transparent 50%);
+}
+
+/* ═══════════════════════════════════════════════
+   PATTERN 4: Hexagon / Honeycomb
+   ═══════════════════════════════════════════════ */
+.p4 { background: #06070b; }
+.p4::before {
+  content: ''; position: absolute; inset: 0; opacity: .35;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%23ffffff' stroke-width='0.3' opacity='0.08'/%3E%3Cpath d='M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34' fill='none' stroke='%23ffffff' stroke-width='0.3' opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 56px 100px;
+}
+.p4::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(6,182,212,.06), transparent 50%),
+    radial-gradient(circle at 15% 75%, rgba(234,179,8,.03), transparent 40%);
+}
+
+/* ═══════════════════════════════════════════════
+   PATTERN 5: Circuit Board / Tech Lines
+   ═══════════════════════════════════════════════ */
+.p5 { background: #06070b; }
+.p5::before {
+  content: ''; position: absolute; inset: 0; opacity: .5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cpath d='M0 50h30v-30h20v60h20v-50h30' fill='none' stroke='%23ffffff' stroke-width='0.3' opacity='0.06'/%3E%3Ccircle cx='30' cy='50' r='1.5' fill='%2306b6d4' opacity='0.08'/%3E%3Ccircle cx='50' cy='20' r='1.5' fill='%2306b6d4' opacity='0.06'/%3E%3Ccircle cx='70' cy='80' r='1.5' fill='%2306b6d4' opacity='0.06'/%3E%3C/svg%3E");
+  background-size: 100px 100px;
+}
+.p5::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 80% 15%, rgba(6,182,212,.05), transparent 50%),
+    radial-gradient(circle at 20% 70%, rgba(139,92,246,.03), transparent 50%);
+}
+
+/* ═══════════════════════════════════════════════
+   PATTERN 6: Topographic / Contour Lines
+   ═══════════════════════════════════════════════ */
+.p6 { background: #06070b; }
+.p6::before {
+  content: ''; position: absolute; inset: 0; opacity: .6;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cellipse cx='100' cy='100' rx='90' ry='60' fill='none' stroke='%23ffffff' stroke-width='0.3' opacity='0.04'/%3E%3Cellipse cx='100' cy='100' rx='70' ry='45' fill='none' stroke='%23ffffff' stroke-width='0.3' opacity='0.04'/%3E%3Cellipse cx='100' cy='100' rx='50' ry='30' fill='none' stroke='%23ffffff' stroke-width='0.3' opacity='0.04'/%3E%3Cellipse cx='100' cy='100' rx='30' ry='18' fill='none' stroke='%23ffffff' stroke-width='0.3' opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+.p6::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 70% 20%, rgba(6,182,212,.05), transparent 55%),
+    radial-gradient(circle at 25% 65%, rgba(234,179,8,.025), transparent 45%);
+}
+
+/* ═══════════════════════════════════════════════
+   PATTERN 7: Isometric Grid
+   ═══════════════════════════════════════════════ */
+.p7 { background: #06070b; }
+.p7::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='46'%3E%3Cpath d='M0 23L20 0L40 23L20 46zM40 23L60 0L80 23L60 46z' fill='none' stroke='%23ffffff' stroke-width='0.3' opacity='0.05'/%3E%3C/svg%3E");
+  background-size: 80px 46px;
+}
+.p7::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 75% 15%, rgba(6,182,212,.06), transparent 55%),
+    radial-gradient(circle at 15% 70%, rgba(139,92,246,.03), transparent 50%);
+}
+
+/* ═══════════════════════════════════════════════
+   PATTERN 8: Noise Grain (current PayArk)
+   ═══════════════════════════════════════════════ */
+.p8 { background: #06070b; }
+.p8 .noise-layer {
+  position: absolute; inset: 0; opacity: .03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat; background-size: 256px 256px;
+}
+.p8::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 80% 10%, rgba(6,182,212,.05), transparent 60%),
+    radial-gradient(circle at 10% 60%, rgba(234,179,8,.03), transparent 50%);
+}
+
+/* ═══════════════════════════════════════════════
+   PATTERN 9: Radial Pulse / Concentric Rings
+   ═══════════════════════════════════════════════ */
+.p9 { background: #06070b; }
+.p9::before {
+  content: ''; position: absolute;
+  top: -20%; right: -15%; width: 80%; height: 120%;
+  background:
+    radial-gradient(circle, rgba(6,182,212,.025) 0%, transparent 15%),
+    radial-gradient(circle, transparent 18%, rgba(6,182,212,.015) 19%, transparent 20%),
+    radial-gradient(circle, transparent 33%, rgba(6,182,212,.010) 34%, transparent 35%),
+    radial-gradient(circle, transparent 48%, rgba(6,182,212,.007) 49%, transparent 50%),
+    radial-gradient(circle, transparent 63%, rgba(6,182,212,.005) 64%, transparent 65%),
+    radial-gradient(circle, transparent 78%, rgba(6,182,212,.003) 79%, transparent 80%);
+}
+.p9::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 20% 70%, rgba(139,92,246,.03), transparent 40%);
+}
+
+/* ═══════════════════════════════════════════════
+   PATTERN 10: Scattered Plus Signs
+   ═══════════════════════════════════════════════ */
+.p10 { background: #06070b; }
+.p10::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M30 24v12M24 30h12' stroke='%23ffffff' stroke-width='0.5' opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 60px 60px;
+}
+.p10::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 75% 15%, rgba(6,182,212,.06), transparent 55%),
+    radial-gradient(circle at 20% 65%, rgba(234,179,8,.025), transparent 45%);
+}
+
+@media (max-width: 768px) {
+  .grid { grid-template-columns: 1fr; }
+  .panel { height: 80vh; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Pay<span>Ark</span> Background Patterns</h1>
+  <p>10 patterns on #06070b dark base &mdash; pick one</p>
+</div>
+
+<div class="grid">
+
+<!-- 1. Dot Grid -->
+<div class="panel p1">
+  <div class="panel-label">
+    <span class="name">01 &mdash; Dot Grid</span>
+    <span class="desc">Small radial dots. Clean, minimal. Similar to PayoneX portal.</span>
+  </div>
+  <div class="sample-card">
+    <h3>Pay<span class="ark">Ark</span> Academy</h3>
+    <p>44 modules across 4 certification levels. Each module maps to a real component.</p>
+    <div class="pills"><span class="pill"><span style="color:#06b6d4">44</span> modules</span><span class="pill"><span style="color:#3b82f6">4</span> certs</span></div>
+  </div>
+</div>
+
+<!-- 2. Grid Lines -->
+<div class="panel p2">
+  <div class="panel-label">
+    <span class="name">02 &mdash; Grid Lines</span>
+    <span class="desc">Subtle square grid. Architectural blueprint feel.</span>
+  </div>
+  <div class="sample-card">
+    <h3>Pay<span class="ark">Ark</span> Academy</h3>
+    <p>44 modules across 4 certification levels. Each module maps to a real component.</p>
+    <div class="pills"><span class="pill"><span style="color:#06b6d4">44</span> modules</span><span class="pill"><span style="color:#3b82f6">4</span> certs</span></div>
+  </div>
+</div>
+
+<!-- 3. Diagonal Crosshatch -->
+<div class="panel p3">
+  <div class="panel-label">
+    <span class="name">03 &mdash; Crosshatch</span>
+    <span class="desc">Diagonal lines crossing. Subtle texture without distraction.</span>
+  </div>
+  <div class="sample-card">
+    <h3>Pay<span class="ark">Ark</span> Academy</h3>
+    <p>44 modules across 4 certification levels. Each module maps to a real component.</p>
+    <div class="pills"><span class="pill"><span style="color:#06b6d4">44</span> modules</span><span class="pill"><span style="color:#3b82f6">4</span> certs</span></div>
+  </div>
+</div>
+
+<!-- 4. Hexagon / Honeycomb -->
+<div class="panel p4">
+  <div class="panel-label">
+    <span class="name">04 &mdash; Honeycomb</span>
+    <span class="desc">Hexagonal tiling. Tech / engineering vibe.</span>
+  </div>
+  <div class="sample-card">
+    <h3>Pay<span class="ark">Ark</span> Academy</h3>
+    <p>44 modules across 4 certification levels. Each module maps to a real component.</p>
+    <div class="pills"><span class="pill"><span style="color:#06b6d4">44</span> modules</span><span class="pill"><span style="color:#3b82f6">4</span> certs</span></div>
+  </div>
+</div>
+
+<!-- 5. Circuit Board -->
+<div class="panel p5">
+  <div class="panel-label">
+    <span class="name">05 &mdash; Circuit Board</span>
+    <span class="desc">PCB-style traces with cyan connection nodes. Very tech.</span>
+  </div>
+  <div class="sample-card">
+    <h3>Pay<span class="ark">Ark</span> Academy</h3>
+    <p>44 modules across 4 certification levels. Each module maps to a real component.</p>
+    <div class="pills"><span class="pill"><span style="color:#06b6d4">44</span> modules</span><span class="pill"><span style="color:#3b82f6">4</span> certs</span></div>
+  </div>
+</div>
+
+<!-- 6. Topographic -->
+<div class="panel p6">
+  <div class="panel-label">
+    <span class="name">06 &mdash; Topographic</span>
+    <span class="desc">Contour lines / elevation map. Organic and premium.</span>
+  </div>
+  <div class="sample-card">
+    <h3>Pay<span class="ark">Ark</span> Academy</h3>
+    <p>44 modules across 4 certification levels. Each module maps to a real component.</p>
+    <div class="pills"><span class="pill"><span style="color:#06b6d4">44</span> modules</span><span class="pill"><span style="color:#3b82f6">4</span> certs</span></div>
+  </div>
+</div>
+
+<!-- 7. Isometric Grid -->
+<div class="panel p7">
+  <div class="panel-label">
+    <span class="name">07 &mdash; Isometric</span>
+    <span class="desc">Diamond / isometric tiles. 3D depth illusion.</span>
+  </div>
+  <div class="sample-card">
+    <h3>Pay<span class="ark">Ark</span> Academy</h3>
+    <p>44 modules across 4 certification levels. Each module maps to a real component.</p>
+    <div class="pills"><span class="pill"><span style="color:#06b6d4">44</span> modules</span><span class="pill"><span style="color:#3b82f6">4</span> certs</span></div>
+  </div>
+</div>
+
+<!-- 8. Noise Grain -->
+<div class="panel p8">
+  <div class="noise-layer"></div>
+  <div class="panel-label">
+    <span class="name">08 &mdash; Noise Grain</span>
+    <span class="desc">Current PayArk pattern. SVG feTurbulence noise texture.</span>
+  </div>
+  <div class="sample-card">
+    <h3>Pay<span class="ark">Ark</span> Academy</h3>
+    <p>44 modules across 4 certification levels. Each module maps to a real component.</p>
+    <div class="pills"><span class="pill"><span style="color:#06b6d4">44</span> modules</span><span class="pill"><span style="color:#3b82f6">4</span> certs</span></div>
+  </div>
+</div>
+
+<!-- 9. Radial Pulse -->
+<div class="panel p9">
+  <div class="panel-label">
+    <span class="name">09 &mdash; Radial Pulse</span>
+    <span class="desc">Concentric rings radiating from corner. Signal / radar feel.</span>
+  </div>
+  <div class="sample-card">
+    <h3>Pay<span class="ark">Ark</span> Academy</h3>
+    <p>44 modules across 4 certification levels. Each module maps to a real component.</p>
+    <div class="pills"><span class="pill"><span style="color:#06b6d4">44</span> modules</span><span class="pill"><span style="color:#3b82f6">4</span> certs</span></div>
+  </div>
+</div>
+
+<!-- 10. Scattered Plus Signs -->
+<div class="panel p10">
+  <div class="panel-label">
+    <span class="name">10 &mdash; Plus Signs</span>
+    <span class="desc">Small + marks in a grid. Medical / precision tech aesthetic.</span>
+  </div>
+  <div class="sample-card">
+    <h3>Pay<span class="ark">Ark</span> Academy</h3>
+    <p>44 modules across 4 certification levels. Each module maps to a real component.</p>
+    <div class="pills"><span class="pill"><span style="color:#06b6d4">44</span> modules</span><span class="pill"><span style="color:#3b82f6">4</span> certs</span></div>
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -21,14 +21,14 @@
 <!-- LAUNCHPAD:START -->
 ```json
 {
-  "stage": "idea",
-  "progress": 10,
+  "stage": "building",
+  "progress": 25,
   "complexity": "F",
-  "lastUpdated": "2026-02-08",
+  "lastUpdated": "2026-02-25",
   "targetDate": null,
-  "nextAction": "Formalize PRD from Design Brief",
+  "nextAction": "Formalize PRD, begin Phase 1 build",
   "blocker": null,
-  "demoUrl": null,
+  "demoUrl": "https://castroarun.github.io/project-house/docs/Design/payment-architecture.html",
   "techStack": ["Java 21", "Spring Boot", "Apache Kafka", "PostgreSQL", "Citus", "ClickHouse", "Redis", "Kubernetes", "Istio"],
   "shipped": false,
   "linkedinPosted": false
@@ -108,29 +108,58 @@ Six architectural tiers connected by Apache Kafka:
 
 ---
 
+## Live Design Pages
+
+Interactive HTML visualizations hosted via GitHub Pages:
+
+| Page | Description |
+|------|-------------|
+| [Architecture Diagram](https://castroarun.github.io/project-house/docs/Design/payment-architecture.html) | Full 6-tier system architecture with inbound/outbound flows, metro maps, SLAs |
+| [Payment Flow](https://castroarun.github.io/project-house/docs/Design/payment-flow-diagram.html) | End-to-end payment processing flow |
+| [Metro Map](https://castroarun.github.io/project-house/docs/Design/flow-metro-map.html) | Transit-style payment flow (inbound FAST) |
+| [Swimlane Flow](https://castroarun.github.io/project-house/docs/Design/flow-swimlane.html) | Cross-tier swimlane diagram |
+| [Circuit Board](https://castroarun.github.io/project-house/docs/Design/flow-circuit-board.html) | PCB-style payment routing |
+| [Isometric Flow](https://castroarun.github.io/project-house/docs/Design/flow-isometric.html) | 3D isometric architecture view |
+| [PayArk Skill Tree](https://castroarun.github.io/project-house/docs/Design/payark-skilltree-hybrid.html) | 44-module training curriculum visualization |
+
+---
+
 ## Project Structure
 
 ```
 payment-house/
 ├── docs/
-│   ├── brain-dump/                    # Desktop ideation session captures
+│   ├── brain-dump/                         # Desktop ideation session captures
 │   ├── Design/
-│   │   ├── DESIGN-BRIEF.md            # High-level vision (evolving)
-│   │   ├── APP_PRD.md                 # Product Requirements (formal)
-│   │   ├── payment-architecture.html  # Interactive architecture diagram
-│   │   ├── payment-flow-diagram.html  # Interactive flow diagram
+│   │   ├── DESIGN-BRIEF.md                 # High-level vision (evolving)
+│   │   ├── APP_PRD.md                      # Product Requirements (formal)
+│   │   ├── TRAINING-PROGRAM-PLAN.md        # PayArk 44-module curriculum
+│   │   ├── payment-architecture.html       # Interactive architecture (+ metro maps)
+│   │   ├── payment-flow-diagram.html       # Payment flow diagram
+│   │   ├── flow-swimlane.html              # Swimlane flow
+│   │   ├── flow-circuit-board.html         # Circuit board flow
+│   │   ├── flow-isometric.html             # Isometric 3D flow
+│   │   ├── flow-metro-map.html             # Metro map flow (standalone)
+│   │   ├── payonex-brand-variants.html     # Brand identity variants
+│   │   ├── payark-skilltree-hybrid.html    # PayArk skill tree (hybrid)
+│   │   ├── payark-skilltree-d3.html        # PayArk skill tree (D3.js)
+│   │   ├── payark-skilltree-css.html       # PayArk skill tree (CSS)
+│   │   ├── payark-skilltree-cytoscape.html # PayArk skill tree (Cytoscape)
 │   │   └── decisions/
 │   │       ├── ADR-001-tech-stack.md
 │   │       ├── ADR-002-architecture-pattern.md
-│   │       └── ADR-003-multi-region-strategy.md
-│   ├── CHANGELOG.md                   # Project changelog
-│   ├── DEV-CLOCK.md                   # Time tracking
-│   ├── DEVELOPMENT-PLAN.md            # Technical plan
-│   ├── GLOSSARY.md                    # Domain terminology (35+ terms)
-│   ├── PROJECT-STATUS.md              # 9-step workflow tracker
-│   └── TEST-PLAN.csv                  # Test matrix
+│   │       ├── ADR-003-multi-region-strategy.md
+│   │       └── ADR-004-compliance-saga.md
+│   ├── CHANGELOG.md                        # Project changelog
+│   ├── DEV-CLOCK.md                        # Time tracking
+│   ├── DEVELOPMENT-PLAN.md                 # Technical plan
+│   ├── GLOSSARY.md                         # Domain terminology (35+ terms)
+│   ├── PROJECT-STATUS.md                   # 9-step workflow tracker
+│   ├── linkedin-post-payonex-architecture.md  # LinkedIn Post 1
+│   ├── linkedin-post-payark-academy.md        # LinkedIn Post 2
+│   └── TEST-PLAN.csv                       # Test matrix
 └── inits_n_info/
-    └── requirements.md                # Structured requirements
+    └── requirements.md                     # Structured requirements
 ```
 
 ---
@@ -155,7 +184,12 @@ payment-house/
 - [x] Project scaffolding and documentation structure
 - [x] System architecture design (6-tier Kafka pipeline)
 - [x] Coding standards and design patterns defined
-- [x] Architecture Decision Records (ADR-001 through ADR-003)
+- [x] Architecture Decision Records (ADR-001 through ADR-004)
+- [x] Interactive architecture & flow visualizations (7 HTML pages)
+- [x] PayoneX branding and identity
+- [x] PayArk training program (44 modules, 4 cert levels)
+- [x] PayArk Academy app — Module 1 MVP ([repo](https://github.com/castroarun/payark-academy))
+- [x] LinkedIn content (2 post drafts)
 - [ ] Formalize PRD from Design Brief
 - [ ] Detailed data model per bounded context
 - [ ] API design document

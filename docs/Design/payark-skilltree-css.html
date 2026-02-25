@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayArk — Training Academy Skill Tree</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   DESIGN TOKENS
+   ═══════════════════════════════════════════════════════ */
+:root {
+  --bg: #08090d; --bg2: #0f1118; --bg3: #151822; --bg4: #1a1e2e;
+  --bdr: #1f2438; --bdr2: #2a3050;
+  --t1: #e8eaf0; --t2: #8b90a0; --t3: #555a6e;
+  --blue: #3b82f6; --cyan: #06b6d4; --green: #10b981; --amber: #f59e0b;
+  --rose: #f43f5e; --violet: #8b5cf6; --orange: #f97316;
+  --gold: #eab308;
+  --r: 10px;
+  --fd: 'Outfit', sans-serif; --fm: 'JetBrains Mono', monospace;
+  --tr: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESET & BASE
+   ═══════════════════════════════════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--fd); background: var(--bg); color: var(--t1);
+  line-height: 1.65; overflow-x: hidden; min-height: 100vh;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bdr2); border-radius: 3px; }
+
+/* Background texture */
+.bgx {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59,130,246,.06), transparent),
+    radial-gradient(circle at 80% 80%, rgba(139,92,246,.04), transparent),
+    linear-gradient(rgba(255,255,255,.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.012) 1px, transparent 1px);
+  background-size: 100%, 100%, 60px 60px, 60px 60px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   CONTAINER
+   ═══════════════════════════════════════════════════════ */
+.wrap { max-width: 1280px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+
+/* ═══════════════════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════════════════ */
+.hdr { padding: 48px 0 36px; text-align: center; }
+.hdr h1 {
+  font-size: clamp(48px, 6vw, 72px); font-weight: 900; letter-spacing: -3px; line-height: 1;
+  background: linear-gradient(135deg, #fff 0%, var(--blue) 50%, var(--cyan) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 30px rgba(59,130,246,.25));
+  position: relative; display: inline-block;
+}
+.hdr h1::before {
+  content: ''; position: absolute; bottom: -6px; left: 0; width: 100%; height: 2px;
+  background: var(--bdr); border-radius: 2px;
+}
+.hdr h1::after {
+  content: ''; position: absolute; bottom: -10px; right: -2px; width: 10px; height: 10px;
+  border-radius: 50%; background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan), 0 0 20px rgba(6,182,212,.4);
+  animation: hdr-pulse 2s ease-in-out infinite alternate;
+}
+@keyframes hdr-pulse {
+  0% { box-shadow: 0 0 8px var(--cyan), 0 0 16px rgba(6,182,212,.3); }
+  100% { box-shadow: 0 0 14px var(--cyan), 0 0 28px rgba(6,182,212,.5); }
+}
+.hdr-sub {
+  font-size: 12px; color: var(--t3); letter-spacing: 4px; text-transform: uppercase;
+  font-weight: 500; margin-top: 20px; font-family: var(--fm);
+}
+
+/* ═══════════════════════════════════════════════════════
+   STATS BAR
+   ═══════════════════════════════════════════════════════ */
+.stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  margin: 32px 0 0;
+}
+.stat {
+  background: var(--bg2); border: 1px solid var(--bdr); border-radius: var(--r);
+  padding: 16px 20px; text-align: center; transition: var(--tr);
+}
+.stat:hover { border-color: var(--bdr2); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,.3); }
+.stat-val {
+  font-size: 24px; font-weight: 800; font-family: var(--fm); letter-spacing: -1px;
+}
+.stat-lbl { font-size: 11px; color: var(--t3); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; font-family: var(--fm); }
+.stat:nth-child(1) .stat-val { color: var(--blue); }
+.stat:nth-child(2) .stat-val { color: var(--amber); }
+.stat:nth-child(3) .stat-val { color: var(--cyan); }
+.stat:nth-child(4) .stat-val { color: var(--green); }
+
+/* ═══════════════════════════════════════════════════════
+   TABS
+   ═══════════════════════════════════════════════════════ */
+.tabs {
+  display: flex; gap: 4px; margin: 32px 0 0; padding: 4px;
+  background: var(--bg2); border: 1px solid var(--bdr); border-radius: var(--r);
+  width: fit-content;
+}
+.tab-btn {
+  padding: 10px 20px; border-radius: 7px; background: none; border: none;
+  color: var(--t2); font-size: 13px; font-family: var(--fd); font-weight: 600;
+  cursor: pointer; transition: var(--tr); white-space: nowrap;
+}
+.tab-btn:hover { color: var(--t1); background: var(--bg4); }
+.tab-btn.active { color: var(--blue); background: rgba(59,130,246,.15); }
+.tab-panel { display: none; padding: 32px 0 48px; }
+.tab-panel.active { display: block; }
+
+/* ═══════════════════════════════════════════════════════
+   TAB 1: SKILL TREE
+   ═══════════════════════════════════════════════════════ */
+
+/* Level sections */
+.level-section { margin-bottom: 0; position: relative; }
+
+.level-hdr {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  padding: 16px 20px; border-radius: var(--r); margin-bottom: 16px;
+  border: 1px solid var(--bdr); position: relative;
+}
+.level-hdr::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  border-radius: var(--r) 0 0 var(--r);
+}
+.level-num {
+  font-size: 11px; font-family: var(--fm); font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 10px;
+  border-radius: 6px;
+}
+.level-name { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; flex: 1; }
+.level-meta {
+  display: flex; gap: 16px; font-size: 11px; font-family: var(--fm); color: var(--t3);
+}
+.level-meta span { display: flex; align-items: center; gap: 4px; }
+
+/* Level color variants */
+.lvl-blue .level-hdr { background: rgba(59,130,246,.06); }
+.lvl-blue .level-hdr::before { background: var(--blue); }
+.lvl-blue .level-num { background: rgba(59,130,246,.15); color: var(--blue); }
+.lvl-blue .level-name { color: var(--blue); }
+
+.lvl-cyan .level-hdr { background: rgba(6,182,212,.06); }
+.lvl-cyan .level-hdr::before { background: var(--cyan); }
+.lvl-cyan .level-num { background: rgba(6,182,212,.15); color: var(--cyan); }
+.lvl-cyan .level-name { color: var(--cyan); }
+
+.lvl-violet .level-hdr { background: rgba(139,92,246,.06); }
+.lvl-violet .level-hdr::before { background: var(--violet); }
+.lvl-violet .level-num { background: rgba(139,92,246,.15); color: var(--violet); }
+.lvl-violet .level-name { color: var(--violet); }
+
+.lvl-gold .level-hdr { background: rgba(234,179,8,.06); }
+.lvl-gold .level-hdr::before { background: var(--gold); }
+.lvl-gold .level-num { background: rgba(234,179,8,.15); color: var(--gold); }
+.lvl-gold .level-name { color: var(--gold); }
+
+/* Module grid */
+.module-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px; margin-bottom: 8px; padding: 0 0 16px;
+}
+
+/* Module card */
+.mod-card {
+  padding: 10px 12px; border-radius: 8px; cursor: pointer;
+  transition: var(--tr); position: relative; border: 1px solid;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.mod-card:hover { transform: translateY(-2px); }
+.mod-card-top {
+  display: flex; align-items: center; justify-content: space-between; gap: 4px;
+}
+.mod-id {
+  font-size: 11px; font-family: var(--fm); font-weight: 700; letter-spacing: 0.5px;
+}
+.mod-wk {
+  font-size: 9px; font-family: var(--fm); padding: 2px 6px; border-radius: 4px;
+  font-weight: 600;
+}
+.mod-title {
+  font-size: 12px; font-weight: 500; color: var(--t2); line-height: 1.4;
+}
+.mod-card.active { z-index: 5; }
+
+/* Blue modules */
+.lvl-blue .mod-card {
+  background: rgba(59,130,246,.08); border-color: rgba(59,130,246,.2);
+}
+.lvl-blue .mod-card:hover, .lvl-blue .mod-card.active {
+  border-color: rgba(59,130,246,.5); box-shadow: 0 4px 16px rgba(59,130,246,.15);
+}
+.lvl-blue .mod-id { color: var(--blue); }
+.lvl-blue .mod-wk { background: rgba(59,130,246,.1); color: var(--blue); }
+
+/* Cyan modules */
+.lvl-cyan .mod-card {
+  background: rgba(6,182,212,.08); border-color: rgba(6,182,212,.2);
+}
+.lvl-cyan .mod-card:hover, .lvl-cyan .mod-card.active {
+  border-color: rgba(6,182,212,.5); box-shadow: 0 4px 16px rgba(6,182,212,.15);
+}
+.lvl-cyan .mod-id { color: var(--cyan); }
+.lvl-cyan .mod-wk { background: rgba(6,182,212,.1); color: var(--cyan); }
+
+/* Violet modules */
+.lvl-violet .mod-card {
+  background: rgba(139,92,246,.08); border-color: rgba(139,92,246,.2);
+}
+.lvl-violet .mod-card:hover, .lvl-violet .mod-card.active {
+  border-color: rgba(139,92,246,.5); box-shadow: 0 4px 16px rgba(139,92,246,.15);
+}
+.lvl-violet .mod-id { color: var(--violet); }
+.lvl-violet .mod-wk { background: rgba(139,92,246,.1); color: var(--violet); }
+
+/* Gold modules (capstone sprints) */
+.lvl-gold .mod-card {
+  background: rgba(234,179,8,.08); border-color: rgba(234,179,8,.2);
+}
+.lvl-gold .mod-card:hover, .lvl-gold .mod-card.active {
+  border-color: rgba(234,179,8,.5); box-shadow: 0 4px 16px rgba(234,179,8,.15);
+}
+.lvl-gold .mod-id { color: var(--gold); }
+.lvl-gold .mod-wk { background: rgba(234,179,8,.1); color: var(--gold); }
+
+/* Exam gate connector */
+.exam-gate {
+  display: flex; align-items: center; gap: 16px; padding: 14px 20px;
+  background: var(--bg3); border: 1px solid var(--bdr2); border-radius: var(--r);
+  margin: 8px 0 24px; position: relative;
+}
+.exam-gate::before, .exam-gate::after {
+  content: ''; flex-shrink: 0; width: 10px; height: 10px;
+  border: 1px solid; transform: rotate(45deg);
+}
+.exam-gate-content {
+  flex: 1; text-align: center;
+}
+.exam-gate-cert {
+  font-size: 13px; font-weight: 700; font-family: var(--fm); letter-spacing: 1px;
+}
+.exam-gate-info {
+  font-size: 11px; color: var(--t3); font-family: var(--fm); margin-top: 2px;
+}
+
+/* Exam gate color variants */
+.egate-blue::before, .egate-blue::after { border-color: var(--blue); background: rgba(59,130,246,.2); }
+.egate-blue .exam-gate-cert { color: var(--blue); }
+.egate-cyan::before, .egate-cyan::after { border-color: var(--cyan); background: rgba(6,182,212,.2); }
+.egate-cyan .exam-gate-cert { color: var(--cyan); }
+.egate-violet::before, .egate-violet::after { border-color: var(--violet); background: rgba(139,92,246,.2); }
+.egate-violet .exam-gate-cert { color: var(--violet); }
+
+/* Vertical connector between levels */
+.vert-connector {
+  width: 2px; height: 20px; margin: 0 auto;
+  position: relative;
+}
+.vert-connector.vc-blue { background: linear-gradient(180deg, rgba(59,130,246,.3), rgba(6,182,212,.3)); }
+.vert-connector.vc-cyan { background: linear-gradient(180deg, rgba(6,182,212,.3), rgba(139,92,246,.3)); }
+.vert-connector.vc-violet { background: linear-gradient(180deg, rgba(139,92,246,.3), rgba(234,179,8,.3)); }
+
+/* PAKA badge at bottom */
+.paka-badge {
+  text-align: center; padding: 32px 24px; margin-top: 24px;
+  background: linear-gradient(135deg, rgba(234,179,8,.08), rgba(234,179,8,.03));
+  border: 2px solid rgba(234,179,8,.3); border-radius: 16px;
+  position: relative; overflow: hidden;
+}
+.paka-badge::before {
+  content: ''; position: absolute; inset: -1px; border-radius: 16px;
+  background: linear-gradient(135deg, rgba(234,179,8,.2), transparent, rgba(234,179,8,.1));
+  z-index: 0; opacity: 0; transition: opacity 0.5s;
+}
+.paka-badge:hover::before { opacity: 1; }
+.paka-badge-inner { position: relative; z-index: 1; }
+.paka-icon {
+  width: 64px; height: 64px; margin: 0 auto 16px;
+  border-radius: 50%; border: 2px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; background: rgba(234,179,8,.1);
+  box-shadow: 0 0 20px rgba(234,179,8,.2), 0 0 40px rgba(234,179,8,.1);
+  animation: paka-glow 3s ease-in-out infinite alternate;
+}
+@keyframes paka-glow {
+  0% { box-shadow: 0 0 15px rgba(234,179,8,.15), 0 0 30px rgba(234,179,8,.08); }
+  100% { box-shadow: 0 0 25px rgba(234,179,8,.3), 0 0 50px rgba(234,179,8,.15); }
+}
+.paka-title {
+  font-size: 20px; font-weight: 800; color: var(--gold);
+  letter-spacing: -0.5px; margin-bottom: 4px;
+}
+.paka-full {
+  font-size: 12px; font-family: var(--fm); color: var(--t3);
+  letter-spacing: 1px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   DETAIL PANEL (slide-in)
+   ═══════════════════════════════════════════════════════ */
+.detail-overlay {
+  position: fixed; inset: 0; z-index: 999; display: none;
+}
+.detail-overlay.open { display: flex; }
+.detail-backdrop {
+  position: absolute; inset: 0; background: rgba(0,0,0,.5);
+  backdrop-filter: blur(4px); cursor: pointer;
+}
+.detail-panel {
+  position: absolute; right: 0; top: 0; bottom: 0; width: 380px; max-width: 90vw;
+  background: var(--bg2); border-left: 1px solid var(--bdr);
+  overflow-y: auto; transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 24px;
+}
+.detail-overlay.open .detail-panel { transform: translateX(0); }
+.detail-close {
+  position: absolute; top: 16px; right: 16px; width: 32px; height: 32px;
+  border-radius: 8px; background: var(--bg4); border: 1px solid var(--bdr);
+  color: var(--t2); font-size: 16px; cursor: pointer; transition: var(--tr);
+  display: flex; align-items: center; justify-content: center;
+}
+.detail-close:hover { color: var(--t1); border-color: var(--bdr2); }
+.detail-level {
+  font-size: 10px; font-family: var(--fm); font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px;
+}
+.detail-id {
+  font-size: 14px; font-family: var(--fm); font-weight: 700; margin-bottom: 4px;
+}
+.detail-title {
+  font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 16px;
+}
+.detail-meta {
+  display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.detail-meta-item {
+  font-size: 11px; font-family: var(--fm); padding: 4px 10px;
+  border-radius: 6px; background: var(--bg4); border: 1px solid var(--bdr);
+  color: var(--t2);
+}
+.detail-section { margin-bottom: 20px; }
+.detail-section-title {
+  font-size: 11px; font-family: var(--fm); font-weight: 700; color: var(--t3);
+  letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px;
+}
+.detail-section p, .detail-section li {
+  font-size: 13px; color: var(--t2); line-height: 1.7;
+}
+.detail-section ul {
+  list-style: none; padding: 0;
+}
+.detail-section ul li {
+  padding: 4px 0 4px 16px; position: relative;
+}
+.detail-section ul li::before {
+  content: ''; position: absolute; left: 0; top: 12px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--bdr2);
+}
+.detail-component {
+  padding: 10px 14px; border-radius: 8px; background: var(--bg4);
+  border: 1px solid var(--bdr); font-size: 12px; font-family: var(--fm);
+  color: var(--t2);
+}
+.detail-component strong { color: var(--t1); font-weight: 600; }
+
+/* ═══════════════════════════════════════════════════════
+   TAB 2: EXAM MODEL
+   ═══════════════════════════════════════════════════════ */
+
+.section-title {
+  font-size: 11px; font-family: var(--fm); color: var(--t3);
+  text-transform: uppercase; letter-spacing: 2.5px; font-weight: 600; margin-bottom: 8px;
+}
+.section-heading {
+  font-size: clamp(20px, 3vw, 28px); font-weight: 700; letter-spacing: -0.5px; margin-bottom: 16px;
+}
+.section-desc {
+  font-size: 14px; color: var(--t2); max-width: 700px; margin-bottom: 24px; line-height: 1.7;
+}
+
+/* Question bank visual */
+.qbank {
+  display: flex; align-items: center; justify-content: center; gap: 24px;
+  padding: 32px; background: var(--bg2); border: 1px solid var(--bdr);
+  border-radius: var(--r); margin-bottom: 32px; flex-wrap: wrap;
+}
+.qbank-pool {
+  text-align: center;
+}
+.qbank-num {
+  font-size: 48px; font-weight: 900; font-family: var(--fm); letter-spacing: -2px;
+}
+.qbank-lbl {
+  font-size: 11px; color: var(--t3); font-family: var(--fm); letter-spacing: 1px; text-transform: uppercase;
+}
+.qbank-arrow {
+  font-size: 24px; color: var(--t3); display: flex; align-items: center; gap: 4px;
+}
+.qbank-arrow span { display: inline-block; animation: arrow-slide 1.5s ease-in-out infinite; }
+@keyframes arrow-slide {
+  0%, 100% { transform: translateX(0); opacity: 0.5; }
+  50% { transform: translateX(6px); opacity: 1; }
+}
+.qbank-mult {
+  font-size: 12px; font-family: var(--fm); color: var(--t3); padding: 4px 12px;
+  border-radius: 6px; background: var(--bg4); border: 1px solid var(--bdr);
+}
+
+/* Rule cards grid */
+.rule-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px; margin-bottom: 32px;
+}
+.rule-card {
+  background: var(--bg3); border: 1px solid var(--bdr); border-radius: var(--r);
+  padding: 16px; transition: var(--tr);
+}
+.rule-card:hover {
+  border-color: var(--bdr2); transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+}
+.rule-icon {
+  width: 36px; height: 36px; border-radius: 8px; display: flex;
+  align-items: center; justify-content: center; font-size: 16px;
+  margin-bottom: 10px;
+}
+.rule-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.rule-card p { font-size: 12px; color: var(--t2); line-height: 1.6; }
+
+/* Anti-cheat layers */
+.ac-layers { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; }
+.ac-layer {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 16px 20px; background: var(--bg3); border: 1px solid var(--bdr);
+  border-radius: var(--r); transition: var(--tr);
+}
+.ac-layer:hover {
+  border-color: var(--bdr2); box-shadow: 0 4px 16px rgba(0,0,0,.2);
+}
+.ac-num {
+  width: 32px; height: 32px; border-radius: 8px; display: flex;
+  align-items: center; justify-content: center; flex-shrink: 0;
+  font-size: 13px; font-weight: 700; font-family: var(--fm);
+}
+.ac-layer-content h4 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.ac-layer-content p { font-size: 12px; color: var(--t2); line-height: 1.6; }
+
+/* Exam flow */
+.exam-flow {
+  display: flex; align-items: stretch; gap: 0;
+  padding: 24px; background: var(--bg2); border: 1px solid var(--bdr);
+  border-radius: var(--r); margin-bottom: 32px; overflow-x: auto;
+}
+.exam-flow-step {
+  flex: 1; min-width: 130px; text-align: center; padding: 16px 12px;
+  position: relative;
+}
+.exam-flow-step:not(:last-child)::after {
+  content: ''; position: absolute; right: -1px; top: 50%;
+  width: 0; height: 0;
+  border-top: 8px solid transparent; border-bottom: 8px solid transparent;
+  border-left: 8px solid var(--bdr2); transform: translateY(-50%);
+}
+.efs-num {
+  width: 28px; height: 28px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center; margin: 0 auto 8px;
+  font-size: 12px; font-weight: 700; font-family: var(--fm);
+  background: rgba(59,130,246,.15); color: var(--blue); border: 1px solid rgba(59,130,246,.3);
+}
+.efs-text { font-size: 12px; color: var(--t2); line-height: 1.5; }
+
+/* Cert table */
+.cert-table {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  border-radius: var(--r); overflow: hidden; border: 1px solid var(--bdr);
+  font-size: 13px; margin: 16px 0;
+}
+.cert-table th {
+  background: var(--bg4); padding: 10px 14px; text-align: left;
+  font-size: 11px; font-family: var(--fm); color: var(--t3);
+  text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;
+  border-bottom: 1px solid var(--bdr);
+}
+.cert-table td {
+  padding: 10px 14px; border-bottom: 1px solid var(--bdr); color: var(--t2);
+}
+.cert-table tr:last-child td { border-bottom: 0; }
+.cert-table tr:hover { background: rgba(255,255,255,.02); }
+.cert-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 11px; font-family: var(--fm); font-weight: 600;
+}
+.cb-blue { background: rgba(59,130,246,.15); color: var(--blue); }
+.cb-cyan { background: rgba(6,182,212,.15); color: var(--cyan); }
+.cb-violet { background: rgba(139,92,246,.15); color: var(--violet); }
+.cb-gold { background: rgba(234,179,8,.15); color: var(--gold); }
+
+/* ═══════════════════════════════════════════════════════
+   TAB 3: CONTENT PIPELINE
+   ═══════════════════════════════════════════════════════ */
+.source-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px; margin-bottom: 32px;
+}
+.source-card {
+  background: var(--bg3); border: 1px solid var(--bdr); border-radius: var(--r);
+  padding: 14px; transition: var(--tr); position: relative;
+}
+.source-card:hover {
+  border-color: var(--bdr2); transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,.25);
+}
+.source-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.source-type { font-size: 11px; color: var(--t3); }
+.source-badge {
+  position: absolute; top: 10px; right: 10px; font-size: 9px;
+  font-family: var(--fm); padding: 2px 8px; border-radius: 4px;
+  font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+}
+.sb-free { background: rgba(16,185,129,.15); color: var(--green); }
+.sb-paid { background: rgba(245,158,11,.15); color: var(--amber); }
+.sb-mix { background: rgba(139,92,246,.15); color: var(--violet); }
+
+/* Integration columns */
+.integ-cols {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  margin-bottom: 32px;
+}
+.integ-col {
+  background: var(--bg2); border: 1px solid var(--bdr); border-radius: var(--r);
+  padding: 20px;
+}
+.integ-col h4 {
+  font-size: 14px; font-weight: 700; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.integ-col h4 .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+.integ-col ul { list-style: none; padding: 0; }
+.integ-col ul li {
+  padding: 6px 0; font-size: 13px; color: var(--t2);
+  border-bottom: 1px solid var(--bdr); display: flex; align-items: center; gap: 8px;
+}
+.integ-col ul li:last-child { border-bottom: none; }
+.integ-col ul li .integ-tag {
+  font-size: 9px; font-family: var(--fm); padding: 2px 6px; border-radius: 4px;
+  font-weight: 600; flex-shrink: 0;
+}
+.it-auto { background: rgba(16,185,129,.12); color: var(--green); }
+.it-manual { background: rgba(245,158,11,.12); color: var(--amber); }
+
+/* Pipeline flow */
+.pipeline-flow {
+  display: flex; align-items: center; gap: 0; padding: 24px;
+  background: var(--bg2); border: 1px solid var(--bdr); border-radius: var(--r);
+  margin-bottom: 32px; overflow-x: auto;
+}
+.pipeline-step {
+  flex: 1; min-width: 120px; text-align: center; padding: 16px 10px;
+  position: relative;
+}
+.pipeline-step:not(:last-child)::after {
+  content: ''; position: absolute; right: -4px; top: 50%;
+  width: 8px; height: 8px; border-right: 2px solid var(--bdr2);
+  border-bottom: 2px solid var(--bdr2); transform: translateY(-50%) rotate(-45deg);
+}
+.ps-num {
+  font-size: 10px; font-family: var(--fm); color: var(--t3);
+  letter-spacing: 1px; margin-bottom: 6px;
+}
+.ps-icon {
+  width: 40px; height: 40px; border-radius: 10px; margin: 0 auto 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.25);
+}
+.ps-label { font-size: 12px; font-weight: 600; color: var(--t1); margin-bottom: 2px; }
+.ps-desc { font-size: 11px; color: var(--t3); }
+
+/* Time callout */
+.time-callout {
+  display: flex; align-items: center; gap: 24px; padding: 20px 24px;
+  background: var(--bg2); border: 1px solid var(--bdr);
+  border-left: 3px solid var(--green); border-radius: var(--r);
+  flex-wrap: wrap;
+}
+.time-callout-val {
+  font-size: 32px; font-weight: 800; font-family: var(--fm);
+  color: var(--green); letter-spacing: -1px;
+}
+.time-callout-info { flex: 1; }
+.time-callout-info h4 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+.time-callout-info p { font-size: 13px; color: var(--t2); }
+
+/* ═══════════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════════ */
+.footer {
+  padding: 32px 0; border-top: 1px solid var(--bdr); text-align: center;
+  color: var(--t3); font-size: 12px; font-family: var(--fm);
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .wrap { padding: 0 16px; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .tabs { width: 100%; overflow-x: auto; }
+  .module-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+  .detail-panel { width: 100%; max-width: 100vw; }
+  .exam-flow { flex-direction: column; gap: 8px; }
+  .exam-flow-step:not(:last-child)::after { display: none; }
+  .integ-cols { grid-template-columns: 1fr; }
+  .pipeline-flow { flex-direction: column; gap: 8px; }
+  .pipeline-step:not(:last-child)::after { display: none; }
+  .qbank { flex-direction: column; gap: 16px; }
+  .level-meta { flex-wrap: wrap; }
+  .rule-grid { grid-template-columns: 1fr; }
+  .source-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+@media (max-width: 480px) {
+  .stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat { padding: 12px; }
+  .stat-val { font-size: 20px; }
+  .module-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="bgx"></div>
+
+<div class="wrap">
+
+  <!-- ═══════ HEADER ═══════ -->
+  <header class="hdr">
+    <h1>PayArk</h1>
+    <p class="hdr-sub">From Zero to Payment Architect</p>
+  </header>
+
+  <!-- ═══════ STATS BAR ═══════ -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-val">44</div>
+      <div class="stat-lbl">Modules</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">4</div>
+      <div class="stat-lbl">Certifications</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">32</div>
+      <div class="stat-lbl">Weeks</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">1,500+</div>
+      <div class="stat-lbl">Questions</div>
+    </div>
+  </div>
+
+  <!-- ═══════ TABS ═══════ -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="path">Certification Path</button>
+    <button class="tab-btn" data-tab="exam">Exam Model</button>
+    <button class="tab-btn" data-tab="pipeline">Content Pipeline</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       TAB 1: CERTIFICATION PATH
+       ═══════════════════════════════════════════════════ -->
+  <div class="tab-panel active" id="tab-path">
+
+    <!-- LEVEL 1 -->
+    <div class="level-section lvl-blue">
+      <div class="level-hdr">
+        <span class="level-num">Level 1</span>
+        <span class="level-name">Payment Foundations</span>
+        <div class="level-meta">
+          <span>PAKF</span>
+          <span>12 modules</span>
+          <span>6 weeks</span>
+        </div>
+      </div>
+      <div class="module-grid">
+        <div class="mod-card" data-mod="M01"><div class="mod-card-top"><span class="mod-id">M01</span><span class="mod-wk">W1</span></div><div class="mod-title">Payments 101</div></div>
+        <div class="mod-card" data-mod="M02"><div class="mod-card-top"><span class="mod-id">M02</span><span class="mod-wk">W1</span></div><div class="mod-title">ISO 20022</div></div>
+        <div class="mod-card" data-mod="M03"><div class="mod-card-top"><span class="mod-id">M03</span><span class="mod-wk">W2</span></div><div class="mod-title">Clearing Houses</div></div>
+        <div class="mod-card" data-mod="M04"><div class="mod-card-top"><span class="mod-id">M04</span><span class="mod-wk">W2</span></div><div class="mod-title">Compliance</div></div>
+        <div class="mod-card" data-mod="M05"><div class="mod-card-top"><span class="mod-id">M05</span><span class="mod-wk">W3</span></div><div class="mod-title">Java 21</div></div>
+        <div class="mod-card" data-mod="M06"><div class="mod-card-top"><span class="mod-id">M06</span><span class="mod-wk">W3</span></div><div class="mod-title">SOLID</div></div>
+        <div class="mod-card" data-mod="M07"><div class="mod-card-top"><span class="mod-id">M07</span><span class="mod-wk">W4</span></div><div class="mod-title">CUPID</div></div>
+        <div class="mod-card" data-mod="M08"><div class="mod-card-top"><span class="mod-id">M08</span><span class="mod-wk">W4</span></div><div class="mod-title">Strategy Pattern</div></div>
+        <div class="mod-card" data-mod="M09"><div class="mod-card-top"><span class="mod-id">M09</span><span class="mod-wk">W5</span></div><div class="mod-title">State Machine</div></div>
+        <div class="mod-card" data-mod="M10"><div class="mod-card-top"><span class="mod-id">M10</span><span class="mod-wk">W5</span></div><div class="mod-title">Hexagonal</div></div>
+        <div class="mod-card" data-mod="M11"><div class="mod-card-top"><span class="mod-id">M11</span><span class="mod-wk">W6</span></div><div class="mod-title">DDD</div></div>
+        <div class="mod-card" data-mod="M12"><div class="mod-card-top"><span class="mod-id">M12</span><span class="mod-wk">W6</span></div><div class="mod-title">12-Factor</div></div>
+      </div>
+    </div>
+
+    <!-- EXAM GATE 1 -->
+    <div class="vert-connector vc-blue"></div>
+    <div class="exam-gate egate-blue">
+      <div class="exam-gate-content">
+        <div class="exam-gate-cert">PAKF Certification Exam</div>
+        <div class="exam-gate-info">60 MCQ &middot; 90 min &middot; Pass: 70%</div>
+      </div>
+    </div>
+    <div class="vert-connector vc-blue"></div>
+
+    <!-- LEVEL 2 -->
+    <div class="level-section lvl-cyan">
+      <div class="level-hdr">
+        <span class="level-num">Level 2</span>
+        <span class="level-name">Platform Engineer</span>
+        <div class="level-meta">
+          <span>PAKE</span>
+          <span>16 modules</span>
+          <span>8 weeks</span>
+        </div>
+      </div>
+      <div class="module-grid">
+        <div class="mod-card" data-mod="M13"><div class="mod-card-top"><span class="mod-id">M13</span><span class="mod-wk">W7</span></div><div class="mod-title">Kafka Basics</div></div>
+        <div class="mod-card" data-mod="M14"><div class="mod-card-top"><span class="mod-id">M14</span><span class="mod-wk">W7</span></div><div class="mod-title">Kafka Deep</div></div>
+        <div class="mod-card" data-mod="M15"><div class="mod-card-top"><span class="mod-id">M15</span><span class="mod-wk">W8</span></div><div class="mod-title">Kafka Streams</div></div>
+        <div class="mod-card" data-mod="M16"><div class="mod-card-top"><span class="mod-id">M16</span><span class="mod-wk">W8</span></div><div class="mod-title">Spring Boot</div></div>
+        <div class="mod-card" data-mod="M17"><div class="mod-card-top"><span class="mod-id">M17</span><span class="mod-wk">W9</span></div><div class="mod-title">Spring Kafka</div></div>
+        <div class="mod-card" data-mod="M18"><div class="mod-card-top"><span class="mod-id">M18</span><span class="mod-wk">W9</span></div><div class="mod-title">PostgreSQL</div></div>
+        <div class="mod-card" data-mod="M19"><div class="mod-card-top"><span class="mod-id">M19</span><span class="mod-wk">W10</span></div><div class="mod-title">Citus</div></div>
+        <div class="mod-card" data-mod="M20"><div class="mod-card-top"><span class="mod-id">M20</span><span class="mod-wk">W10</span></div><div class="mod-title">Redis</div></div>
+        <div class="mod-card" data-mod="M21"><div class="mod-card-top"><span class="mod-id">M21</span><span class="mod-wk">W11</span></div><div class="mod-title">ClickHouse</div></div>
+        <div class="mod-card" data-mod="M22"><div class="mod-card-top"><span class="mod-id">M22</span><span class="mod-wk">W11</span></div><div class="mod-title">Outbox + CDC</div></div>
+        <div class="mod-card" data-mod="M23"><div class="mod-card-top"><span class="mod-id">M23</span><span class="mod-wk">W12</span></div><div class="mod-title">Event Sourcing</div></div>
+        <div class="mod-card" data-mod="M24"><div class="mod-card-top"><span class="mod-id">M24</span><span class="mod-wk">W12</span></div><div class="mod-title">Saga Pattern</div></div>
+        <div class="mod-card" data-mod="M25"><div class="mod-card-top"><span class="mod-id">M25</span><span class="mod-wk">W13</span></div><div class="mod-title">ACL</div></div>
+        <div class="mod-card" data-mod="M26"><div class="mod-card-top"><span class="mod-id">M26</span><span class="mod-wk">W13</span></div><div class="mod-title">Circuit Breaker</div></div>
+        <div class="mod-card" data-mod="M27"><div class="mod-card-top"><span class="mod-id">M27</span><span class="mod-wk">W14</span></div><div class="mod-title">REST + gRPC</div></div>
+        <div class="mod-card" data-mod="M28"><div class="mod-card-top"><span class="mod-id">M28</span><span class="mod-wk">W14</span></div><div class="mod-title">Testing</div></div>
+      </div>
+    </div>
+
+    <!-- EXAM GATE 2 -->
+    <div class="vert-connector vc-cyan"></div>
+    <div class="exam-gate egate-cyan">
+      <div class="exam-gate-content">
+        <div class="exam-gate-cert">PAKE Certification Exam</div>
+        <div class="exam-gate-info">80 MCQ &middot; 120 min &middot; Pass: 70%</div>
+      </div>
+    </div>
+    <div class="vert-connector vc-cyan"></div>
+
+    <!-- LEVEL 3 -->
+    <div class="level-section lvl-violet">
+      <div class="level-hdr">
+        <span class="level-num">Level 3</span>
+        <span class="level-name">Payment Systems Architect</span>
+        <div class="level-meta">
+          <span>PAKSA</span>
+          <span>16 modules</span>
+          <span>10 weeks</span>
+        </div>
+      </div>
+      <div class="module-grid">
+        <div class="mod-card" data-mod="M29"><div class="mod-card-top"><span class="mod-id">M29</span><span class="mod-wk">W15</span></div><div class="mod-title">Docker</div></div>
+        <div class="mod-card" data-mod="M30"><div class="mod-card-top"><span class="mod-id">M30</span><span class="mod-wk">W15</span></div><div class="mod-title">K8s Basics</div></div>
+        <div class="mod-card" data-mod="M31"><div class="mod-card-top"><span class="mod-id">M31</span><span class="mod-wk">W16</span></div><div class="mod-title">K8s Advanced</div></div>
+        <div class="mod-card" data-mod="M32"><div class="mod-card-top"><span class="mod-id">M32</span><span class="mod-wk">W16</span></div><div class="mod-title">Istio</div></div>
+        <div class="mod-card" data-mod="M33"><div class="mod-card-top"><span class="mod-id">M33</span><span class="mod-wk">W17</span></div><div class="mod-title">Vault</div></div>
+        <div class="mod-card" data-mod="M34"><div class="mod-card-top"><span class="mod-id">M34</span><span class="mod-wk">W17</span></div><div class="mod-title">Consul</div></div>
+        <div class="mod-card" data-mod="M35"><div class="mod-card-top"><span class="mod-id">M35</span><span class="mod-wk">W18</span></div><div class="mod-title">Prometheus</div></div>
+        <div class="mod-card" data-mod="M36"><div class="mod-card-top"><span class="mod-id">M36</span><span class="mod-wk">W18</span></div><div class="mod-title">OpenTelemetry</div></div>
+        <div class="mod-card" data-mod="M37"><div class="mod-card-top"><span class="mod-id">M37</span><span class="mod-wk">W19</span></div><div class="mod-title">ELK Stack</div></div>
+        <div class="mod-card" data-mod="M38"><div class="mod-card-top"><span class="mod-id">M38</span><span class="mod-wk">W19</span></div><div class="mod-title">Self-Healing</div></div>
+        <div class="mod-card" data-mod="M39"><div class="mod-card-top"><span class="mod-id">M39</span><span class="mod-wk">W20</span></div><div class="mod-title">Multi-Region</div></div>
+        <div class="mod-card" data-mod="M40"><div class="mod-card-top"><span class="mod-id">M40</span><span class="mod-wk">W21</span></div><div class="mod-title">Security</div></div>
+        <div class="mod-card" data-mod="M41"><div class="mod-card-top"><span class="mod-id">M41</span><span class="mod-wk">W22</span></div><div class="mod-title">CI/CD</div></div>
+        <div class="mod-card" data-mod="M42"><div class="mod-card-top"><span class="mod-id">M42</span><span class="mod-wk">W23</span></div><div class="mod-title">Performance</div></div>
+        <div class="mod-card" data-mod="M43"><div class="mod-card-top"><span class="mod-id">M43</span><span class="mod-wk">W24</span></div><div class="mod-title">Regulatory</div></div>
+        <div class="mod-card" data-mod="M44"><div class="mod-card-top"><span class="mod-id">M44</span><span class="mod-wk">W24</span></div><div class="mod-title">System Design</div></div>
+      </div>
+    </div>
+
+    <!-- EXAM GATE 3 -->
+    <div class="vert-connector vc-violet"></div>
+    <div class="exam-gate egate-violet">
+      <div class="exam-gate-content">
+        <div class="exam-gate-cert">PAKSA Certification Exam</div>
+        <div class="exam-gate-info">60 MCQ + 1 Design &middot; 180 min &middot; Pass: 75%</div>
+      </div>
+    </div>
+    <div class="vert-connector vc-violet"></div>
+
+    <!-- LEVEL 4 -->
+    <div class="level-section lvl-gold">
+      <div class="level-hdr">
+        <span class="level-num">Level 4</span>
+        <span class="level-name">Capstone &mdash; Build Payment House</span>
+        <div class="level-meta">
+          <span>PAKA</span>
+          <span>4 sprints</span>
+          <span>8 weeks</span>
+        </div>
+      </div>
+      <div class="module-grid">
+        <div class="mod-card" data-mod="S1"><div class="mod-card-top"><span class="mod-id">S1</span><span class="mod-wk">W25-26</span></div><div class="mod-title">Kafka + Ingestion</div></div>
+        <div class="mod-card" data-mod="S2"><div class="mod-card-top"><span class="mod-id">S2</span><span class="mod-wk">W27-28</span></div><div class="mod-title">Processor + DB</div></div>
+        <div class="mod-card" data-mod="S3"><div class="mod-card-top"><span class="mod-id">S3</span><span class="mod-wk">W29-30</span></div><div class="mod-title">Compliance + Clearing</div></div>
+        <div class="mod-card" data-mod="S4"><div class="mod-card-top"><span class="mod-id">S4</span><span class="mod-wk">W31-32</span></div><div class="mod-title">Saga + Reporting</div></div>
+      </div>
+    </div>
+
+    <!-- PAKA BADGE -->
+    <div class="paka-badge">
+      <div class="paka-badge-inner">
+        <div class="paka-icon">&#9733;</div>
+        <div class="paka-title">PayArk Certified Payment Architect</div>
+        <div class="paka-full">PAKA &mdash; All 4 levels complete &mdash; 32 weeks &mdash; Full stack mastery</div>
+      </div>
+    </div>
+
+  </div><!-- /tab-path -->
+
+  <!-- ═══════════════════════════════════════════════════
+       TAB 2: EXAM MODEL
+       ═══════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-exam">
+
+    <!-- Question Bank -->
+    <div class="section-title">Question Bank</div>
+    <div class="section-heading">5x Pool Strategy</div>
+    <div class="section-desc">Each exam draws from a pool 5 times larger than the exam itself. Memorizing all questions means you already learned the material.</div>
+
+    <div class="qbank">
+      <div class="qbank-pool">
+        <div class="qbank-num" style="color: var(--violet);">300</div>
+        <div class="qbank-lbl">Question Pool</div>
+      </div>
+      <div class="qbank-arrow"><span>&#10132;</span></div>
+      <div class="qbank-mult">5x RATIO</div>
+      <div class="qbank-arrow"><span>&#10132;</span></div>
+      <div class="qbank-pool">
+        <div class="qbank-num" style="color: var(--green);">60</div>
+        <div class="qbank-lbl">Exam Questions</div>
+      </div>
+    </div>
+
+    <!-- Randomization Engine -->
+    <div class="section-title">Randomization Engine</div>
+    <div class="section-heading">Every Attempt Is Unique</div>
+    <div class="rule-grid">
+      <div class="rule-card">
+        <div class="rule-icon" style="background: rgba(59,130,246,.12); color: var(--blue);">&#8633;</div>
+        <h4>Random Selection</h4>
+        <p>Each attempt pulls N questions from the pool using a unique seed. Never the same set twice.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rule-icon" style="background: rgba(6,182,212,.12); color: var(--cyan);">&#8645;</div>
+        <h4>Answer Shuffling</h4>
+        <p>A/B/C/D positions are randomized every attempt. Same question, different answer order.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rule-icon" style="background: rgba(244,63,94,.12); color: var(--rose);">&#9878;</div>
+        <h4>Weighted Retry</h4>
+        <p>Questions you got wrong before have a higher chance of reappearing. Forces genuine learning.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rule-icon" style="background: rgba(139,92,246,.12); color: var(--violet);">&#9638;</div>
+        <h4>Category Coverage</h4>
+        <p>Each attempt guarantees topic coverage (e.g., 15% Kafka, 20% DDD). No lucky easy subsets.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rule-icon" style="background: rgba(245,158,11,.12); color: var(--amber);">&#9650;</div>
+        <h4>Difficulty Spread</h4>
+        <p>Every attempt: 30% easy, 50% medium, 20% hard. Maintained regardless of randomization.</p>
+      </div>
+    </div>
+
+    <!-- Anti-Cheat Layers -->
+    <div class="section-title">Anti-Cheat Architecture</div>
+    <div class="section-heading">4 Defense Layers</div>
+    <div class="section-desc">Cheating is either impossible or self-defeating. The real exam is: can you build the system?</div>
+
+    <div class="ac-layers">
+      <div class="ac-layer">
+        <div class="ac-num" style="background: rgba(59,130,246,.15); color: var(--blue);">1</div>
+        <div class="ac-layer-content">
+          <h4 style="color: var(--blue);">Structural</h4>
+          <p>300-question pool for a 60-question exam. Encrypted questions in DB, no answer column stored alongside. Memorizing all 300 = learning the material anyway.</p>
+        </div>
+      </div>
+      <div class="ac-layer">
+        <div class="ac-num" style="background: rgba(6,182,212,.15); color: var(--cyan);">2</div>
+        <div class="ac-layer-content">
+          <h4 style="color: var(--cyan);">Temporal</h4>
+          <p>Per-question timer (60-90s MCQ, 5 min scenario). No back-navigation during exam. 48-hour cooldown between reattempts. Prevents tab-switching and brute-force retry.</p>
+        </div>
+      </div>
+      <div class="ac-layer">
+        <div class="ac-num" style="background: rgba(139,92,246,.15); color: var(--violet);">3</div>
+        <div class="ac-layer-content">
+          <h4 style="color: var(--violet);">Feedback</h4>
+          <p>Correct answers never shown after failure. Only category weakness breakdown: "Review Module M07" not "Answer was C". Forces re-study, not memorization.</p>
+        </div>
+      </div>
+      <div class="ac-layer">
+        <div class="ac-num" style="background: rgba(234,179,8,.15); color: var(--gold);">4</div>
+        <div class="ac-layer-content">
+          <h4 style="color: var(--gold);">Ultimate</h4>
+          <p>Level 4 (PAKA) is a real project build. Cannot fake a working codebase + architecture document. Automated gates, AI code review, and written architecture evaluation.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exam Session Flow -->
+    <div class="section-title">Session Flow</div>
+    <div class="section-heading">Exam Lifecycle</div>
+
+    <div class="exam-flow">
+      <div class="exam-flow-step">
+        <div class="efs-num">1</div>
+        <div class="efs-text">Pull 60 random from 300 pool</div>
+      </div>
+      <div class="exam-flow-step">
+        <div class="efs-num">2</div>
+        <div class="efs-text">Shuffle answer positions per question</div>
+      </div>
+      <div class="exam-flow-step">
+        <div class="efs-num">3</div>
+        <div class="efs-text">Per-question timer starts</div>
+      </div>
+      <div class="exam-flow-step">
+        <div class="efs-num">4</div>
+        <div class="efs-text">Sequential answers, no going back</div>
+      </div>
+      <div class="exam-flow-step">
+        <div class="efs-num">5</div>
+        <div class="efs-text">Score + category breakdown at end</div>
+      </div>
+    </div>
+
+    <!-- Certification Exams Table -->
+    <div class="section-title">Certification Exams</div>
+    <div class="section-heading">4-Level Progression</div>
+
+    <table class="cert-table">
+      <thead>
+        <tr>
+          <th>Level</th>
+          <th>Cert</th>
+          <th>Format</th>
+          <th>Time</th>
+          <th>Pass</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Level 1 &mdash; Payment Foundations</td>
+          <td><span class="cert-badge cb-blue">PAKF</span></td>
+          <td>60 MCQ</td>
+          <td>90 min</td>
+          <td>70%</td>
+        </tr>
+        <tr>
+          <td>Level 2 &mdash; Platform Engineer</td>
+          <td><span class="cert-badge cb-cyan">PAKE</span></td>
+          <td>80 MCQ</td>
+          <td>120 min</td>
+          <td>70%</td>
+        </tr>
+        <tr>
+          <td>Level 3 &mdash; Systems Architect</td>
+          <td><span class="cert-badge cb-violet">PAKSA</span></td>
+          <td>60 MCQ + 1 Design</td>
+          <td>180 min</td>
+          <td>75%</td>
+        </tr>
+        <tr>
+          <td>Level 4 &mdash; Capstone Project</td>
+          <td><span class="cert-badge cb-gold">PAKA</span></td>
+          <td>3-Layer Assessment</td>
+          <td>Project-based</td>
+          <td>75%</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div><!-- /tab-exam -->
+
+  <!-- ═══════════════════════════════════════════════════
+       TAB 3: CONTENT PIPELINE
+       ═══════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-pipeline">
+
+    <!-- Sources -->
+    <div class="section-title">Content Sources</div>
+    <div class="section-heading">Curate First, Create Second</div>
+    <div class="section-desc">10 verified sources providing video, written, and interactive content across all 44 modules.</div>
+
+    <div class="source-grid">
+      <div class="source-card">
+        <span class="source-badge sb-free">Free</span>
+        <div class="source-name">YouTube</div>
+        <div class="source-type">Curated playlists per module</div>
+      </div>
+      <div class="source-card">
+        <span class="source-badge sb-free">Free</span>
+        <div class="source-name">Confluent Dev</div>
+        <div class="source-type">Official Kafka training</div>
+      </div>
+      <div class="source-card">
+        <span class="source-badge sb-mix">Mix</span>
+        <div class="source-name">Spring Academy</div>
+        <div class="source-type">Official Spring courses</div>
+      </div>
+      <div class="source-card">
+        <span class="source-badge sb-free">Free</span>
+        <div class="source-name">Redis University</div>
+        <div class="source-type">RU101, RU201 courses</div>
+      </div>
+      <div class="source-card">
+        <span class="source-badge sb-paid">Paid</span>
+        <div class="source-name">Udemy</div>
+        <div class="source-type">Full courses, cherry-pick</div>
+      </div>
+      <div class="source-card">
+        <span class="source-badge sb-mix">Mix</span>
+        <div class="source-name">Baeldung</div>
+        <div class="source-type">Java/Spring tutorials</div>
+      </div>
+      <div class="source-card">
+        <span class="source-badge sb-free">Free</span>
+        <div class="source-name">IBM Developer</div>
+        <div class="source-type">MQ, integration patterns</div>
+      </div>
+      <div class="source-card">
+        <span class="source-badge sb-free">Free</span>
+        <div class="source-name">SWIFT</div>
+        <div class="source-type">ISO 20022 learning portal</div>
+      </div>
+      <div class="source-card">
+        <span class="source-badge sb-free">Free</span>
+        <div class="source-name">HashiCorp Learn</div>
+        <div class="source-type">Vault, Consul tutorials</div>
+      </div>
+      <div class="source-card">
+        <span class="source-badge sb-free">Free</span>
+        <div class="source-name">Kubernetes.io</div>
+        <div class="source-type">Official K8s tutorials</div>
+      </div>
+    </div>
+
+    <!-- Integration Model -->
+    <div class="section-title">Integration Model</div>
+    <div class="section-heading">Embedded vs External</div>
+
+    <div class="integ-cols">
+      <div class="integ-col">
+        <h4><span class="dot" style="background: var(--green);"></span> Embedded (In-App)</h4>
+        <ul>
+          <li><span class="integ-tag it-auto">Auto Track</span> YouTube &mdash; IFrame Player API</li>
+          <li><span class="integ-tag it-auto">Auto Track</span> AI-Generated &mdash; Synthesia/HeyGen</li>
+          <li><span class="integ-tag it-auto">Auto Track</span> Self-Recorded &mdash; Level 4 only</li>
+        </ul>
+      </div>
+      <div class="integ-col">
+        <h4><span class="dot" style="background: var(--amber);"></span> External (Link-Out)</h4>
+        <ul>
+          <li><span class="integ-tag it-manual">Manual</span> Udemy &mdash; DRM protected</li>
+          <li><span class="integ-tag it-manual">Manual</span> Confluent &mdash; Login required</li>
+          <li><span class="integ-tag it-manual">Manual</span> Spring Academy &mdash; Login wall</li>
+          <li><span class="integ-tag it-manual">Manual</span> Redis University &mdash; Login wall</li>
+          <li><span class="integ-tag it-manual">Manual</span> SWIFT Learning &mdash; Login wall</li>
+          <li><span class="integ-tag it-manual">Manual</span> HashiCorp Learn &mdash; Mixed</li>
+          <li><span class="integ-tag it-manual">Manual</span> Baeldung &mdash; Written content</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Production Pipeline -->
+    <div class="section-title">Production Pipeline</div>
+    <div class="section-heading">Per-Module Content Flow</div>
+
+    <div class="pipeline-flow">
+      <div class="pipeline-step">
+        <div class="ps-num">Step 1</div>
+        <div class="ps-icon" style="background: rgba(139,92,246,.12); border-color: rgba(139,92,246,.25);">&#9998;</div>
+        <div class="ps-label">Claude Writes</div>
+        <div class="ps-desc">MDX + quiz + lab</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="ps-num">Step 2</div>
+        <div class="ps-icon" style="background: rgba(59,130,246,.12); border-color: rgba(59,130,246,.25);">&#128269;</div>
+        <div class="ps-label">Builder Reviews</div>
+        <div class="ps-desc">Study + validate</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="ps-num">Step 3</div>
+        <div class="ps-icon" style="background: rgba(6,182,212,.12); border-color: rgba(6,182,212,.25);">&#127916;</div>
+        <div class="ps-label">AI Video</div>
+        <div class="ps-desc">Synthesia generate</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="ps-num">Step 4</div>
+        <div class="ps-icon" style="background: rgba(244,63,94,.12); border-color: rgba(244,63,94,.25);">&#9654;</div>
+        <div class="ps-label">YouTube</div>
+        <div class="ps-desc">Curate + embed</div>
+      </div>
+      <div class="pipeline-step">
+        <div class="ps-num">Step 5</div>
+        <div class="ps-icon" style="background: rgba(16,185,129,.12); border-color: rgba(16,185,129,.25);">&#10003;</div>
+        <div class="ps-label">Publish</div>
+        <div class="ps-desc">Push to app</div>
+      </div>
+    </div>
+
+    <!-- Time Estimate -->
+    <div class="section-title">Builder Effort</div>
+    <div class="section-heading">Time Investment</div>
+
+    <div class="time-callout">
+      <div class="time-callout-val">~1.5h</div>
+      <div class="time-callout-info">
+        <h4>Per Module Builder Effort</h4>
+        <p>~60-90 min studying + reviewing content, ~20 min AI video generation (domain modules only), ~10 min publishing to app.</p>
+      </div>
+    </div>
+    <div class="time-callout" style="margin-top: 12px; border-left-color: var(--amber);">
+      <div class="time-callout-val" style="color: var(--amber);">66h</div>
+      <div class="time-callout-info">
+        <h4>Total Across 44 Modules</h4>
+        <p>Spread across the full 32-week curriculum. The studying IS the learning &mdash; no wasted effort.</p>
+      </div>
+    </div>
+
+  </div><!-- /tab-pipeline -->
+
+  <!-- ═══════ FOOTER ═══════ -->
+  <footer class="footer">
+    PayArk Training Academy &middot; Payment House Project &middot; 2026
+  </footer>
+
+</div><!-- /wrap -->
+
+<!-- ═══════════════════════════════════════════════════
+     DETAIL PANEL OVERLAY
+     ═══════════════════════════════════════════════════ -->
+<div class="detail-overlay" id="detailOverlay">
+  <div class="detail-backdrop" id="detailBackdrop"></div>
+  <div class="detail-panel">
+    <button class="detail-close" id="detailClose">&#10005;</button>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   MODULE DATA
+   ═══════════════════════════════════════════════════════ */
+var MODULES = {
+  M01: {
+    id: "M01", title: "How Payments Work", level: "Level 1 — Payment Foundations", levelColor: "var(--blue)",
+    week: "Week 1", cert: "PAKF",
+    topics: ["Payment lifecycle", "Clearing vs settlement", "RTGS vs DNS", "Correspondent banking", "Nostro/vostro accounts"],
+    handsOn: "Map a real SWIFT MT103 message field by field",
+    component: "Domain knowledge for all tiers"
+  },
+  M02: {
+    id: "M02", title: "ISO 20022 Decoded", level: "Level 1 — Payment Foundations", levelColor: "var(--blue)",
+    week: "Week 1", cert: "PAKF",
+    topics: ["MX messages", "pain.001, pacs.008, pacs.002", "XML schema", "MT to MX migration"],
+    handsOn: "Parse a real pacs.008 XML, extract key fields",
+    component: "Domain knowledge for all tiers"
+  },
+  M03: {
+    id: "M03", title: "Clearing Houses Around the World", level: "Level 1 — Payment Foundations", levelColor: "var(--blue)",
+    week: "Week 2", cert: "PAKF",
+    topics: ["MEPS+, FAST, CHATS, FPS, CHAPS", "RTGS India, NEFT, UPI", "SWIFT gpi", "Operating hours, cutoffs, thresholds"],
+    handsOn: "Build a clearing house config matrix from scratch",
+    component: "Domain knowledge for all tiers"
+  },
+  M04: {
+    id: "M04", title: "Compliance & Screening", level: "Level 1 — Payment Foundations", levelColor: "var(--blue)",
+    week: "Week 2", cert: "PAKF",
+    topics: ["Sanctions (OFAC/EU/UN)", "AML", "PEP screening", "Fraud detection", "Investigation workflows", "STR reporting"],
+    handsOn: "Design a screening decision tree for a sample payment",
+    component: "Domain knowledge for all tiers"
+  },
+  M05: {
+    id: "M05", title: "Java 21 for Payment Systems", level: "Level 1 — Payment Foundations", levelColor: "var(--blue)",
+    week: "Week 3", cert: "PAKF",
+    topics: ["Records", "Sealed classes", "Virtual threads", "Pattern matching", "BigDecimal (mandatory)", "Immutability"],
+    handsOn: "Refactor a mutable Payment class to immutable Java record",
+    component: "Code quality for all services"
+  },
+  M06: {
+    id: "M06", title: "SOLID Principles (Applied)", level: "Level 1 — Payment Foundations", levelColor: "var(--blue)",
+    week: "Week 3", cert: "PAKF",
+    topics: ["SRP, OCP, LSP, ISP, DIP", "All with payment domain examples"],
+    handsOn: "Identify SOLID violations in a sample payment codebase",
+    component: "Code quality for all services"
+  },
+  M07: {
+    id: "M07", title: "CUPID + Financial Disciplines", level: "Level 1 — Payment Foundations", levelColor: "var(--blue)",
+    week: "Week 4", cert: "PAKF",
+    topics: ["Predictability", "Domain alignment", "Defensive calculations", "Auditability"],
+    handsOn: "Write a routing decision that carries its own audit trail",
+    component: "Code quality for all services"
+  },
+  M08: {
+    id: "M08", title: "Strategy & Template Patterns", level: "Level 1 — Payment Foundations", levelColor: "var(--blue)",
+    week: "Week 4", cert: "PAKF",
+    topics: ["Strategy pattern (clearing adapters)", "Template Method (processing pipeline)"],
+    handsOn: "Build a mini clearing adapter system with 3 adapters",
+    component: "Code quality for all services"
+  },
+  M09: {
+    id: "M09", title: "Specification & State Machine", level: "Level 1 — Payment Foundations", levelColor: "var(--blue)",
+    week: "Week 5", cert: "PAKF",
+    topics: ["Composable business rules", "Payment state machine", "Guard conditions", "Valid transitions"],
+    handsOn: "Implement a payment state machine with valid transitions",
+    component: "Code quality for all services"
+  },
+  M10: {
+    id: "M10", title: "Hexagonal Architecture", level: "Level 1 — Payment Foundations", levelColor: "var(--blue)",
+    week: "Week 5", cert: "PAKF",
+    topics: ["Ports & adapters", "Domain isolation", "Zero framework imports in domain/"],
+    handsOn: "Restructure a Spring app into hexagonal layers",
+    component: "Code quality for all services"
+  },
+  M11: {
+    id: "M11", title: "Domain-Driven Design", level: "Level 1 — Payment Foundations", levelColor: "var(--blue)",
+    week: "Week 6", cert: "PAKF",
+    topics: ["Bounded contexts", "Aggregates", "Entities", "Value objects", "Ubiquitous language"],
+    handsOn: "Map the 6 Payment House bounded contexts",
+    component: "Code quality for all services"
+  },
+  M12: {
+    id: "M12", title: "Twelve-Factor App", level: "Level 1 — Payment Foundations", levelColor: "var(--blue)",
+    week: "Week 6", cert: "PAKF",
+    topics: ["Config in env", "Stateless processes", "Port binding", "Dev/prod parity", "Logs as streams"],
+    handsOn: "12-factor compliance audit on a sample app",
+    component: "Code quality for all services"
+  },
+  M13: {
+    id: "M13", title: "Apache Kafka Fundamentals", level: "Level 2 — Platform Engineer", levelColor: "var(--cyan)",
+    week: "Week 7", cert: "PAKE",
+    topics: ["Producers, consumers, consumer groups", "Partitions", "Replication", "Retention policies"],
+    handsOn: "Set up Kafka locally, produce/consume payment messages",
+    component: "Kafka backbone (Tiers 1-6)"
+  },
+  M14: {
+    id: "M14", title: "Kafka Deep Dive", level: "Level 2 — Platform Engineer", levelColor: "var(--cyan)",
+    week: "Week 7", cert: "PAKE",
+    topics: ["Exactly-once semantics", "Transactions", "Idempotent producers", "Compaction", "Topic design"],
+    handsOn: "Design the 10 Payment House Kafka topics",
+    component: "Kafka backbone (Tiers 1-6)"
+  },
+  M15: {
+    id: "M15", title: "Kafka Streams & Real-Time", level: "Level 2 — Platform Engineer", levelColor: "var(--cyan)",
+    week: "Week 8", cert: "PAKE",
+    topics: ["Stream processing", "Materialized views", "Windowing", "Aggregations"],
+    handsOn: "Build a real-time payment volume dashboard from Kafka Streams",
+    component: "Kafka backbone (Tiers 1-6)"
+  },
+  M16: {
+    id: "M16", title: "Spring Boot for Payment Systems", level: "Level 2 — Platform Engineer", levelColor: "var(--cyan)",
+    week: "Week 8", cert: "PAKE",
+    topics: ["Profiles", "Externalized config", "Actuator", "Health checks", "Dependency injection"],
+    handsOn: "Multi-profile Spring app with region-specific configs",
+    component: "Spring Boot services (all tiers)"
+  },
+  M17: {
+    id: "M17", title: "Spring Kafka Integration", level: "Level 2 — Platform Engineer", levelColor: "var(--cyan)",
+    week: "Week 9", cert: "PAKE",
+    topics: ["Spring Kafka listeners", "Producers", "Error handlers", "DLQ routing"],
+    handsOn: "End-to-end Kafka producer/consumer with retry",
+    component: "Spring Boot services (all tiers)"
+  },
+  M18: {
+    id: "M18", title: "PostgreSQL for Finance", level: "Level 2 — Platform Engineer", levelColor: "var(--cyan)",
+    week: "Week 9", cert: "PAKE",
+    topics: ["ACID", "Isolation levels", "Partitioning", "Indexing", "pg_stat_statements"],
+    handsOn: "Design the payment_master schema with monthly partitions",
+    component: "Databases (per-service)"
+  },
+  M19: {
+    id: "M19", title: "Citus — Horizontal Sharding", level: "Level 2 — Platform Engineer", levelColor: "var(--cyan)",
+    week: "Week 10", cert: "PAKE",
+    topics: ["Distributed PostgreSQL", "Shard key selection", "Distributed queries"],
+    handsOn: "Shard the ledger_db by account ID",
+    component: "Databases (per-service)"
+  },
+  M20: {
+    id: "M20", title: "Redis for Payment Systems", level: "Level 2 — Platform Engineer", levelColor: "var(--cyan)",
+    week: "Week 10", cert: "PAKE",
+    topics: ["Caching", "Deduplication (TTL 7d)", "Idempotency store", "Pub/sub"],
+    handsOn: "Build a Redis-backed deduplication gateway",
+    component: "Redis layer (Tier 1 dedup, idempotency)"
+  },
+  M21: {
+    id: "M21", title: "ClickHouse Analytics", level: "Level 2 — Platform Engineer", levelColor: "var(--cyan)",
+    week: "Week 11", cert: "PAKE",
+    topics: ["Columnar storage", "MergeTree", "Materialized views", "Aggregation queries"],
+    handsOn: "Load 1M payment records, write analytical queries",
+    component: "ClickHouse (Tier 6 reporting)"
+  },
+  M22: {
+    id: "M22", title: "Transactional Outbox + Debezium", level: "Level 2 — Platform Engineer", levelColor: "var(--cyan)",
+    week: "Week 11", cert: "PAKE",
+    topics: ["CDC", "WAL capture", "Outbox table design", "Exactly-once to Kafka"],
+    handsOn: "Implement outbox pattern with Debezium + PostgreSQL",
+    component: "Outbox pattern (all producers)"
+  },
+  M23: {
+    id: "M23", title: "Event Sourcing in Practice", level: "Level 2 — Platform Engineer", levelColor: "var(--cyan)",
+    week: "Week 12", cert: "PAKE",
+    topics: ["Immutable events", "Event store", "State reconstruction", "Snapshots"],
+    handsOn: "Build an event-sourced payment aggregate",
+    component: "Event sourcing (all tiers)"
+  },
+  M24: {
+    id: "M24", title: "Saga Pattern — Distributed Txns", level: "Level 2 — Platform Engineer", levelColor: "var(--cyan)",
+    week: "Week 12", cert: "PAKE",
+    topics: ["5-step accounting saga", "Compensating transactions", "Saga log"],
+    handsOn: "Implement the accounting saga with failure compensation",
+    component: "Saga (Tier 5 accounting)"
+  },
+  M25: {
+    id: "M25", title: "Anti-Corruption Layer", level: "Level 2 — Platform Engineer", levelColor: "var(--cyan)",
+    week: "Week 13", cert: "PAKE",
+    topics: ["Per clearing house ACL", "External format translation", "Domain protection"],
+    handsOn: "Build ACL for a simulated SWIFT response format",
+    component: "ACL (Tier 4 clearing adapters)"
+  },
+  M26: {
+    id: "M26", title: "Circuit Breaker & Resilience", level: "Level 2 — Platform Engineer", levelColor: "var(--cyan)",
+    week: "Week 13", cert: "PAKE",
+    topics: ["Resilience4j", "3-state breaker", "3-tier DLQ", "Retry with backoff", "Bulkhead"],
+    handsOn: "Simulate clearing house failures with circuit breaker recovery",
+    component: "Resilience (Tier 4 circuit breakers)"
+  },
+  M27: {
+    id: "M27", title: "REST & gRPC API Design", level: "Level 2 — Platform Engineer", levelColor: "var(--cyan)",
+    week: "Week 14", cert: "PAKE",
+    topics: ["API Gateway", "Rate limiting", "Protocol translation", "Protobuf"],
+    handsOn: "Build a dual REST/gRPC payment submission API",
+    component: "API layer (Tier 1 ingestion)"
+  },
+  M28: {
+    id: "M28", title: "Testing Strategies", level: "Level 2 — Platform Engineer", levelColor: "var(--cyan)",
+    week: "Week 14", cert: "PAKE",
+    topics: ["Unit (AAA)", "Integration (Testcontainers)", "Contract", "E2E", "Chaos", "Performance"],
+    handsOn: "Write test suites for a clearing adapter with >90% coverage",
+    component: "Testing (all tiers)"
+  },
+  M29: {
+    id: "M29", title: "Docker for Payment Microservices", level: "Level 3 — Systems Architect", levelColor: "var(--violet)",
+    week: "Week 15", cert: "PAKSA",
+    topics: ["Multi-stage builds", "Single image strategy", "Optimization", "Docker Compose"],
+    handsOn: "Dockerize 3 payment microservices + Kafka + PG",
+    component: "Infrastructure (K8s, Istio)"
+  },
+  M30: {
+    id: "M30", title: "Kubernetes Fundamentals", level: "Level 3 — Systems Architect", levelColor: "var(--violet)",
+    week: "Week 15", cert: "PAKSA",
+    topics: ["Pods, Deployments, Services", "ConfigMaps, Secrets", "HPA, PDB"],
+    handsOn: "Deploy payment services to a local K8s cluster",
+    component: "Infrastructure (K8s, Istio)"
+  },
+  M31: {
+    id: "M31", title: "Kubernetes Advanced", level: "Level 3 — Systems Architect", levelColor: "var(--violet)",
+    week: "Week 16", cert: "PAKSA",
+    topics: ["StatefulSets (Kafka)", "Network policies", "RBAC", "Resource limits", "Affinity"],
+    handsOn: "Production-grade K8s manifests for Payment House",
+    component: "Infrastructure (K8s, Istio)"
+  },
+  M32: {
+    id: "M32", title: "Istio Service Mesh", level: "Level 3 — Systems Architect", levelColor: "var(--violet)",
+    week: "Week 16", cert: "PAKSA",
+    topics: ["mTLS", "Traffic management", "Canary deployments", "Fault injection", "Kiali"],
+    handsOn: "Canary deploy a clearing adapter with 95/5 traffic split",
+    component: "Infrastructure (K8s, Istio)"
+  },
+  M33: {
+    id: "M33", title: "HashiCorp Vault", level: "Level 3 — Systems Architect", levelColor: "var(--violet)",
+    week: "Week 17", cert: "PAKSA",
+    topics: ["Dynamic secrets", "Auto-rotation", "Encryption-as-a-service", "Policies"],
+    handsOn: "Vault-managed database credentials for payment services",
+    component: "Secrets & config (cross-cutting)"
+  },
+  M34: {
+    id: "M34", title: "Consul / etcd for Config", level: "Level 3 — Systems Architect", levelColor: "var(--violet)",
+    week: "Week 17", cert: "PAKSA",
+    topics: ["Distributed config", "Hot-reload", "Service discovery", "Country configs"],
+    handsOn: "Hot-reload clearing house cutoff times without restart",
+    component: "Secrets & config (cross-cutting)"
+  },
+  M35: {
+    id: "M35", title: "Prometheus + Grafana", level: "Level 3 — Systems Architect", levelColor: "var(--violet)",
+    week: "Week 18", cert: "PAKSA",
+    topics: ["Custom metrics", "PromQL", "Golden signals", "Alerting rules", "Thanos"],
+    handsOn: "Build a Payment House operations dashboard",
+    component: "Observability (cross-cutting)"
+  },
+  M36: {
+    id: "M36", title: "OpenTelemetry + Distributed Tracing", level: "Level 3 — Systems Architect", levelColor: "var(--violet)",
+    week: "Week 18", cert: "PAKSA",
+    topics: ["Span propagation", "Jaeger", "Trace sampling", "Correlation IDs"],
+    handsOn: "Trace a payment end-to-end across 6 services",
+    component: "Observability (cross-cutting)"
+  },
+  M37: {
+    id: "M37", title: "ELK Stack + Structured Logging", level: "Level 3 — Systems Architect", levelColor: "var(--violet)",
+    week: "Week 19", cert: "PAKSA",
+    topics: ["Structured JSON logs", "MDC correlation ID", "Filebeat", "Logstash", "Kibana"],
+    handsOn: "Centralized logging with payment correlation search",
+    component: "Observability (cross-cutting)"
+  },
+  M38: {
+    id: "M38", title: "Self-Healing Infrastructure", level: "Level 3 — Systems Architect", levelColor: "var(--violet)",
+    week: "Week 19", cert: "PAKSA",
+    topics: ["K8s probes", "Anomaly detection", "Auto-scaling", "DLQ auto-replay"],
+    handsOn: "Simulate failures, verify auto-recovery",
+    component: "Self-healing (cross-cutting)"
+  },
+  M39: {
+    id: "M39", title: "Multi-Region Deployment", level: "Level 3 — Systems Architect", levelColor: "var(--violet)",
+    week: "Week 20", cert: "PAKSA",
+    topics: ["MirrorMaker 2", "Cross-region replication", "RPO/RTO", "DR failover"],
+    handsOn: "Set up 2-region Kafka replication with failover test",
+    component: "Multi-region (deployment)"
+  },
+  M40: {
+    id: "M40", title: "Security Architecture", level: "Level 3 — Systems Architect", levelColor: "var(--violet)",
+    week: "Week 21", cert: "PAKSA",
+    topics: ["TLS 1.3", "Field-level encryption", "PII protection", "RBAC", "Kafka ACLs"],
+    handsOn: "Encrypt PII fields in payment messages with Vault KEKs",
+    component: "Security (cross-cutting)"
+  },
+  M41: {
+    id: "M41", title: "CI/CD Pipeline", level: "Level 3 — Systems Architect", levelColor: "var(--violet)",
+    week: "Week 22", cert: "PAKSA",
+    topics: ["GitLab CI", "ArgoCD", "GitOps", "Conventional commits", "Semantic versioning"],
+    handsOn: "Build a full CI/CD pipeline for a payment microservice",
+    component: "CI/CD pipeline"
+  },
+  M42: {
+    id: "M42", title: "Performance Engineering", level: "Level 3 — Systems Architect", levelColor: "var(--violet)",
+    week: "Week 23", cert: "PAKSA",
+    topics: ["Load testing (Gatling/k6)", "p99 tuning", "JVM optimization", "Connection pools"],
+    handsOn: "Load test the ingestion gateway to 10K msg/s",
+    component: "Performance (SLA targets)"
+  },
+  M43: {
+    id: "M43", title: "Regulatory Compliance & Reporting", level: "Level 3 — Systems Architect", levelColor: "var(--violet)",
+    week: "Week 24", cert: "PAKSA",
+    topics: ["LVT reports", "STR filing", "EOD reconciliation", "7-year archive", "Audit"],
+    handsOn: "Build an automated reconciliation engine",
+    component: "Regulatory (Tier 6 reporting)"
+  },
+  M44: {
+    id: "M44", title: "System Design — Payment Platform", level: "Level 3 — Systems Architect", levelColor: "var(--violet)",
+    week: "Week 24", cert: "PAKSA",
+    topics: ["Full system design exercise", "Whiteboard the complete Payment House", "6-tier architecture"],
+    handsOn: "Design document: 6-tier architecture from scratch",
+    component: "System design (full architecture)"
+  },
+  S1: {
+    id: "Sprint 1", title: "Kafka + Ingestion", level: "Level 4 — Capstone", levelColor: "var(--gold)",
+    week: "Weeks 25-26", cert: "PAKA",
+    topics: ["Kafka cluster setup", "Ingestion Gateway", "IBM MQ bridge", "Deduplication"],
+    handsOn: "Build and deploy Kafka cluster + Ingestion Gateway with IBM MQ bridge + dedup",
+    component: "Tier 1: Ingestion Gateway"
+  },
+  S2: {
+    id: "Sprint 2", title: "Processor + DB", level: "Level 4 — Capstone", levelColor: "var(--gold)",
+    week: "Weeks 27-28", cert: "PAKA",
+    topics: ["Message Processor", "Enrichment engine", "Payment Master DB", "Schema design"],
+    handsOn: "Build Message Processor + Enrichment + Payment Master DB",
+    component: "Tier 2: Processing + Tier 3: Database"
+  },
+  S3: {
+    id: "Sprint 3", title: "Compliance + Clearing", level: "Level 4 — Capstone", levelColor: "var(--gold)",
+    week: "Weeks 29-30", cert: "PAKA",
+    topics: ["Compliance screening (mock)", "Clearing adapter (1 country)", "Circuit breaker"],
+    handsOn: "Build compliance screening + clearing adapter for one country with circuit breaker",
+    component: "Tier 4: Clearing + Compliance"
+  },
+  S4: {
+    id: "Sprint 4", title: "Saga + Reporting", level: "Level 4 — Capstone", levelColor: "var(--gold)",
+    week: "Weeks 31-32", cert: "PAKA",
+    topics: ["Accounting saga", "Reporting dashboard", "End-to-end test", "Observability stack"],
+    handsOn: "Build accounting saga + reporting dashboard + E2E test + observability",
+    component: "Tier 5: Accounting + Tier 6: Reporting"
+  }
+};
+
+/* ═══════════════════════════════════════════════════════
+   TAB SWITCHING
+   ═══════════════════════════════════════════════════════ */
+(function() {
+  var tabBtns = document.querySelectorAll('.tab-btn');
+  var panels = document.querySelectorAll('.tab-panel');
+
+  tabBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var target = btn.getAttribute('data-tab');
+
+      tabBtns.forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+
+      panels.forEach(function(p) { p.classList.remove('active'); });
+      document.getElementById('tab-' + target).classList.add('active');
+    });
+  });
+})();
+
+/* ═══════════════════════════════════════════════════════
+   DETAIL PANEL
+   ═══════════════════════════════════════════════════════ */
+(function() {
+  var overlay = document.getElementById('detailOverlay');
+  var backdrop = document.getElementById('detailBackdrop');
+  var closeBtn = document.getElementById('detailClose');
+  var content = document.getElementById('detailContent');
+  var cards = document.querySelectorAll('.mod-card');
+
+  function openDetail(modKey) {
+    var mod = MODULES[modKey];
+    if (!mod) return;
+
+    var topicsHtml = '';
+    mod.topics.forEach(function(t) {
+      topicsHtml += '<li>' + t + '</li>';
+    });
+
+    content.innerHTML =
+      '<div class="detail-level" style="color:' + mod.levelColor + '">' + mod.level + '</div>' +
+      '<div class="detail-id" style="color:' + mod.levelColor + '">' + mod.id + '</div>' +
+      '<div class="detail-title">' + mod.title + '</div>' +
+      '<div class="detail-meta">' +
+        '<span class="detail-meta-item">' + mod.week + '</span>' +
+        '<span class="detail-meta-item">' + mod.cert + '</span>' +
+      '</div>' +
+      '<div class="detail-section">' +
+        '<div class="detail-section-title">Topics</div>' +
+        '<ul>' + topicsHtml + '</ul>' +
+      '</div>' +
+      '<div class="detail-section">' +
+        '<div class="detail-section-title">Hands-On</div>' +
+        '<p>' + mod.handsOn + '</p>' +
+      '</div>' +
+      '<div class="detail-section">' +
+        '<div class="detail-section-title">PayoneX Component</div>' +
+        '<div class="detail-component"><strong>Maps to:</strong> ' + mod.component + '</div>' +
+      '</div>';
+
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDetail() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    cards.forEach(function(c) { c.classList.remove('active'); });
+  }
+
+  cards.forEach(function(card) {
+    card.addEventListener('click', function() {
+      cards.forEach(function(c) { c.classList.remove('active'); });
+      card.classList.add('active');
+      openDetail(card.getAttribute('data-mod'));
+    });
+  });
+
+  backdrop.addEventListener('click', closeDetail);
+  closeBtn.addEventListener('click', closeDetail);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) {
+      closeDetail();
+    }
+  });
+})();
+</script>
+</body>
+</html>

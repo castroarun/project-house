@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayArk Academy — Payment Engineering Training</title>
+<meta name="description" content="44-module training curriculum for enterprise payment engineering. 4 certification levels. Built by the developer of the PayoneX platform.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   DESIGN TOKENS
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --bg: #06070b;
+  --bg2: #0c0e16;
+  --bg3: #12141f;
+  --bg4: #1a1d2b;
+  --bdr: #1c2035;
+  --bdr2: #282d48;
+  --t1: #eaecf2;
+  --t2: #8890a8;
+  --t3: #4e5570;
+  --blue: #3b82f6;
+  --cyan: #06b6d4;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --rose: #f43f5e;
+  --violet: #8b5cf6;
+  --orange: #f97316;
+  --gold: #eab308;
+  --r: 12px;
+  --tr: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --fd: 'Outfit', -apple-system, sans-serif;
+  --fm: 'JetBrains Mono', monospace;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESET & BASE
+   ═══════════════════════════════════════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body { font-family: var(--fd); background: var(--bg); color: var(--t1); line-height: 1.65; overflow-x: hidden; }
+::selection { background: rgba(6,182,212,.3); color: #fff; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bdr2); border-radius: 3px; }
+
+/* ═══════════════════════════════════════════════════════════
+   ATMOSPHERE — Different from PayoneX (diagonal sweep)
+   ═══════════════════════════════════════════════════════════ */
+.atmosphere {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 50% 50% at 80% 10%, rgba(6,182,212,.05), transparent 60%),
+    radial-gradient(circle at 10% 60%, rgba(234,179,8,.03), transparent 50%),
+    radial-gradient(circle at 50% 90%, rgba(139,92,246,.03), transparent 40%);
+}
+.noise {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+}
+.noise::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='46'%3E%3Cpath d='M0 23L20 0L40 23L20 46zM40 23L60 0L80 23L60 46z' fill='none' stroke='%23ffffff' stroke-width='0.3' opacity='0.05'/%3E%3C/svg%3E");
+  background-size: 80px 46px;
+}
+.noise::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 75% 15%, rgba(6,182,212,.06), transparent 55%),
+    radial-gradient(circle at 15% 70%, rgba(139,92,246,.03), transparent 50%);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CONTAINER
+   ═══════════════════════════════════════════════════════════ */
+.c { max-width: 1100px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+
+/* ═══════════════════════════════════════════════════════════
+   SCROLL REVEAL
+   ═══════════════════════════════════════════════════════════ */
+.reveal {
+  opacity: 0; transform: translateY(28px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-d1 { transition-delay: 0.1s; }
+.reveal-d2 { transition-delay: 0.2s; }
+.reveal-d3 { transition-delay: 0.3s; }
+.reveal-d4 { transition-delay: 0.4s; }
+.reveal-d5 { transition-delay: 0.5s; }
+
+/* ═══════════════════════════════════════════════════════════
+   NAVIGATION — Centered pill tabs (different from PayoneX)
+   ═══════════════════════════════════════════════════════════ */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  padding: 10px 0;
+  display: flex; justify-content: center;
+}
+.nav-pill {
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 4px; border-radius: 100px;
+  background: rgba(12,14,22,.85);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255,255,255,.05);
+  box-shadow: 0 4px 24px rgba(0,0,0,.4);
+  overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none;
+}
+.nav-pill::-webkit-scrollbar { display: none; }
+.nb {
+  padding: 7px 16px; border-radius: 100px;
+  background: 0; border: 0; color: var(--t3);
+  font-size: 12px; font-family: var(--fd); font-weight: 500;
+  cursor: pointer; transition: var(--tr); white-space: nowrap;
+}
+.nb:hover { color: var(--t2); }
+.nb.active { color: var(--t1); background: rgba(255,255,255,.06); }
+
+/* ═══════════════════════════════════════════════════════════
+   HERO — Editorial layout (different from PayoneX)
+   ═══════════════════════════════════════════════════════════ */
+.hero { padding: 80px 0 60px; }
+.hero-top {
+  display: grid; grid-template-columns: 1fr 420px; gap: 48px;
+  align-items: start;
+}
+.hero-left { padding-top: 8px; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 14px; border-radius: 8px;
+  background: rgba(6,182,212,.06);
+  border: 1px solid rgba(6,182,212,.1);
+  font-size: 11px; font-weight: 600; color: var(--cyan);
+  text-transform: uppercase; letter-spacing: 2px;
+  font-family: var(--fm); margin-bottom: 24px;
+}
+.hero-badge .dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--cyan); box-shadow: 0 0 6px var(--cyan);
+  animation: dot-pulse 2s ease-in-out infinite;
+}
+@keyframes dot-pulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+
+.hero h1 {
+  font-size: clamp(44px, 5.5vw, 68px);
+  font-weight: 900; letter-spacing: -2.5px; line-height: 1.05;
+  color: var(--t1); margin-bottom: 20px;
+}
+.hero h1 .ark { color: var(--cyan); }
+.hero-tagline {
+  font-size: 17px; color: var(--t2); line-height: 1.7;
+  max-width: 520px; margin-bottom: 28px;
+}
+.hero-tagline strong { color: var(--t1); font-weight: 600; }
+
+/* Hero stats — compact inline pills */
+.hero-metrics {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.metric {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 8px;
+  background: var(--bg3); border: 1px solid var(--bdr);
+  font-size: 12px; font-family: var(--fm); color: var(--t2);
+  transition: var(--tr);
+}
+.metric:hover { border-color: var(--bdr2); }
+.metric .mv {
+  font-weight: 700; font-size: 13px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CERTIFICATE MOCK
+   ═══════════════════════════════════════════════════════════ */
+.cert-mock-wrap { perspective: 900px; }
+.cert-mock {
+  transform: rotateY(-5deg) rotateX(2deg);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cert-mock:hover { transform: rotateY(0deg) rotateX(0deg) scale(1.02); }
+.cert-inner {
+  background: linear-gradient(150deg, #fffef8 0%, #fdf8ed 100%);
+  border: 2px solid rgba(180,150,80,.35);
+  border-radius: 14px; padding: 32px 28px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 0 40px rgba(234,179,8,.06), 0 24px 64px rgba(0,0,0,.4),
+    inset 0 1px 0 rgba(255,255,255,.8);
+}
+.cert-inner::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 15% 15%, rgba(234,179,8,.06), transparent 50%),
+    radial-gradient(circle at 85% 85%, rgba(180,150,80,.04), transparent 50%);
+  pointer-events: none;
+}
+.cert-inner::after {
+  content: ''; position: absolute; top: -60%; right: -60%;
+  width: 120%; height: 120%;
+  background: linear-gradient(135deg, transparent 40%, rgba(234,179,8,.06) 50%, transparent 60%);
+  pointer-events: none; animation: shimmer 5s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%, 100% { opacity: 0; transform: translate(0, 0); }
+  50% { opacity: 1; transform: translate(-25%, 25%); }
+}
+.cert-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px; position: relative; z-index: 1;
+}
+.cert-logo { font-size: 13px; font-weight: 800; letter-spacing: -0.3px; color: #1a1a2e; }
+.cert-logo .ark { color: #0891b2; }
+.cert-lvl {
+  padding: 3px 12px; border-radius: 6px;
+  font-size: 10px; font-family: var(--fm); font-weight: 700; letter-spacing: 2px;
+  background: rgba(180,140,40,.1); color: #8b6914; border: 1px solid rgba(180,140,40,.2);
+}
+.cert-body { text-align: center; position: relative; z-index: 1; margin-bottom: 18px; }
+.cert-body .pre {
+  font-size: 9px; font-family: var(--fm); color: #8890a8;
+  text-transform: uppercase; letter-spacing: 3px; margin-bottom: 6px;
+}
+.cert-body .name {
+  font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #8b6914, #b8860b);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 3px;
+}
+.cert-body .sub { font-size: 12px; color: #6b7280; }
+.cert-who { text-align: center; position: relative; z-index: 1; margin-bottom: 18px; }
+.cert-who .label {
+  font-size: 9px; font-family: var(--fm); color: #8890a8;
+  text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;
+}
+.cert-who .person {
+  font-size: 18px; font-weight: 700; color: #1a1a2e; padding-bottom: 6px;
+  border-bottom: 1px solid rgba(180,140,40,.2); display: inline-block;
+}
+.cert-foot {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  position: relative; z-index: 1;
+}
+.cert-foot-item { display: flex; flex-direction: column; gap: 2px; }
+.cert-foot-label {
+  font-size: 8px; font-family: var(--fm); color: #8890a8;
+  text-transform: uppercase; letter-spacing: 1.5px;
+}
+.cert-foot-val { font-size: 11px; color: #4b5563; font-weight: 500; }
+.cert-seal {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 1.5px solid rgba(180,140,40,.3);
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(180,140,40,.06); box-shadow: 0 0 16px rgba(180,140,40,.08);
+}
+.cert-seal span {
+  font-size: 15px; font-weight: 900; font-family: var(--fm);
+  color: #8b6914; letter-spacing: -1px;
+}
+.cert-bottom {
+  text-align: center; margin-top: 14px; position: relative; z-index: 1;
+  font-size: 9px; font-family: var(--fm); color: #8890a8; letter-spacing: 1.5px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTIONS — Different separator style (dot instead of line)
+   ═══════════════════════════════════════════════════════════ */
+section { padding: 72px 0; }
+.sep {
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px; padding: 20px 0;
+}
+.sep::before, .sep::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--bdr), transparent);
+}
+.sep .sep-dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--cyan); box-shadow: 0 0 6px rgba(6,182,212,.4);
+}
+.section-num {
+  font-size: 48px; font-weight: 900; font-family: var(--fm);
+  color: var(--bg4); letter-spacing: -3px; line-height: 1;
+  margin-bottom: -8px;
+}
+.section-title {
+  font-size: clamp(26px, 3vw, 36px); font-weight: 800;
+  letter-spacing: -0.8px; margin-bottom: 10px; line-height: 1.2;
+}
+.section-desc {
+  font-size: 15px; color: var(--t2); max-width: 580px;
+  line-height: 1.75; margin-bottom: 40px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CARDS — Subtle border glow variant (different from glass)
+   ═══════════════════════════════════════════════════════════ */
+.card {
+  background: var(--bg3); border: 1px solid var(--bdr);
+  border-radius: var(--r); padding: 24px;
+  transition: var(--tr); position: relative;
+}
+.card:hover {
+  border-color: var(--bdr2); transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+.card h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.card p { font-size: 13px; color: var(--t2); line-height: 1.7; }
+
+/* Card with top dot accent */
+.card-dot { padding-top: 28px; }
+.card-dot::before {
+  content: ''; position: absolute; top: 16px; left: 24px;
+  width: 6px; height: 6px; border-radius: 50%;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GRIDS
+   ═══════════════════════════════════════════════════════════ */
+.g2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+/* ═══════════════════════════════════════════════════════════
+   WHY PAYARK — Big quote style
+   ═══════════════════════════════════════════════════════════ */
+.big-quote {
+  font-size: clamp(20px, 2.5vw, 28px); font-weight: 600;
+  line-height: 1.55; color: var(--t2); max-width: 760px;
+  margin-bottom: 40px; position: relative; padding-left: 24px;
+  border-left: 2px solid var(--cyan);
+}
+.big-quote strong { color: var(--t1); }
+.big-quote em { color: var(--cyan); font-style: normal; }
+
+/* ═══════════════════════════════════════════════════════════
+   EXAM INTEGRITY
+   ═══════════════════════════════════════════════════════════ */
+.integrity-banner {
+  background: var(--bg2); border: 1px solid var(--bdr);
+  border-radius: var(--r); padding: 28px 32px;
+  margin-bottom: 20px; position: relative; overflow: hidden;
+  border-left: 3px solid var(--rose);
+}
+.integrity-banner::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(244,63,94,.03), transparent 40%);
+  pointer-events: none;
+}
+.integrity-banner blockquote {
+  font-size: clamp(17px, 2vw, 22px); font-weight: 700; line-height: 1.45;
+  position: relative; z-index: 1;
+}
+.integrity-banner blockquote .hl { color: var(--rose); }
+.integrity-banner cite {
+  display: block; margin-top: 8px; font-size: 12px; font-family: var(--fm);
+  color: var(--t3); font-style: italic; position: relative; z-index: 1;
+}
+.integrity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.i-card { padding-top: 28px; }
+.i-card .i-icon {
+  font-size: 20px; font-weight: 900; font-family: var(--fm);
+  color: var(--rose); opacity: .6; margin-bottom: 8px; line-height: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CONTENT SOURCING — Horizontal bars
+   ═══════════════════════════════════════════════════════════ */
+.source-split { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+.bar-group { display: flex; flex-direction: column; gap: 18px; }
+.bar-item {}
+.bar-head { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.bar-label { font-size: 14px; font-weight: 600; }
+.bar-pct { font-size: 12px; font-family: var(--fm); color: var(--t3); }
+.bar-track {
+  width: 100%; height: 6px; border-radius: 3px;
+  background: var(--bg4); overflow: hidden;
+}
+.bar-fill {
+  height: 100%; border-radius: 3px;
+  transition: width 1.4s cubic-bezier(0.16, 1, 0.3, 1); width: 0;
+}
+.bar-desc { font-size: 12px; color: var(--t3); margin-top: 5px; line-height: 1.55; }
+
+.source-philosophy {
+  background: var(--bg3); border: 1px solid var(--bdr);
+  border-radius: var(--r); padding: 24px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.source-philosophy h4 { font-size: 15px; font-weight: 700; }
+.source-philosophy p { font-size: 13px; color: var(--t2); line-height: 1.7; }
+.source-philosophy p strong { color: var(--t1); font-weight: 600; }
+
+/* ═══════════════════════════════════════════════════════════
+   USPs — Two-column comparison cards
+   ═══════════════════════════════════════════════════════════ */
+.usp-card { border-left: 2px solid transparent; }
+.usp-card .usp-tag {
+  font-size: 10px; font-family: var(--fm); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px;
+}
+.usp-card .vs-row {
+  display: flex; gap: 16px; margin-top: 12px; padding-top: 10px;
+  border-top: 1px solid var(--bdr); font-size: 11px; font-family: var(--fm);
+}
+.vs-col { flex: 1; line-height: 1.5; }
+.vs-col .vs-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+.vs-col.them .vs-label { color: var(--t3); }
+.vs-col.them { color: var(--t3); }
+.vs-col.us .vs-label { color: var(--green); }
+.vs-col.us { color: var(--t2); }
+
+/* ═══════════════════════════════════════════════════════════
+   CERT PATH — Horizontal track
+   ═══════════════════════════════════════════════════════════ */
+.cert-track {
+  display: flex; gap: 10px; overflow-x: auto;
+  padding-bottom: 12px; scroll-snap-type: x mandatory;
+  -ms-overflow-style: none; scrollbar-width: none;
+}
+.cert-track::-webkit-scrollbar { display: none; }
+.cert-level {
+  min-width: 240px; flex: 1; scroll-snap-align: start;
+  border-top: 2px solid var(--bdr);
+}
+.cert-level .cl-name {
+  font-size: 10px; font-family: var(--fm); font-weight: 700;
+  letter-spacing: 2px; margin-bottom: 4px;
+}
+.cert-level .cl-title { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+.cert-level .cl-meta {
+  font-size: 11px; font-family: var(--fm); color: var(--t3); margin-bottom: 10px;
+}
+.cert-level ul { list-style: none; padding: 0; }
+.cert-level li {
+  font-size: 12px; color: var(--t2); padding: 3px 0 3px 14px;
+  position: relative; line-height: 1.5;
+}
+.cert-level li::before {
+  content: ''; width: 3px; height: 3px; border-radius: 50%;
+  position: absolute; left: 0; top: 10px;
+}
+.cert-level .cl-exam {
+  margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--bdr);
+  font-size: 10px; font-family: var(--fm); color: var(--t3);
+}
+.cert-level .cl-exam strong { color: var(--t2); }
+
+.cl-1 { border-top-color: var(--blue); }
+.cl-1 .cl-name { color: var(--blue); }
+.cl-1 li::before { background: var(--blue); }
+.cl-2 { border-top-color: var(--cyan); }
+.cl-2 .cl-name { color: var(--cyan); }
+.cl-2 li::before { background: var(--cyan); }
+.cl-3 { border-top-color: var(--violet); }
+.cl-3 .cl-name { color: var(--violet); }
+.cl-3 li::before { background: var(--violet); }
+.cl-4 { border-top-color: var(--gold); }
+.cl-4 .cl-name { color: var(--gold); }
+.cl-4 li::before { background: var(--gold); }
+
+/* ═══════════════════════════════════════════════════════════
+   CURRICULUM TABLE
+   ═══════════════════════════════════════════════════════════ */
+.cur-level-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; margin-bottom: 12px;
+}
+.cur-level-bar {
+  width: 3px; height: 24px; border-radius: 2px;
+}
+.cur-level-name {
+  font-size: 10px; font-family: var(--fm); font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.cur-level-title {
+  font-size: 18px; font-weight: 700; margin-left: auto;
+  color: var(--t2); font-size: 13px; font-weight: 500;
+}
+.cur-table {
+  width: 100%; border-collapse: collapse; margin-bottom: 32px;
+}
+.cur-table th {
+  font-size: 9px; font-family: var(--fm); color: var(--t3);
+  text-transform: uppercase; letter-spacing: 1.5px;
+  text-align: left; padding: 8px 12px;
+  border-bottom: 1px solid var(--bdr);
+}
+.cur-table td {
+  font-size: 13px; padding: 10px 12px;
+  border-bottom: 1px solid rgba(28,32,53,.4);
+  color: var(--t2); vertical-align: top;
+}
+.cur-table tr:hover td { background: rgba(255,255,255,.01); }
+.cur-table .mod-id {
+  font-family: var(--fm); font-size: 11px; font-weight: 600;
+  white-space: nowrap;
+}
+.cur-table .mod-title {
+  font-weight: 600; color: var(--t1);
+}
+.cur-table .mod-topics {
+  font-size: 12px; color: var(--t3); line-height: 1.55;
+}
+.cur-table .mod-wk {
+  font-family: var(--fm); font-size: 11px; color: var(--t3);
+  white-space: nowrap;
+}
+.cur-summary {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--bdr);
+}
+.cur-summary .cs-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 14px; border-radius: 8px;
+  background: var(--bg3); border: 1px solid var(--bdr);
+  font-size: 12px; font-family: var(--fm); color: var(--t2);
+}
+.cur-summary .cs-val { font-weight: 700; font-size: 13px; }
+
+/* Collapsible curriculum levels */
+.cur-toggle {
+  cursor: pointer; user-select: none;
+  transition: var(--tr);
+}
+.cur-toggle:hover { opacity: .85; }
+.cur-toggle .cur-arrow {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 6px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.06);
+  font-size: 10px; color: var(--t3); transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+.cur-toggle.open .cur-arrow { transform: rotate(90deg); }
+.cur-content {
+  display: grid; grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cur-toggle.open + .cur-content { grid-template-rows: 1fr; }
+.cur-content-inner { overflow: hidden; }
+
+/* ═══════════════════════════════════════════════════════════
+   EXPLORE — Inline link cards
+   ═══════════════════════════════════════════════════════════ */
+.explore-list { display: flex; flex-direction: column; gap: 8px; }
+.explore-link {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 24px; background: var(--bg3);
+  border: 1px solid var(--bdr); border-radius: var(--r);
+  text-decoration: none; color: inherit; transition: var(--tr);
+}
+.explore-link:hover {
+  border-color: var(--bdr2); transform: translateX(4px);
+  box-shadow: 0 8px 32px rgba(0,0,0,.2);
+}
+.explore-link .el-left { display: flex; flex-direction: column; gap: 2px; }
+.explore-link .el-title { font-size: 15px; font-weight: 700; }
+.explore-link .el-desc { font-size: 12px; color: var(--t3); }
+.explore-link .el-arrow {
+  font-size: 18px; color: var(--cyan); opacity: .4;
+  transition: var(--tr);
+}
+.explore-link:hover .el-arrow { opacity: 1; transform: translateX(4px); }
+.explore-link .el-tag {
+  font-size: 9px; font-family: var(--fm); font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 4px;
+  background: rgba(6,182,212,.06); color: var(--cyan);
+  border: 1px solid rgba(6,182,212,.1); margin-right: 16px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FOOTER — Minimal
+   ═══════════════════════════════════════════════════════════ */
+.footer {
+  padding: 40px 0; text-align: center;
+}
+.footer-mark {
+  font-size: 16px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px;
+}
+.footer-mark .ark { color: var(--cyan); }
+.footer-sub { font-size: 11px; color: var(--t3); font-family: var(--fm); }
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .hero-top { grid-template-columns: 1fr; gap: 40px; }
+  .cert-mock-wrap { display: flex; justify-content: center; }
+  .cert-mock { max-width: 400px; }
+  .integrity-grid { grid-template-columns: repeat(2, 1fr); }
+  .source-split { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .c { padding: 0 20px; }
+  .hero { padding: 60px 0 48px; }
+  .hero h1 { font-size: 38px; letter-spacing: -1.5px; }
+  section { padding: 48px 0; }
+  .g2, .g3, .integrity-grid { grid-template-columns: 1fr; }
+  .cert-track { gap: 10px; }
+  .cert-level { min-width: 220px; }
+  .cert-mock { transform: none; }
+  .cert-mock:hover { transform: scale(1.01); }
+  .nav-pill { margin: 0 16px; }
+  .explore-link { flex-wrap: wrap; gap: 8px; }
+  .cur-table th:nth-child(3), .cur-table td:nth-child(3) { display: none; }
+  .cur-table td { font-size: 12px; padding: 8px 8px; }
+  .cur-table th { padding: 6px 8px; }
+  .cur-summary { gap: 8px; }
+  .cur-summary .cs-item { padding: 5px 10px; font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<div class="atmosphere"></div>
+<div class="noise"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     NAVIGATION — Floating centered pill
+     ═══════════════════════════════════════════════════════ -->
+<nav id="nav">
+<div class="nav-pill">
+  <button class="nb active" onclick="scrollTo_('hero')">Overview</button>
+  <button class="nb" onclick="scrollTo_('why')">Why</button>
+  <button class="nb" onclick="scrollTo_('curriculum')">Curriculum</button>
+  <button class="nb" onclick="scrollTo_('integrity')">Integrity</button>
+  <button class="nb" onclick="scrollTo_('sourcing')">Content</button>
+  <button class="nb" onclick="scrollTo_('usps')">USPs</button>
+  <button class="nb" onclick="scrollTo_('levels')">Levels</button>
+  <button class="nb" onclick="scrollTo_('explore')">Explore</button>
+</div>
+</nav>
+
+<div class="c">
+
+<!-- ═══════════════════════════════════════════════════════
+     HERO — Certificate + text side by side
+     ═══════════════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+
+<div class="hero-top">
+  <div class="hero-left">
+    <div class="hero-badge reveal">
+      <span class="dot"></span>
+      Training Academy
+    </div>
+
+    <h1 class="reveal reveal-d1">Pay<span class="ark">Ark</span> Academy</h1>
+
+    <p class="hero-tagline reveal reveal-d2">
+      <strong>Learn payment engineering</strong> from the developer who built the platform. 44 modules, 4 certifications, zero shortcuts.
+    </p>
+
+    <div class="hero-metrics reveal reveal-d3">
+      <span class="metric"><span class="mv" style="color:var(--cyan)">44</span> modules</span>
+      <span class="metric"><span class="mv" style="color:var(--blue)">4</span> certs</span>
+      <span class="metric"><span class="mv" style="color:var(--green)">32</span> weeks</span>
+      <span class="metric"><span class="mv" style="color:var(--violet)">50</span> q/module</span>
+      <span class="metric"><span class="mv" style="color:var(--amber)">70%</span> pass</span>
+      <span class="metric"><span class="mv" style="color:var(--rose)">SRP</span> 1:1</span>
+    </div>
+  </div>
+
+  <!-- Certificate Mock -->
+  <div class="cert-mock-wrap reveal reveal-d4">
+    <div class="cert-mock">
+      <div class="cert-inner">
+        <div class="cert-head">
+          <div class="cert-logo">Pay<span class="ark">Ark</span> Academy</div>
+          <div class="cert-lvl">PAKA</div>
+        </div>
+        <div class="cert-body">
+          <div class="pre">Certificate of Achievement</div>
+          <div class="name">PayArk Certified Architect</div>
+          <div class="sub">Enterprise Payment Processing Platform</div>
+        </div>
+        <div class="cert-who">
+          <div class="label">Awarded To</div>
+          <div class="person">Your Name Here</div>
+        </div>
+        <div class="cert-foot">
+          <div class="cert-foot-item">
+            <span class="cert-foot-label">Issued</span>
+            <span class="cert-foot-val">March 2026</span>
+          </div>
+          <div class="cert-seal"><span>PA</span></div>
+          <div class="cert-foot-item" style="text-align:right">
+            <span class="cert-foot-label">Credential</span>
+            <span class="cert-foot-val" style="font-family:var(--fm);font-size:10px">PAKA-2026-XXXX</span>
+          </div>
+        </div>
+        <div class="cert-bottom">44 MODULES &middot; 4 LEVELS &middot; 32 WEEKS</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</section>
+
+<div class="sep"><span class="sep-dot"></span></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     WHY PAYARK
+     ═══════════════════════════════════════════════════════ -->
+<section id="why">
+<div class="section-num reveal">01</div>
+<h2 class="section-title reveal reveal-d1">Not Another Tutorial Playlist</h2>
+
+<div class="big-quote reveal reveal-d2">
+  Most payment training is <strong>slides and theory</strong>. PayArk is different &mdash; every module maps to a <em>real component in the PayoneX codebase</em>. You learn the concept, then see how it&rsquo;s built.
+</div>
+
+<div class="g3">
+  <div class="card card-dot reveal" style="--dot-color: var(--cyan)">
+    <div style="position:absolute;top:16px;left:24px;width:6px;height:6px;border-radius:50%;background:var(--cyan)"></div>
+    <h4>Built by the Builder</h4>
+    <p>The curriculum author is the platform developer. Every module reflects real decisions, real trade-offs, real ADRs &mdash; not repackaged theory.</p>
+  </div>
+  <div class="card card-dot reveal reveal-d1">
+    <div style="position:absolute;top:16px;left:24px;width:6px;height:6px;border-radius:50%;background:var(--blue)"></div>
+    <h4>Theory &#8594; Code</h4>
+    <p>Learn &ldquo;Clearing vs Settlement&rdquo; then open the clearing adapter code. Learn &ldquo;Event Sourcing&rdquo; then read the Kafka consumer.</p>
+  </div>
+  <div class="card card-dot reveal reveal-d2">
+    <div style="position:absolute;top:16px;left:24px;width:6px;height:6px;border-radius:50%;background:var(--green)"></div>
+    <h4>SRP for Learning</h4>
+    <p>One concept per module. No 4-hour marathons. Short, focused, completable. 44 bricks build the full wall.</p>
+  </div>
+</div>
+</section>
+
+<div class="sep"><span class="sep-dot"></span></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     COURSE CURRICULUM — Full 44-module breakdown
+     ═══════════════════════════════════════════════════════ -->
+<section id="curriculum">
+<div class="section-num reveal">02</div>
+<h2 class="section-title reveal reveal-d1">The Full Curriculum</h2>
+<p class="section-desc reveal reveal-d2">44 modules across 4 certification levels. Each module maps to a real component in the PayoneX codebase.</p>
+
+<!-- LEVEL 1: PAKF -->
+<div class="reveal reveal-d3">
+<div class="cur-level-header cur-toggle open" onclick="this.classList.toggle('open')">
+  <div class="cur-level-bar" style="background:var(--blue)"></div>
+  <span class="cur-level-name" style="color:var(--blue)">PAKF &mdash; Payment Foundations</span>
+  <span class="cur-level-title">12 modules &middot; 6 weeks</span>
+  <span class="cur-arrow">&#9654;</span>
+</div>
+<div class="cur-content">
+<div class="cur-content-inner">
+<table class="cur-table">
+<thead><tr><th>Module</th><th>Title</th><th>Key Topics</th><th>Week</th></tr></thead>
+<tbody>
+  <tr><td class="mod-id" style="color:var(--blue)">M01</td><td class="mod-title">How Payments Work</td><td class="mod-topics">Payment lifecycle, clearing vs settlement, RTGS vs DNS, correspondent banking</td><td class="mod-wk">W1</td></tr>
+  <tr><td class="mod-id" style="color:var(--blue)">M02</td><td class="mod-title">ISO 20022 Decoded</td><td class="mod-topics">MX messages, pain.001, pacs.008, XML schema, MT&rarr;MX migration</td><td class="mod-wk">W1</td></tr>
+  <tr><td class="mod-id" style="color:var(--blue)">M03</td><td class="mod-title">Clearing Houses Worldwide</td><td class="mod-topics">MEPS+, FAST, CHATS, FPS, CHAPS, RTGS India, NEFT, UPI, SWIFT gpi</td><td class="mod-wk">W2</td></tr>
+  <tr><td class="mod-id" style="color:var(--blue)">M04</td><td class="mod-title">Compliance &amp; Screening</td><td class="mod-topics">Sanctions (OFAC/EU/UN), AML, PEP, fraud detection, STR reporting</td><td class="mod-wk">W2</td></tr>
+  <tr><td class="mod-id" style="color:var(--blue)">M05</td><td class="mod-title">Java 21 for Payments</td><td class="mod-topics">Records, sealed classes, virtual threads, BigDecimal, immutability</td><td class="mod-wk">W3</td></tr>
+  <tr><td class="mod-id" style="color:var(--blue)">M06</td><td class="mod-title">SOLID Principles</td><td class="mod-topics">SRP, OCP, LSP, ISP, DIP &mdash; all with payment domain examples</td><td class="mod-wk">W3</td></tr>
+  <tr><td class="mod-id" style="color:var(--blue)">M07</td><td class="mod-title">CUPID + Financial Disciplines</td><td class="mod-topics">Predictability, domain alignment, defensive calculations, auditability</td><td class="mod-wk">W4</td></tr>
+  <tr><td class="mod-id" style="color:var(--blue)">M08</td><td class="mod-title">Design Patterns I</td><td class="mod-topics">Strategy (clearing adapters), Template Method (processing pipeline)</td><td class="mod-wk">W4</td></tr>
+  <tr><td class="mod-id" style="color:var(--blue)">M09</td><td class="mod-title">Design Patterns II</td><td class="mod-topics">Specification pattern, payment state machine, guard conditions</td><td class="mod-wk">W5</td></tr>
+  <tr><td class="mod-id" style="color:var(--blue)">M10</td><td class="mod-title">Hexagonal Architecture</td><td class="mod-topics">Ports &amp; adapters, domain isolation, zero framework imports in domain</td><td class="mod-wk">W5</td></tr>
+  <tr><td class="mod-id" style="color:var(--blue)">M11</td><td class="mod-title">Domain-Driven Design</td><td class="mod-topics">Bounded contexts, aggregates, entities, value objects, ubiquitous language</td><td class="mod-wk">W6</td></tr>
+  <tr><td class="mod-id" style="color:var(--blue)">M12</td><td class="mod-title">Twelve-Factor App</td><td class="mod-topics">Config in env, stateless processes, port binding, dev/prod parity</td><td class="mod-wk">W6</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- LEVEL 2: PAKE -->
+<div class="reveal">
+<div class="cur-level-header cur-toggle" onclick="this.classList.toggle('open')">
+  <div class="cur-level-bar" style="background:var(--cyan)"></div>
+  <span class="cur-level-name" style="color:var(--cyan)">PAKE &mdash; Platform Engineer</span>
+  <span class="cur-level-title">16 modules &middot; 8 weeks</span>
+  <span class="cur-arrow">&#9654;</span>
+</div>
+<div class="cur-content">
+<div class="cur-content-inner">
+<table class="cur-table">
+<thead><tr><th>Module</th><th>Title</th><th>Key Topics</th><th>Week</th></tr></thead>
+<tbody>
+  <tr><td class="mod-id" style="color:var(--cyan)">M13</td><td class="mod-title">Kafka Fundamentals</td><td class="mod-topics">Producers, consumers, partitions, replication, retention</td><td class="mod-wk">W7</td></tr>
+  <tr><td class="mod-id" style="color:var(--cyan)">M14</td><td class="mod-title">Kafka Deep Dive</td><td class="mod-topics">Exactly-once, transactions, idempotent producers, compaction</td><td class="mod-wk">W7</td></tr>
+  <tr><td class="mod-id" style="color:var(--cyan)">M15</td><td class="mod-title">Kafka Streams</td><td class="mod-topics">Stream processing, materialized views, windowing, aggregations</td><td class="mod-wk">W8</td></tr>
+  <tr><td class="mod-id" style="color:var(--cyan)">M16</td><td class="mod-title">Spring Boot for Payments</td><td class="mod-topics">Profiles, externalized config, actuator, health checks, DI</td><td class="mod-wk">W8</td></tr>
+  <tr><td class="mod-id" style="color:var(--cyan)">M17</td><td class="mod-title">Spring Kafka Integration</td><td class="mod-topics">Listeners, producers, error handlers, DLQ routing</td><td class="mod-wk">W9</td></tr>
+  <tr><td class="mod-id" style="color:var(--cyan)">M18</td><td class="mod-title">PostgreSQL for Finance</td><td class="mod-topics">ACID, isolation levels, partitioning, indexing</td><td class="mod-wk">W9</td></tr>
+  <tr><td class="mod-id" style="color:var(--cyan)">M19</td><td class="mod-title">Citus Sharding</td><td class="mod-topics">Distributed PostgreSQL, shard key selection, distributed queries</td><td class="mod-wk">W10</td></tr>
+  <tr><td class="mod-id" style="color:var(--cyan)">M20</td><td class="mod-title">Redis for Payments</td><td class="mod-topics">Caching, deduplication, idempotency store, pub/sub</td><td class="mod-wk">W10</td></tr>
+  <tr><td class="mod-id" style="color:var(--cyan)">M21</td><td class="mod-title">ClickHouse Analytics</td><td class="mod-topics">Columnar storage, MergeTree, materialized views</td><td class="mod-wk">W11</td></tr>
+  <tr><td class="mod-id" style="color:var(--cyan)">M22</td><td class="mod-title">Outbox + Debezium</td><td class="mod-topics">CDC, WAL capture, outbox table, exactly-once to Kafka</td><td class="mod-wk">W11</td></tr>
+  <tr><td class="mod-id" style="color:var(--cyan)">M23</td><td class="mod-title">Event Sourcing</td><td class="mod-topics">Immutable events, event store, state reconstruction, snapshots</td><td class="mod-wk">W12</td></tr>
+  <tr><td class="mod-id" style="color:var(--cyan)">M24</td><td class="mod-title">Saga Pattern</td><td class="mod-topics">5-step accounting saga, compensating transactions, saga log</td><td class="mod-wk">W12</td></tr>
+  <tr><td class="mod-id" style="color:var(--cyan)">M25</td><td class="mod-title">Anti-Corruption Layer</td><td class="mod-topics">Per clearing house ACL, format translation, domain protection</td><td class="mod-wk">W13</td></tr>
+  <tr><td class="mod-id" style="color:var(--cyan)">M26</td><td class="mod-title">Circuit Breaker</td><td class="mod-topics">Resilience4j, 3-state breaker, 3-tier DLQ, retry with backoff</td><td class="mod-wk">W13</td></tr>
+  <tr><td class="mod-id" style="color:var(--cyan)">M27</td><td class="mod-title">REST &amp; gRPC API Design</td><td class="mod-topics">API Gateway, rate limiting, protocol translation, Protobuf</td><td class="mod-wk">W14</td></tr>
+  <tr><td class="mod-id" style="color:var(--cyan)">M28</td><td class="mod-title">Testing Strategies</td><td class="mod-topics">Unit, integration (Testcontainers), contract, E2E, chaos</td><td class="mod-wk">W14</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- LEVEL 3: PAKSA -->
+<div class="reveal">
+<div class="cur-level-header cur-toggle" onclick="this.classList.toggle('open')">
+  <div class="cur-level-bar" style="background:var(--violet)"></div>
+  <span class="cur-level-name" style="color:var(--violet)">PAKSA &mdash; Systems Architect</span>
+  <span class="cur-level-title">16 modules &middot; 10 weeks</span>
+  <span class="cur-arrow">&#9654;</span>
+</div>
+<div class="cur-content">
+<div class="cur-content-inner">
+<table class="cur-table">
+<thead><tr><th>Module</th><th>Title</th><th>Key Topics</th><th>Week</th></tr></thead>
+<tbody>
+  <tr><td class="mod-id" style="color:var(--violet)">M29</td><td class="mod-title">Docker for Microservices</td><td class="mod-topics">Multi-stage builds, single image strategy, Docker Compose</td><td class="mod-wk">W15</td></tr>
+  <tr><td class="mod-id" style="color:var(--violet)">M30</td><td class="mod-title">Kubernetes Fundamentals</td><td class="mod-topics">Pods, Deployments, Services, ConfigMaps, HPA, PDB</td><td class="mod-wk">W15</td></tr>
+  <tr><td class="mod-id" style="color:var(--violet)">M31</td><td class="mod-title">Kubernetes Advanced</td><td class="mod-topics">StatefulSets, network policies, RBAC, resource limits, affinity</td><td class="mod-wk">W16</td></tr>
+  <tr><td class="mod-id" style="color:var(--violet)">M32</td><td class="mod-title">Istio Service Mesh</td><td class="mod-topics">mTLS, traffic management, canary deploys, fault injection</td><td class="mod-wk">W16</td></tr>
+  <tr><td class="mod-id" style="color:var(--violet)">M33</td><td class="mod-title">HashiCorp Vault</td><td class="mod-topics">Dynamic secrets, auto-rotation, encryption-as-a-service</td><td class="mod-wk">W17</td></tr>
+  <tr><td class="mod-id" style="color:var(--violet)">M34</td><td class="mod-title">Consul / etcd Config</td><td class="mod-topics">Distributed config, hot-reload, service discovery</td><td class="mod-wk">W17</td></tr>
+  <tr><td class="mod-id" style="color:var(--violet)">M35</td><td class="mod-title">Prometheus + Grafana</td><td class="mod-topics">Custom metrics, PromQL, golden signals, alerting, Thanos</td><td class="mod-wk">W18</td></tr>
+  <tr><td class="mod-id" style="color:var(--violet)">M36</td><td class="mod-title">OpenTelemetry Tracing</td><td class="mod-topics">Span propagation, Jaeger, trace sampling, correlation IDs</td><td class="mod-wk">W18</td></tr>
+  <tr><td class="mod-id" style="color:var(--violet)">M37</td><td class="mod-title">ELK Stack + Logging</td><td class="mod-topics">Structured JSON logs, MDC, Filebeat, Logstash, Kibana</td><td class="mod-wk">W19</td></tr>
+  <tr><td class="mod-id" style="color:var(--violet)">M38</td><td class="mod-title">Self-Healing Infrastructure</td><td class="mod-topics">K8s probes, anomaly detection, auto-scaling, DLQ auto-replay</td><td class="mod-wk">W19</td></tr>
+  <tr><td class="mod-id" style="color:var(--violet)">M39</td><td class="mod-title">Multi-Region Deployment</td><td class="mod-topics">MirrorMaker 2, cross-region replication, RPO/RTO, DR failover</td><td class="mod-wk">W20</td></tr>
+  <tr><td class="mod-id" style="color:var(--violet)">M40</td><td class="mod-title">Security Architecture</td><td class="mod-topics">TLS 1.3, field-level encryption, PII protection, Kafka ACLs</td><td class="mod-wk">W21</td></tr>
+  <tr><td class="mod-id" style="color:var(--violet)">M41</td><td class="mod-title">CI/CD Pipeline</td><td class="mod-topics">GitLab CI, ArgoCD, GitOps, conventional commits, semver</td><td class="mod-wk">W22</td></tr>
+  <tr><td class="mod-id" style="color:var(--violet)">M42</td><td class="mod-title">Performance Engineering</td><td class="mod-topics">Load testing (Gatling/k6), p99 tuning, JVM optimization</td><td class="mod-wk">W23</td></tr>
+  <tr><td class="mod-id" style="color:var(--violet)">M43</td><td class="mod-title">Regulatory Compliance</td><td class="mod-topics">LVT reports, STR filing, EOD reconciliation, 7-year archive</td><td class="mod-wk">W24</td></tr>
+  <tr><td class="mod-id" style="color:var(--violet)">M44</td><td class="mod-title">System Design Capstone</td><td class="mod-topics">Full Payment House whiteboard exercise &mdash; design from scratch</td><td class="mod-wk">W24</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- LEVEL 4: PAKA -->
+<div class="reveal">
+<div class="cur-level-header cur-toggle" onclick="this.classList.toggle('open')">
+  <div class="cur-level-bar" style="background:var(--gold)"></div>
+  <span class="cur-level-name" style="color:var(--gold)">PAKA &mdash; Capstone Project</span>
+  <span class="cur-level-title">4 sprints &middot; 8 weeks</span>
+  <span class="cur-arrow">&#9654;</span>
+</div>
+<div class="cur-content">
+<div class="cur-content-inner">
+<table class="cur-table">
+<thead><tr><th>Sprint</th><th>Deliverable</th><th>Scope</th><th>Week</th></tr></thead>
+<tbody>
+  <tr><td class="mod-id" style="color:var(--gold)">S1</td><td class="mod-title">Ingestion Gateway</td><td class="mod-topics">Kafka cluster + IBM MQ bridge + deduplication + Redis</td><td class="mod-wk">W25&ndash;26</td></tr>
+  <tr><td class="mod-id" style="color:var(--gold)">S2</td><td class="mod-title">Message Processing</td><td class="mod-topics">Processor + Enrichment + Payment Master DB + validation</td><td class="mod-wk">W27&ndash;28</td></tr>
+  <tr><td class="mod-id" style="color:var(--gold)">S3</td><td class="mod-title">Compliance + Clearing</td><td class="mod-topics">Screening (mock) + Clearing adapter (1 country) + Circuit breaker</td><td class="mod-wk">W29&ndash;30</td></tr>
+  <tr><td class="mod-id" style="color:var(--gold)">S4</td><td class="mod-title">Full Pipeline</td><td class="mod-topics">Accounting saga + Reporting dashboard + E2E tests + Observability</td><td class="mod-wk">W31&ndash;32</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="cur-summary reveal">
+  <div class="cs-item"><span class="cs-val" style="color:var(--cyan)">44</span> modules</div>
+  <div class="cs-item"><span class="cs-val" style="color:var(--blue)">4</span> certifications</div>
+  <div class="cs-item"><span class="cs-val" style="color:var(--green)">32</span> weeks</div>
+  <div class="cs-item"><span class="cs-val" style="color:var(--violet)">~200</span> hours</div>
+  <div class="cs-item"><span class="cs-val" style="color:var(--amber)">50</span> quiz q / module</div>
+</div>
+</section>
+
+<div class="sep"><span class="sep-dot"></span></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     EXAM INTEGRITY
+     ═══════════════════════════════════════════════════════ -->
+<section id="integrity">
+<div class="section-num reveal">03</div>
+<h2 class="section-title reveal reveal-d1">Can the Builder Cheat?</h2>
+<p class="section-desc reveal reveal-d2">The quiz engine, question bank, and randomization algorithm are all in the source code. The builder has full access. Here&rsquo;s why that doesn&rsquo;t help.</p>
+
+<div class="integrity-banner reveal reveal-d3">
+  <blockquote>
+    &ldquo;I wrote the quiz engine, the question bank, and the shuffle algorithm.<br>
+    I still <span class="hl">can&rsquo;t guarantee a pass.</span>&rdquo;
+  </blockquote>
+  <cite>&mdash; The builder, honestly</cite>
+</div>
+
+<div class="integrity-grid">
+  <div class="card i-card reveal">
+    <div class="i-icon">5&times;</div>
+    <h4>Question Pool</h4>
+    <p>50 questions per module, 15 selected per attempt. That&rsquo;s 3 billion possible combinations.</p>
+  </div>
+  <div class="card i-card reveal reveal-d1">
+    <div class="i-icon">&#8644;</div>
+    <h4>Answer Shuffle</h4>
+    <p>Fisher-Yates randomizes answer positions every attempt. &ldquo;Answer B&rdquo; is different next time.</p>
+  </div>
+  <div class="card i-card reveal reveal-d2">
+    <div class="i-icon">&#9654;</div>
+    <h4>Forward-Only</h4>
+    <p>No going back. Per-question timer. Decide and move on &mdash; like production decisions.</p>
+  </div>
+  <div class="card i-card reveal reveal-d3">
+    <div class="i-icon">&#10005;</div>
+    <h4>Answers Hidden</h4>
+    <p>You see your score, never which answers were correct. The only path: learn the material.</p>
+  </div>
+  <div class="card i-card reveal reveal-d4">
+    <div class="i-icon">48h</div>
+    <h4>Cooldown</h4>
+    <p>48-hour wait between attempts. No brute-force retries. Study and come back prepared.</p>
+  </div>
+  <div class="card i-card reveal reveal-d5">
+    <div class="i-icon">&#128274;</div>
+    <h4>Encrypted</h4>
+    <p>Questions encrypted at rest. Even database access + randomization = pre-planning futile.</p>
+  </div>
+</div>
+</section>
+
+<div class="sep"><span class="sep-dot"></span></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     CONTENT SOURCING
+     ═══════════════════════════════════════════════════════ -->
+<section id="sourcing">
+<div class="section-num reveal">04</div>
+<h2 class="section-title reveal reveal-d1">Where the Content Comes From</h2>
+<p class="section-desc reveal reveal-d2">We don&rsquo;t reinvent the wheel. The best content already exists. Our job is curation and sequencing.</p>
+
+<div class="source-split">
+
+  <div class="bar-group reveal reveal-d3">
+
+    <div class="bar-item">
+      <div class="bar-head">
+        <span class="bar-label" style="color:var(--rose)">&#9654; YouTube Curated</span>
+        <span class="bar-pct">~35 modules &middot; 80%</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" data-width="80" style="background:linear-gradient(90deg,var(--rose),#fb7185)"></div>
+      </div>
+      <div class="bar-desc">Hand-picked from the best educators. Each video vetted for accuracy and relevance to PayoneX architecture.</div>
+    </div>
+
+    <div class="bar-item">
+      <div class="bar-head">
+        <span class="bar-label" style="color:var(--violet)">&#9883; AI-Generated</span>
+        <span class="bar-pct">~6 modules &middot; 15%</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" data-width="15" style="background:linear-gradient(90deg,var(--violet),#a78bfa)"></div>
+      </div>
+      <div class="bar-desc">Scripts by Claude, videos via Synthesia/HeyGen. PayoneX-specific walkthroughs where no YouTube content exists.</div>
+    </div>
+
+    <div class="bar-item">
+      <div class="bar-head">
+        <span class="bar-label" style="color:var(--cyan)">&#9997; Reading + Labs</span>
+        <span class="bar-pct">~3 modules &middot; 5%</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" data-width="5" style="background:linear-gradient(90deg,var(--cyan),#22d3ee)"></div>
+      </div>
+      <div class="bar-desc">Original MDX articles and hands-on labs. SWIFT MT103 mapping, Kafka partition design, clearing integration.</div>
+    </div>
+
+  </div>
+
+  <div class="source-philosophy reveal reveal-d4">
+    <h4>Sourcing Philosophy</h4>
+    <p>A brilliant 20-minute YouTube video on RTGS vs DNS is better than anything we&rsquo;d record from scratch.</p>
+    <p>Our value is <strong>curation and sequencing</strong> &mdash; putting the right video in the right place, paired with the right reading and the right quiz.</p>
+    <p>AI videos fill the <strong>PayoneX-specific gaps</strong> &mdash; architecture walkthroughs, ADR deep-dives, component mapping. Content that can&rsquo;t exist on YouTube because the platform is being built as we teach.</p>
+  </div>
+
+</div>
+</section>
+
+<div class="sep"><span class="sep-dot"></span></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     USPs
+     ═══════════════════════════════════════════════════════ -->
+<section id="usps">
+<div class="section-num reveal">05</div>
+<h2 class="section-title reveal reveal-d1">Why This, Not That</h2>
+<p class="section-desc reveal reveal-d2">What makes PayArk fundamentally different from the thousands of payment courses out there.</p>
+
+<div class="g2">
+
+  <div class="card usp-card reveal" style="border-left: 2px solid var(--cyan)">
+    <div class="usp-tag" style="color:var(--cyan)">Real Codebase</div>
+    <h4>Maps to a Living System</h4>
+    <p>&ldquo;Saga Pattern&rdquo; isn&rsquo;t abstract &mdash; it&rsquo;s the actual 5-step accounting service you can read, run, and debug.</p>
+    <div class="vs-row">
+      <div class="vs-col them"><div class="vs-label">Others</div>Generic examples, toy projects</div>
+      <div class="vs-col us"><div class="vs-label">PayArk</div>Real production architecture</div>
+    </div>
+  </div>
+
+  <div class="card usp-card reveal reveal-d1" style="border-left: 2px solid var(--blue)">
+    <div class="usp-tag" style="color:var(--blue)">Domain + Engineering</div>
+    <h4>Both Sides of the Coin</h4>
+    <p>Payment domain (RTGS, clearing, nostro) and engineering (Kafka, DDD, event sourcing) taught together, not in silos.</p>
+    <div class="vs-row">
+      <div class="vs-col them"><div class="vs-label">Others</div>Domain OR engineering, never both</div>
+      <div class="vs-col us"><div class="vs-label">PayArk</div>Integrated from Module 1</div>
+    </div>
+  </div>
+
+  <div class="card usp-card reveal reveal-d2" style="border-left: 2px solid var(--green)">
+    <div class="usp-tag" style="color:var(--green)">Cheat-Proof</div>
+    <h4>Exams That Mean Something</h4>
+    <p>5&times; pools, shuffle, forward-only, timers, 48hr cooldown. Even the developer can&rsquo;t shortcut it.</p>
+    <div class="vs-row">
+      <div class="vs-col them"><div class="vs-label">Others</div>Open-book, unlimited retries</div>
+      <div class="vs-col us"><div class="vs-label">PayArk</div>Integrity-first assessment</div>
+    </div>
+  </div>
+
+  <div class="card usp-card reveal reveal-d3" style="border-left: 2px solid var(--amber)">
+    <div class="usp-tag" style="color:var(--amber)">Micro-Modules</div>
+    <h4>SRP for Learning</h4>
+    <p>One concept per module. No monolithic lectures. 44 focused, completable units.</p>
+    <div class="vs-row">
+      <div class="vs-col them"><div class="vs-label">Others</div>4-hour marathon courses</div>
+      <div class="vs-col us"><div class="vs-label">PayArk</div>Bite-sized, focused</div>
+    </div>
+  </div>
+
+  <div class="card usp-card reveal reveal-d4" style="border-left: 2px solid var(--violet)">
+    <div class="usp-tag" style="color:var(--violet)">Gated Progression</div>
+    <h4>4-Level Certification Path</h4>
+    <p>PAKF &#8594; PAKE &#8594; PAKSA &#8594; PAKA. No skipping. You don&rsquo;t touch architecture until you&rsquo;ve mastered the fundamentals.</p>
+    <div class="vs-row">
+      <div class="vs-col them"><div class="vs-label">Others</div>Flat list, skip anything</div>
+      <div class="vs-col us"><div class="vs-label">PayArk</div>Gated with prerequisites</div>
+    </div>
+  </div>
+
+  <div class="card usp-card reveal reveal-d5" style="border-left: 2px solid var(--rose)">
+    <div class="usp-tag" style="color:var(--rose)">Free &amp; Open</div>
+    <h4>No Paywall</h4>
+    <p>Curriculum, readings, and quizzes are free. Videos curated from free YouTube. AI content at zero cost.</p>
+    <div class="vs-row">
+      <div class="vs-col them"><div class="vs-label">Others</div>$30/month, $200 one-time</div>
+      <div class="vs-col us"><div class="vs-label">PayArk</div>Completely free</div>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<div class="sep"><span class="sep-dot"></span></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     CERTIFICATION LEVELS
+     ═══════════════════════════════════════════════════════ -->
+<section id="levels">
+<div class="section-num reveal">06</div>
+<h2 class="section-title reveal reveal-d1">4-Level Certification Track</h2>
+<p class="section-desc reveal reveal-d2">32 weeks from zero to architect. Each level gates the next.</p>
+
+<div class="cert-track reveal reveal-d3">
+
+  <div class="card cert-level cl-1">
+    <div class="cl-name">PAKF</div>
+    <div class="cl-title">Foundation</div>
+    <div class="cl-meta">M01&ndash;M11 &middot; 8 weeks</div>
+    <ul>
+      <li>How payments work</li>
+      <li>ISO 20022 messages</li>
+      <li>Clearing &amp; settlement</li>
+      <li>Java 21 + Spring Boot</li>
+      <li>Kafka fundamentals</li>
+      <li>PostgreSQL &amp; data modelling</li>
+    </ul>
+    <div class="cl-exam">Exam: <strong>50 questions, 70% pass</strong></div>
+  </div>
+
+  <div class="card cert-level cl-2">
+    <div class="cl-name">PAKE</div>
+    <div class="cl-title">Engineer</div>
+    <div class="cl-meta">M12&ndash;M22 &middot; 8 weeks</div>
+    <ul>
+      <li>Hexagonal architecture</li>
+      <li>Domain-Driven Design</li>
+      <li>Event sourcing</li>
+      <li>Compliance screening</li>
+      <li>Saga pattern</li>
+      <li>Testing strategies</li>
+    </ul>
+    <div class="cl-exam">Exam: <strong>50 questions, 70% pass</strong></div>
+  </div>
+
+  <div class="card cert-level cl-3">
+    <div class="cl-name">PAKSA</div>
+    <div class="cl-title">Senior Architect</div>
+    <div class="cl-meta">M23&ndash;M33 &middot; 8 weeks</div>
+    <ul>
+      <li>Multi-region strategy</li>
+      <li>Clearing adapters</li>
+      <li>Performance engineering</li>
+      <li>Kubernetes &amp; Istio</li>
+      <li>Observability stack</li>
+      <li>Security &amp; CI/CD</li>
+    </ul>
+    <div class="cl-exam">Exam: <strong>50 questions, 70% pass</strong></div>
+  </div>
+
+  <div class="card cert-level cl-4">
+    <div class="cl-name">PAKA</div>
+    <div class="cl-title">Architect</div>
+    <div class="cl-meta">M34&ndash;M44 &middot; 8 weeks</div>
+    <ul>
+      <li>System design capstone</li>
+      <li>Production hardening</li>
+      <li>Disaster recovery</li>
+      <li>Regulatory reporting</li>
+      <li>Architecture review</li>
+      <li>Capstone project</li>
+    </ul>
+    <div class="cl-exam">Exam: <strong>Capstone + Arch Doc + Review</strong></div>
+  </div>
+
+</div>
+</section>
+
+<div class="sep"><span class="sep-dot"></span></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     EXPLORE
+     ═══════════════════════════════════════════════════════ -->
+<section id="explore">
+<div class="section-num reveal">07</div>
+<h2 class="section-title reveal reveal-d1">Dive In</h2>
+<p class="section-desc reveal reveal-d2">PayArk teaches the <a href="payment-architecture.html" style="color:var(--cyan);text-decoration:none;border-bottom:1px solid rgba(6,182,212,.3);transition:var(--tr)">PayoneX architecture</a> &mdash; a 6-tier Kafka-native payment processing pipeline. Explore the full technical deep dive to see what you&rsquo;ll be building.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-mark">Pay<span class="ark">Ark</span> Academy</div>
+  <div class="footer-sub">Payment Engineering Training &middot; 44 Modules &middot; 4 Certifications &middot; Built by Castro</div>
+</footer>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════ -->
+<script>
+function scrollTo_(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    const top = el.getBoundingClientRect().top + window.pageYOffset - 60;
+    window.scrollTo({ top, behavior: 'smooth' });
+  }
+}
+
+// Nav active state
+const sections = document.querySelectorAll('section[id]');
+const navBtns = document.querySelectorAll('.nb');
+const navObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navBtns.forEach(b => b.classList.remove('active'));
+      const match = document.querySelector(`.nb[onclick*="${e.target.id}"]`);
+      if (match) match.classList.add('active');
+    }
+  });
+}, { threshold: 0.15, rootMargin: '-60px 0px -60% 0px' });
+sections.forEach(s => navObs.observe(s));
+
+navBtns.forEach(b => b.addEventListener('click', function() {
+  navBtns.forEach(x => x.classList.remove('active'));
+  this.classList.add('active');
+}));
+
+// Scroll reveal
+const revealEls = document.querySelectorAll('.reveal');
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+revealEls.forEach(el => revealObs.observe(el));
+
+// Source bar fill animation
+const bars = document.querySelectorAll('.bar-fill');
+const barObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.width = e.target.dataset.width + '%';
+      barObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.3 });
+bars.forEach(b => barObs.observe(b));
+</script>
+</body>
+</html>

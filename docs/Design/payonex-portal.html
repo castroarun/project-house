@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayoneX — Enterprise Payment Processing Platform</title>
+<meta name="description" content="Production-grade payment processing across Singapore, Hong Kong, UK, and India. Kafka-driven, event-sourced, ISO 20022 native.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   DESIGN TOKENS
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --bg: #06070b;
+  --bg2: #0c0e16;
+  --bg3: #12141f;
+  --bg4: #1a1d2b;
+  --bdr: #1c2035;
+  --bdr2: #282d48;
+  --t1: #eaecf2;
+  --t2: #8890a8;
+  --t3: #4e5570;
+  --blue: #3b82f6;
+  --cyan: #06b6d4;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --rose: #f43f5e;
+  --violet: #8b5cf6;
+  --orange: #f97316;
+  --kafka: #e8523f;
+  --r: 12px;
+  --tr: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --fd: 'Outfit', -apple-system, sans-serif;
+  --fm: 'JetBrains Mono', monospace;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESET & BASE
+   ═══════════════════════════════════════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body { font-family: var(--fd); background: var(--bg); color: var(--t1); line-height: 1.65; overflow-x: hidden; }
+::selection { background: rgba(59,130,246,.3); color: #fff; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bdr2); border-radius: 3px; }
+
+/* ═══════════════════════════════════════════════════════════
+   ATMOSPHERIC BACKGROUND
+   ═══════════════════════════════════════════════════════════ */
+.atmosphere {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 40% at 50% -10%, rgba(59,130,246,.07), transparent 70%),
+    radial-gradient(circle at 80% 60%, rgba(139,92,246,.04), transparent 50%),
+    radial-gradient(circle at 15% 80%, rgba(6,182,212,.03), transparent 40%);
+}
+.grid-bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .4;
+  background-image:
+    linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 100%);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CONTAINER
+   ═══════════════════════════════════════════════════════════ */
+.c { max-width: 1200px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+
+/* ═══════════════════════════════════════════════════════════
+   SCROLL REVEAL ANIMATIONS
+   ═══════════════════════════════════════════════════════════ */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-d1 { transition-delay: 0.08s; }
+.reveal-d2 { transition-delay: 0.16s; }
+.reveal-d3 { transition-delay: 0.24s; }
+.reveal-d4 { transition-delay: 0.32s; }
+.reveal-d5 { transition-delay: 0.40s; }
+
+/* ═══════════════════════════════════════════════════════════
+   NAVIGATION
+   ═══════════════════════════════════════════════════════════ */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(6,7,11,.7);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  transition: var(--tr);
+}
+nav.scrolled { box-shadow: 0 8px 32px rgba(0,0,0,.4); }
+.nav-inner {
+  max-width: 1200px; margin: 0 auto; padding: 0 32px;
+  display: flex; align-items: center; gap: 2px;
+  overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none;
+  height: 52px;
+}
+.nav-inner::-webkit-scrollbar { display: none; }
+.nav-brand {
+  font-weight: 800; font-size: 16px; letter-spacing: -0.5px;
+  margin-right: 24px; flex-shrink: 0; color: var(--t1);
+}
+.nav-brand span { color: var(--blue); }
+.nb {
+  flex-shrink: 0; padding: 6px 14px; border-radius: 8px;
+  background: 0; border: 0; color: var(--t3);
+  font-size: 12.5px; font-family: var(--fd); font-weight: 500;
+  cursor: pointer; transition: var(--tr); white-space: nowrap;
+}
+.nb:hover { color: var(--t2); background: rgba(255,255,255,.03); }
+.nb.active { color: var(--blue); background: rgba(59,130,246,.08); }
+
+/* ═══════════════════════════════════════════════════════════
+   HERO
+   ═══════════════════════════════════════════════════════════ */
+.hero {
+  padding: 100px 0 80px;
+  position: relative;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 16px; border-radius: 100px;
+  background: rgba(59,130,246,.08);
+  border: 1px solid rgba(59,130,246,.15);
+  font-size: 12px; font-weight: 600; color: var(--blue);
+  text-transform: uppercase; letter-spacing: 2px;
+  font-family: var(--fm); margin-bottom: 28px;
+}
+.hero-badge .pulse {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 0 8px var(--blue);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(.7); } }
+
+.hero h1 {
+  font-size: clamp(48px, 6vw, 80px);
+  font-weight: 900; letter-spacing: -3px; line-height: 1.0;
+  background: linear-gradient(135deg, #fff 0%, var(--blue) 50%, var(--cyan) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 25px rgba(59,130,246,.25));
+  margin-bottom: 20px; position: relative; width: fit-content;
+}
+.hero h1::before {
+  content: ''; position: absolute; bottom: -6px; left: 0;
+  width: 100%; height: 2px; background: var(--bdr); border-radius: 2px;
+}
+.hero h1::after {
+  content: ''; position: absolute; bottom: -10px; right: -2px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan), 0 0 20px rgba(6,182,212,.4);
+  animation: hdr-glow 2s ease-in-out infinite alternate;
+}
+@keyframes hdr-glow {
+  0% { box-shadow: 0 0 8px var(--cyan), 0 0 16px rgba(6,182,212,.3); }
+  100% { box-shadow: 0 0 14px var(--cyan), 0 0 28px rgba(6,182,212,.5); }
+}
+.hero-subtitle {
+  font-size: 15px; color: var(--t3); letter-spacing: 5px;
+  text-transform: uppercase; font-weight: 500;
+  font-family: var(--fm); margin-bottom: 28px;
+}
+.hero-desc {
+  font-size: 18px; color: var(--t2); max-width: 720px;
+  line-height: 1.75; margin-bottom: 40px;
+}
+.hero-desc strong { color: var(--t1); font-weight: 600; }
+
+/* Hero Stats */
+.hero-stats {
+  display: flex; gap: 40px; flex-wrap: wrap;
+  padding-top: 32px; border-top: 1px solid var(--bdr);
+}
+.hero-stat { display: flex; flex-direction: column; gap: 4px; }
+.hero-stat-val {
+  font-size: 28px; font-weight: 800; font-family: var(--fm);
+  letter-spacing: -1px; line-height: 1;
+}
+.hero-stat-label { font-size: 12px; color: var(--t3); font-weight: 500; letter-spacing: 0.5px; }
+.stat-blue { color: var(--blue); }
+.stat-cyan { color: var(--cyan); }
+.stat-green { color: var(--green); }
+.stat-amber { color: var(--amber); }
+.stat-violet { color: var(--violet); }
+.stat-kafka { color: var(--kafka); }
+
+/* Glow orb behind hero */
+.hero-glow {
+  position: absolute; top: -60px; left: 50%; width: 600px; height: 400px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(59,130,246,.08) 0%, transparent 70%);
+  pointer-events: none; z-index: -1;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION STYLES
+   ═══════════════════════════════════════════════════════════ */
+section { padding: 80px 0; }
+.section-divider { width: 100%; height: 1px; background: var(--bdr); }
+.section-label {
+  font-size: 11px; font-family: var(--fm); color: var(--t3);
+  text-transform: uppercase; letter-spacing: 3px; font-weight: 600;
+  margin-bottom: 12px; display: flex; align-items: center; gap: 12px;
+}
+.section-label::before {
+  content: ''; width: 20px; height: 1px; background: var(--t3);
+}
+.section-title {
+  font-size: clamp(28px, 3.5vw, 40px); font-weight: 800;
+  letter-spacing: -1px; margin-bottom: 12px; line-height: 1.15;
+}
+.section-desc {
+  font-size: 16px; color: var(--t2); max-width: 640px;
+  line-height: 1.75; margin-bottom: 48px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GRIDS
+   ═══════════════════════════════════════════════════════════ */
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+/* ═══════════════════════════════════════════════════════════
+   GLASS CARDS
+   ═══════════════════════════════════════════════════════════ */
+.glass {
+  background: rgba(18,20,31,.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.04);
+  border-radius: var(--r); padding: 24px;
+  transition: var(--tr);
+  position: relative; overflow: hidden;
+}
+.glass::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.02) 0%, transparent 60%);
+  pointer-events: none;
+}
+.glass:hover {
+  border-color: rgba(255,255,255,.08);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 48px rgba(0,0,0,.3), 0 0 0 1px rgba(255,255,255,.03);
+}
+.glass h4 { font-size: 16px; font-weight: 700; margin-bottom: 8px; position: relative; }
+.glass p { font-size: 13.5px; color: var(--t2); line-height: 1.7; position: relative; }
+
+/* Card with colored top accent */
+.glass-accent { border-top: 2px solid transparent; }
+
+/* ═══════════════════════════════════════════════════════════
+   PRODUCTION SECTION — BENTO GRID
+   ═══════════════════════════════════════════════════════════ */
+.bento { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.bento-item { position: relative; }
+.bento-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; margin-bottom: 16px;
+  background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.12);
+}
+.bento-icon.green { background: rgba(16,185,129,.08); border-color: rgba(16,185,129,.12); }
+.bento-icon.amber { background: rgba(245,158,11,.08); border-color: rgba(245,158,11,.12); }
+
+/* ═══════════════════════════════════════════════════════════
+   TIER ARCHITECTURE
+   ═══════════════════════════════════════════════════════════ */
+.tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.tier-card { position: relative; overflow: hidden; }
+.tier-number {
+  position: absolute; top: 12px; right: 16px;
+  font-size: 56px; font-weight: 900; font-family: var(--fm);
+  line-height: 1; opacity: .04; letter-spacing: -4px;
+  color: var(--t1);
+}
+.tier-name {
+  font-size: 12px; font-family: var(--fm); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+.tier-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.tier-desc { font-size: 13px; color: var(--t2); line-height: 1.65; margin-bottom: 12px; }
+.tier-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.tier-tag {
+  padding: 3px 10px; border-radius: 6px; font-size: 10.5px;
+  font-family: var(--fm); font-weight: 500;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.05);
+  color: var(--t3);
+}
+
+/* Kafka Event Bus */
+.kafka-bus {
+  margin: 20px 0 0;
+  padding: 16px 0;
+  border-top: 1px solid rgba(232,82,63,.12);
+  border-bottom: 1px solid rgba(232,82,63,.12);
+  position: relative; overflow: hidden;
+  background: linear-gradient(90deg, transparent 0%, rgba(232,82,63,.04) 20%, rgba(232,82,63,.04) 80%, transparent 100%);
+}
+.kafka-bus::before {
+  content: ''; position: absolute; top: 0; left: -100%;
+  width: 200%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--kafka), transparent);
+  animation: kafka-flow 3s linear infinite;
+}
+.kafka-bus::after {
+  content: ''; position: absolute; bottom: 0; right: -100%;
+  width: 200%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--kafka), transparent);
+  animation: kafka-flow 3s linear infinite reverse;
+}
+@keyframes kafka-flow { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
+
+.kafka-label {
+  text-align: center; font-size: 10px; font-family: var(--fm);
+  color: var(--kafka); font-weight: 600; letter-spacing: 3px;
+  text-transform: uppercase; margin-bottom: 10px; opacity: .7;
+}
+.kafka-topics {
+  display: flex; justify-content: center; align-items: center;
+  flex-wrap: wrap; gap: 4px;
+}
+.kafka-topic {
+  padding: 3px 10px; border-radius: 4px; font-size: 10.5px;
+  font-family: var(--fm); font-weight: 500;
+  background: rgba(232,82,63,.06); color: var(--kafka);
+  border: 1px solid rgba(232,82,63,.1);
+}
+.kafka-arrow { color: var(--kafka); opacity: .3; font-size: 10px; margin: 0 2px; }
+
+/* ═══════════════════════════════════════════════════════════
+   ADR DECISION CARDS
+   ═══════════════════════════════════════════════════════════ */
+.adr-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.adr-card { position: relative; }
+.adr-badge {
+  position: absolute; top: 20px; right: 20px;
+  font-size: 10px; font-family: var(--fm); font-weight: 700;
+  padding: 3px 10px; border-radius: 6px; letter-spacing: 1.5px;
+  background: rgba(59,130,246,.08); color: var(--blue);
+  border: 1px solid rgba(59,130,246,.12);
+}
+.adr-question { font-size: 11px; color: var(--t3); font-style: italic; margin-bottom: 10px; position: relative; }
+.adr-chose {
+  font-size: 12.5px; font-family: var(--fm); margin-bottom: 12px;
+  position: relative;
+}
+.adr-chose .chose { color: var(--green); font-weight: 600; }
+.adr-chose .over { color: var(--t3); }
+.adr-reason { font-size: 13px; color: var(--t2); line-height: 1.7; position: relative; }
+
+/* ═══════════════════════════════════════════════════════════
+   VOCABULARY — HORIZONTAL SCROLL CARDS
+   ═══════════════════════════════════════════════════════════ */
+.vocab-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.vocab-card { border-left: 3px solid transparent; padding-left: 24px; }
+.vocab-label {
+  font-size: 10px; font-family: var(--fm); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;
+}
+.vocab-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; position: relative; }
+.vocab-desc { font-size: 13.5px; color: var(--t2); line-height: 1.75; position: relative; }
+
+/* ═══════════════════════════════════════════════════════════
+   PATTERNS — CLEAN TABLE
+   ═══════════════════════════════════════════════════════════ */
+.patterns-table {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  border-radius: var(--r); overflow: hidden;
+  border: 1px solid var(--bdr); font-size: 13px;
+}
+.patterns-table thead { background: var(--bg4); }
+.patterns-table th {
+  padding: 12px 20px; text-align: left; font-size: 10.5px;
+  font-family: var(--fm); color: var(--t3); text-transform: uppercase;
+  letter-spacing: 2px; font-weight: 600; border-bottom: 1px solid var(--bdr);
+}
+.patterns-table td {
+  padding: 14px 20px; border-bottom: 1px solid var(--bdr); color: var(--t2);
+  line-height: 1.6;
+}
+.patterns-table tr:last-child td { border-bottom: 0; }
+.patterns-table tr { transition: var(--tr); }
+.patterns-table tr:hover { background: rgba(255,255,255,.015); }
+.patterns-table td:first-child { color: var(--t1); font-weight: 600; white-space: nowrap; }
+.patterns-table .pattern-dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  margin-right: 8px; vertical-align: middle;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ROADMAP — PHASE CARDS HORIZONTAL
+   ═══════════════════════════════════════════════════════════ */
+.roadmap-track {
+  display: flex; gap: 12px; overflow-x: auto;
+  padding-bottom: 16px; scroll-snap-type: x mandatory;
+  -ms-overflow-style: none; scrollbar-width: none;
+}
+.roadmap-track::-webkit-scrollbar { display: none; }
+.phase-card {
+  min-width: 240px; flex: 1; scroll-snap-align: start;
+  border-top: 3px solid var(--bdr); position: relative;
+}
+.phase-number {
+  font-size: 48px; font-weight: 900; font-family: var(--fm);
+  letter-spacing: -3px; line-height: 1; margin-bottom: 4px; opacity: .9;
+}
+.phase-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; position: relative; }
+.phase-duration {
+  font-size: 11px; font-family: var(--fm); color: var(--t3);
+  margin-bottom: 12px; position: relative;
+}
+.phase-badge {
+  display: inline-block; padding: 2px 10px; border-radius: 6px;
+  font-size: 10px; font-family: var(--fm); font-weight: 700;
+  letter-spacing: 1px; margin-bottom: 14px;
+}
+.badge-done { background: rgba(16,185,129,.12); color: var(--green); border: 1px solid rgba(16,185,129,.15); }
+.badge-next { background: rgba(59,130,246,.12); color: var(--blue); border: 1px solid rgba(59,130,246,.15); }
+.badge-planned { background: rgba(78,85,112,.1); color: var(--t3); border: 1px solid rgba(78,85,112,.15); }
+.phase-deliverables { list-style: none; padding: 0; }
+.phase-deliverables li {
+  font-size: 12px; color: var(--t2); padding: 4px 0 4px 16px;
+  position: relative; line-height: 1.55;
+}
+.phase-deliverables li::before {
+  content: ''; width: 3px; height: 3px; border-radius: 50%;
+  position: absolute; left: 0; top: 11px;
+}
+
+/* Phase colors */
+.phase-0 { border-top-color: var(--green); }
+.phase-0 .phase-number { color: var(--green); }
+.phase-0 .phase-deliverables li::before { background: var(--green); }
+
+.phase-1 { border-top-color: var(--blue); }
+.phase-1 .phase-number { color: var(--blue); }
+.phase-1 .phase-deliverables li::before { background: var(--blue); }
+
+.phase-2 { border-top-color: var(--amber); }
+.phase-2 .phase-number { color: var(--amber); }
+.phase-2 .phase-deliverables li::before { background: var(--amber); }
+
+.phase-3 { border-top-color: var(--violet); }
+.phase-3 .phase-number { color: var(--violet); }
+.phase-3 .phase-deliverables li::before { background: var(--violet); }
+
+.phase-4 { border-top-color: var(--rose); }
+.phase-4 .phase-number { color: var(--rose); }
+.phase-4 .phase-deliverables li::before { background: var(--rose); }
+
+/* ═══════════════════════════════════════════════════════════
+   INFRASTRUCTURE
+   ═══════════════════════════════════════════════════════════ */
+.infra-callout {
+  background: rgba(245,158,11,.04);
+  border: 1px solid rgba(245,158,11,.1);
+  border-left: 3px solid var(--amber);
+  border-radius: var(--r); padding: 16px 20px;
+  margin-bottom: 32px;
+}
+.infra-callout h4 { font-size: 13px; font-weight: 700; color: var(--amber); margin-bottom: 4px; }
+.infra-callout p { font-size: 12.5px; color: var(--t2); line-height: 1.6; }
+
+/* ═══════════════════════════════════════════════════════════
+   EXPLORE CARDS — GRADIENT BORDER ON HOVER
+   ═══════════════════════════════════════════════════════════ */
+.explore-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.explore-card {
+  text-decoration: none; color: inherit;
+  background: var(--bg3); border: 1px solid var(--bdr);
+  border-radius: var(--r); padding: 28px;
+  transition: var(--tr); display: block;
+  position: relative;
+}
+.explore-card:hover {
+  border-color: var(--bdr2);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 48px rgba(0,0,0,.3);
+}
+.explore-card h4 {
+  font-size: 16px; font-weight: 700; margin-bottom: 6px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.explore-card .arrow {
+  font-size: 18px; color: var(--blue); transition: var(--tr);
+  opacity: .5;
+}
+.explore-card:hover .arrow { transform: translateX(4px); opacity: 1; }
+.explore-card p { font-size: 13px; color: var(--t2); line-height: 1.7; }
+.explore-card .explore-tag {
+  display: inline-block; margin-top: 12px; padding: 3px 10px;
+  border-radius: 6px; font-size: 10px; font-family: var(--fm);
+  font-weight: 600; letter-spacing: 1px;
+  background: rgba(59,130,246,.08); color: var(--blue);
+  border: 1px solid rgba(59,130,246,.1);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════════════ */
+.footer {
+  padding: 48px 0; border-top: 1px solid var(--bdr);
+  text-align: center;
+}
+.footer-brand {
+  font-size: 18px; font-weight: 800; letter-spacing: -0.5px;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, var(--t1), var(--blue));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.footer-sub { font-size: 12px; color: var(--t3); font-family: var(--fm); margin-bottom: 4px; }
+.footer-credit { font-size: 11px; color: var(--t3); opacity: .5; }
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .tier-grid { grid-template-columns: repeat(2, 1fr); }
+  .adr-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  .c { padding: 0 20px; }
+  .hero { padding: 60px 0 48px; }
+  .hero h1 { font-size: 40px; letter-spacing: -2px; }
+  .hero-stats { gap: 24px; }
+  section { padding: 56px 0; }
+  .tier-grid, .bento, .adr-grid, .vocab-grid, .explore-grid, .grid-2, .grid-3, .grid-4 {
+    grid-template-columns: 1fr;
+  }
+  .roadmap-track { gap: 12px; }
+  .phase-card { min-width: 220px; }
+  .nav-brand { display: none; }
+}
+@media (max-width: 480px) {
+  .hero-stats { gap: 20px; }
+  .hero-stat-val { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+
+<div class="atmosphere"></div>
+<div class="grid-bg"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     NAVIGATION
+     ═══════════════════════════════════════════════════════ -->
+<nav id="nav">
+<div class="nav-inner">
+  <div class="nav-brand">Payone<span>X</span></div>
+  <button class="nb active" onclick="scrollTo_('hero')">Overview</button>
+  <button class="nb" onclick="scrollTo_('production')">Production</button>
+  <button class="nb" onclick="scrollTo_('architecture')">Architecture</button>
+  <button class="nb" onclick="scrollTo_('decisions')">Decisions</button>
+  <button class="nb" onclick="scrollTo_('vocabulary')">Vocabulary</button>
+  <button class="nb" onclick="scrollTo_('patterns')">Patterns</button>
+  <button class="nb" onclick="scrollTo_('roadmap')">Roadmap</button>
+  <button class="nb" onclick="scrollTo_('infra')">Infrastructure</button>
+  <button class="nb" onclick="scrollTo_('explore')">Explore</button>
+</div>
+</nav>
+
+<div class="c">
+
+<!-- ═══════════════════════════════════════════════════════
+     HERO
+     ═══════════════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+<div class="hero-glow"></div>
+
+<div class="reveal">
+  <div class="hero-badge">
+    <span class="pulse"></span>
+    Architecture Portal
+  </div>
+</div>
+
+<h1 class="reveal reveal-d1">PayoneX</h1>
+<p class="hero-subtitle reveal reveal-d2">Enterprise Payment Processing Platform</p>
+
+<p class="hero-desc reveal reveal-d3">
+  A <strong>production-grade</strong> payment processing platform engineered for real clearing house integration across Singapore, Hong Kong, UK, and India. Kafka-driven, event-sourced, ISO 20022 native &mdash; built for go-live, not for demo.
+</p>
+
+<div class="hero-stats reveal reveal-d4">
+  <div class="hero-stat">
+    <span class="hero-stat-val stat-blue" data-count="6">0</span>
+    <span class="hero-stat-label">Architecture Tiers</span>
+  </div>
+  <div class="hero-stat">
+    <span class="hero-stat-val stat-cyan" data-count="5">0</span>
+    <span class="hero-stat-label">Clearing Rails</span>
+  </div>
+  <div class="hero-stat">
+    <span class="hero-stat-val stat-green" data-count="4">0</span>
+    <span class="hero-stat-label">Regions</span>
+  </div>
+  <div class="hero-stat">
+    <span class="hero-stat-val stat-amber">10K</span>
+    <span class="hero-stat-label">Target TPS</span>
+  </div>
+  <div class="hero-stat">
+    <span class="hero-stat-val stat-violet">99.99%</span>
+    <span class="hero-stat-label">Availability SLA</span>
+  </div>
+  <div class="hero-stat">
+    <span class="hero-stat-val stat-kafka">ISO 20022</span>
+    <span class="hero-stat-label">Native Messaging</span>
+  </div>
+</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PRODUCTION GO-LIVE
+     ═══════════════════════════════════════════════════════ -->
+<section id="production">
+<div class="section-label reveal">01 &mdash; Purpose</div>
+<h2 class="section-title reveal reveal-d1">Built for Production Go-Live</h2>
+<p class="section-desc reveal reveal-d2">Not a proof-of-concept. Not a tutorial project. Engineered end-to-end for live payment processing with real clearing house connectivity.</p>
+
+<div class="bento">
+  <div class="glass bento-item reveal reveal-d1">
+    <div class="bento-icon">&#9878;</div>
+    <h4>Real Clearing Integration</h4>
+    <p>Connects to FAST, MEPS+, CHATS, Faster Payments, RTGS, and SWIFT gpi. Each clearing house has its own protocol adapter with operating hour validation, format translation, and minimum amount enforcement.</p>
+  </div>
+  <div class="glass bento-item reveal reveal-d2">
+    <div class="bento-icon green">&#9889;</div>
+    <h4>Full Payment Lifecycle</h4>
+    <p>Every payment flows through ingestion, validation, compliance screening, clearing submission, double-entry accounting, and reconciliation. The complete lifecycle &mdash; from pacs.008 in to pacs.002 out.</p>
+  </div>
+  <div class="glass bento-item reveal reveal-d3">
+    <div class="bento-icon amber">&#9881;</div>
+    <h4>Performance Validated</h4>
+    <p>Designed for 10,000 transactions per second with sub-5-second end-to-end latency on real-time rails. Load tested before any line goes to production. Self-healing with circuit breakers and 3-tier DLQ retry.</p>
+  </div>
+</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ARCHITECTURE
+     ═══════════════════════════════════════════════════════ -->
+<section id="architecture">
+<div class="section-label reveal">02 &mdash; Architecture</div>
+<h2 class="section-title reveal reveal-d1">6-Tier Kafka-Driven Pipeline</h2>
+<p class="section-desc reveal reveal-d2">Six bounded contexts connected by Apache Kafka. Each tier owns its data, scales independently, and communicates through immutable events.</p>
+
+<div class="tier-grid">
+
+  <div class="glass tier-card glass-accent reveal" style="border-top-color: var(--blue)">
+    <div class="tier-number">01</div>
+    <div class="tier-name" style="color: var(--blue)">Tier 1</div>
+    <div class="tier-title">Ingestion Gateway</div>
+    <div class="tier-desc">Multi-protocol entry &mdash; IBM MQ, SFTP, REST, gRPC. ISO 20022 native parsing with idempotent deduplication.</div>
+    <div class="tier-tags">
+      <span class="tier-tag">IBM MQ</span>
+      <span class="tier-tag">gRPC</span>
+      <span class="tier-tag">Dedup</span>
+    </div>
+  </div>
+
+  <div class="glass tier-card glass-accent reveal reveal-d1" style="border-top-color: var(--cyan)">
+    <div class="tier-number">02</div>
+    <div class="tier-name" style="color: var(--cyan)">Tier 2</div>
+    <div class="tier-title">Message Processing</div>
+    <div class="tier-desc">Schema validation, MT&#8594;MX conversion, BIC/IBAN enrichment, FX rate resolution.</div>
+    <div class="tier-tags">
+      <span class="tier-tag">ISO 20022</span>
+      <span class="tier-tag">SWIFT</span>
+      <span class="tier-tag">FX</span>
+    </div>
+  </div>
+
+  <div class="glass tier-card glass-accent reveal reveal-d2" style="border-top-color: var(--amber)">
+    <div class="tier-number">03</div>
+    <div class="tier-name" style="color: var(--amber)">Tier 3</div>
+    <div class="tier-title">Compliance Screening</div>
+    <div class="tier-desc">Parallel sanctions (OFAC/EU/UN), AML rules, fraud ML scoring, PEP check &mdash; all 4 engines in &lt;500ms via internal async saga.</div>
+    <div class="tier-tags">
+      <span class="tier-tag">OFAC</span>
+      <span class="tier-tag">AML</span>
+      <span class="tier-tag">Fraud ML</span>
+      <span class="tier-tag">PEP</span>
+    </div>
+  </div>
+
+  <div class="glass tier-card glass-accent reveal reveal-d3" style="border-top-color: var(--green)">
+    <div class="tier-number">04</div>
+    <div class="tier-name" style="color: var(--green)">Tier 4</div>
+    <div class="tier-title">Routing &amp; Clearing</div>
+    <div class="tier-desc">Country-specific clearing adapters selected at runtime via Strategy pattern. FAST, MEPS+, CHATS, FPS, SWIFT gpi.</div>
+    <div class="tier-tags">
+      <span class="tier-tag">Strategy</span>
+      <span class="tier-tag">ACL</span>
+    </div>
+  </div>
+
+  <div class="glass tier-card glass-accent reveal reveal-d4" style="border-top-color: var(--violet)">
+    <div class="tier-number">05</div>
+    <div class="tier-name" style="color: var(--violet)">Tier 5</div>
+    <div class="tier-title">Accounting &amp; Settlement</div>
+    <div class="tier-desc">5-step Accounting Saga with double-entry ledger. Nostro/Vostro settlement. Auto-reversing compensating transactions on failure.</div>
+    <div class="tier-tags">
+      <span class="tier-tag">Saga</span>
+      <span class="tier-tag">Ledger</span>
+      <span class="tier-tag">Nostro</span>
+    </div>
+  </div>
+
+  <div class="glass tier-card glass-accent reveal reveal-d5" style="border-top-color: var(--rose)">
+    <div class="tier-number">06</div>
+    <div class="tier-name" style="color: var(--rose)">Tier 6</div>
+    <div class="tier-title">Reporting &amp; Recon</div>
+    <div class="tier-desc">Real-time Grafana dashboards, regulatory reporting, EOD reconciliation engine. ClickHouse for analytics at scale.</div>
+    <div class="tier-tags">
+      <span class="tier-tag">ClickHouse</span>
+      <span class="tier-tag">Grafana</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Kafka Event Bus -->
+<div class="kafka-bus reveal" style="margin-top: 24px;">
+  <div class="kafka-label">Apache Kafka Event Bus</div>
+  <div class="kafka-topics">
+    <span class="kafka-topic">payments.inbound.raw</span>
+    <span class="kafka-arrow">&#9654;</span>
+    <span class="kafka-topic">payments.parsed</span>
+    <span class="kafka-arrow">&#9654;</span>
+    <span class="kafka-topic">payments.enriched</span>
+    <span class="kafka-arrow">&#9654;</span>
+    <span class="kafka-topic">payments.compliance</span>
+    <span class="kafka-arrow">&#9654;</span>
+    <span class="kafka-topic">payments.clearing</span>
+    <span class="kafka-arrow">&#9654;</span>
+    <span class="kafka-topic">payments.accounting.booked</span>
+    <span class="kafka-arrow">&#9654;</span>
+    <span class="kafka-topic">payments.status.changes</span>
+  </div>
+</div>
+
+<div style="text-align: right; margin-top: 20px;" class="reveal">
+  <a href="payment-architecture.html" style="font-size: 13px; font-family: var(--fm); color: var(--blue); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: var(--tr); opacity: .8;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.8'">
+    Explore Full Architecture <span style="transition: var(--tr);">&#8594;</span>
+  </a>
+</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ARCHITECTURE DECISIONS
+     ═══════════════════════════════════════════════════════ -->
+<section id="decisions">
+<div class="section-label reveal">03 &mdash; Decisions</div>
+<h2 class="section-title reveal reveal-d1">Architecture Decision Records</h2>
+<p class="section-desc reveal reveal-d2">Every significant technical decision is documented with context, alternatives considered, and rationale. No hand-waving.</p>
+
+<div class="adr-grid">
+
+  <div class="glass adr-card reveal">
+    <span class="adr-badge">ADR-001</span>
+    <div class="adr-question">&ldquo;Which event streaming platform?&rdquo;</div>
+    <h4>Event Streaming</h4>
+    <div class="adr-chose">
+      <span class="chose">&#10003; Apache Kafka</span> <span class="over">over RabbitMQ, AWS SQS</span>
+    </div>
+    <div class="adr-reason">Immutable log = audit trail + replay + event sourcing. Payment systems cannot lose events. Partition-key ordering guarantees per-payment sequencing.</div>
+  </div>
+
+  <div class="glass adr-card reveal reveal-d1">
+    <span class="adr-badge">ADR-002</span>
+    <div class="adr-question">&ldquo;What architecture pattern for domain isolation?&rdquo;</div>
+    <h4>Architecture Pattern</h4>
+    <div class="adr-chose">
+      <span class="chose">&#10003; Hexagonal + Event Sourcing</span> <span class="over">over Layered MVC</span>
+    </div>
+    <div class="adr-reason">Domain logic is completely isolated from infrastructure. Each region uses different adapters, same core. Ports &amp; adapters make clearing house protocols swappable.</div>
+  </div>
+
+  <div class="glass adr-card reveal reveal-d2">
+    <span class="adr-badge">ADR-003</span>
+    <div class="adr-question">&ldquo;Separate codebases per region, or one?&rdquo;</div>
+    <h4>Multi-Region Strategy</h4>
+    <div class="adr-chose">
+      <span class="chose">&#10003; Config-Driven Adapters</span> <span class="over">over Per-region forks</span>
+    </div>
+    <div class="adr-reason">One Docker image, one pipeline. Config decides which clearing adapters, compliance rules, and operating hours activate at startup. Add a new country = add one adapter config.</div>
+  </div>
+
+  <div class="glass adr-card reveal reveal-d3">
+    <span class="adr-badge">ADR-004</span>
+    <div class="adr-question">&ldquo;Sequential compliance or parallel?&rdquo;</div>
+    <h4>Compliance Engine</h4>
+    <div class="adr-chose">
+      <span class="chose">&#10003; Internal Async Saga</span> <span class="over">over Sequential pipeline</span>
+    </div>
+    <div class="adr-reason">4 screening engines run as parallel futures inside Tier 3. Aggregator waits for all, publishes single event. Sub-500ms total instead of 2s sequential.</div>
+  </div>
+
+</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAYONEX VOCABULARY
+     ═══════════════════════════════════════════════════════ -->
+<section id="vocabulary">
+<div class="section-label reveal">04 &mdash; Vocabulary</div>
+<h2 class="section-title reveal reveal-d1">PayoneX Vocabulary</h2>
+<p class="section-desc reveal reveal-d2">Concepts we coined to solve real payment engineering problems. Each addresses a gap that no off-the-shelf pattern fully covers.</p>
+
+<div class="vocab-grid">
+
+  <div class="glass vocab-card reveal" style="border-left-color: var(--amber)">
+    <div class="vocab-label" style="color: var(--amber)">Phantom</div>
+    <div class="vocab-title">Clearing House Simulator</div>
+    <div class="vocab-desc">A standalone Docker container that simulates every clearing house response &mdash; ACSC success, RJCT rejection, timeout, partial settlement, network error. You can&rsquo;t test against FAST or MEPS+ in dev. Phantom replaces the real clearing network so the full payment lifecycle runs end-to-end without a live connection.</div>
+  </div>
+
+  <div class="glass vocab-card reveal reveal-d1" style="border-left-color: var(--cyan)">
+    <div class="vocab-label" style="color: var(--cyan)">Anti-Corruption Layer</div>
+    <div class="vocab-title">Protocol Translator</div>
+    <div class="vocab-desc">Each clearing house speaks a different protocol dialect. ACL adapters isolate their quirks &mdash; message format translation, operating hour validation, minimum amount enforcement &mdash; so the core domain never knows if it&rsquo;s talking to Singapore FAST or UK Faster Payments.</div>
+  </div>
+
+  <div class="glass vocab-card reveal reveal-d2" style="border-left-color: var(--green)">
+    <div class="vocab-label" style="color: var(--green)">Config-Driven Region</div>
+    <div class="vocab-title">One Image, Any Country</div>
+    <div class="vocab-desc">Same Docker image processes Singapore, Hong Kong, UK, and India. No fork, no separate deployment. A config file decides which clearing adapters, compliance rules, and operating hours activate at startup. Add a new country = add one adapter config.</div>
+  </div>
+
+  <div class="glass vocab-card reveal reveal-d3" style="border-left-color: var(--violet)">
+    <div class="vocab-label" style="color: var(--violet)">Accounting Saga</div>
+    <div class="vocab-title">5-Step Settlement</div>
+    <div class="vocab-desc">A 5-step double-entry transaction split across clearing. <strong style="color:var(--t1)">Part 1</strong> (pre-clearing): debit customer, calculate fees, FX convert. <strong style="color:var(--t1)">Part 2</strong> (post-clearing): settle Nostro, GL posting. On rejection, all steps auto-reverse in order &mdash; zero manual reconciliation.</div>
+  </div>
+
+</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     ENGINEERING PATTERNS
+     ═══════════════════════════════════════════════════════ -->
+<section id="patterns">
+<div class="section-label reveal">05 &mdash; Patterns</div>
+<h2 class="section-title reveal reveal-d1">Engineering Patterns</h2>
+<p class="section-desc reveal reveal-d2">Battle-tested patterns chosen for payment processing. Each solves a specific problem &mdash; no pattern is included for resume points.</p>
+
+<div class="reveal reveal-d3">
+<table class="patterns-table">
+<thead>
+<tr>
+  <th style="width: 24%">Pattern</th>
+  <th style="width: 26%">Why</th>
+  <th>In PayoneX</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><span class="pattern-dot" style="background: var(--blue)"></span>Hexagonal Architecture</td>
+  <td>Domain never depends on infra</td>
+  <td>Core payment logic is protocol-agnostic &mdash; Kafka, REST, or IBM MQ are just adapters</td>
+</tr>
+<tr>
+  <td><span class="pattern-dot" style="background: var(--cyan)"></span>Event Sourcing</td>
+  <td>Every change is an immutable event</td>
+  <td>Full audit trail. Replay any payment from inception. Zero data loss on failure</td>
+</tr>
+<tr>
+  <td><span class="pattern-dot" style="background: var(--green)"></span>Domain-Driven Design</td>
+  <td>Bounded contexts with clear ownership</td>
+  <td>6 services, each owns its database. No shared state, no coupling</td>
+</tr>
+<tr>
+  <td><span class="pattern-dot" style="background: var(--violet)"></span>Saga Pattern</td>
+  <td>Multi-step transactions, auto-rollback</td>
+  <td>5-step accounting. If settlement fails, all prior entries auto-reverse</td>
+</tr>
+<tr>
+  <td><span class="pattern-dot" style="background: var(--amber)"></span>Strategy Pattern</td>
+  <td>Pluggable algorithms at runtime</td>
+  <td>Clearing adapters discovered by config. Add a country = add one adapter</td>
+</tr>
+<tr>
+  <td><span class="pattern-dot" style="background: var(--orange)"></span>Anti-Corruption Layer</td>
+  <td>Shield domain from external quirks</td>
+  <td>Each clearing house gets its own translator. FAST quirks stay in FAST&rsquo;s adapter</td>
+</tr>
+<tr>
+  <td><span class="pattern-dot" style="background: var(--rose)"></span>Circuit Breaker</td>
+  <td>Fail fast, recover automatically</td>
+  <td>Resilience4j: 3 failures &#8594; OPEN, auto-retry in 30s &#8594; HALF-OPEN</td>
+</tr>
+<tr>
+  <td><span class="pattern-dot" style="background: var(--kafka)"></span>Transactional Outbox</td>
+  <td>Exactly-once event publishing</td>
+  <td>Debezium CDC ensures every event reaches Kafka, even if service crashes mid-write</td>
+</tr>
+<tr>
+  <td><span class="pattern-dot" style="background: var(--t3)"></span>SOLID + CUPID</td>
+  <td>Clean, testable, composable code</td>
+  <td>SRP, open-closed, dependency inversion &mdash; enforced by coding standards</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     BUILD ROADMAP
+     ═══════════════════════════════════════════════════════ -->
+<section id="roadmap">
+<div class="section-label reveal">06 &mdash; Roadmap</div>
+<h2 class="section-title reveal reveal-d1">Build Roadmap</h2>
+<p class="section-desc reveal reveal-d2">Every phase ends with a deployable deliverable. Sizing is indicative and will be revisited as the build progresses.</p>
+
+<div class="roadmap-track reveal reveal-d3">
+
+  <!-- Phase 0 -->
+  <div class="glass phase-card phase-0">
+    <div class="phase-number">0</div>
+    <div class="phase-name">Design</div>
+    <div class="phase-duration">3 weeks</div>
+    <span class="phase-badge badge-done">DONE</span>
+    <ul class="phase-deliverables">
+      <li>6-tier architecture design</li>
+      <li>4 Architecture Decision Records</li>
+      <li>7 interactive flow visualizations</li>
+      <li>Clearing house integration matrix</li>
+      <li>PayArk 44-module training curriculum</li>
+      <li>PayArk Academy app (Module 1 live)</li>
+    </ul>
+  </div>
+
+  <!-- Phase 1 -->
+  <div class="glass phase-card phase-1">
+    <div class="phase-number">1</div>
+    <div class="phase-name">Foundation</div>
+    <div class="phase-duration">8 weeks</div>
+    <span class="phase-badge badge-next">NEXT</span>
+    <ul class="phase-deliverables">
+      <li>Kafka cluster (24 partitions, RF=3)</li>
+      <li>Ingestion Gateway (MQ + REST + gRPC)</li>
+      <li>ISO 20022 parser (pacs.008, pacs.002)</li>
+      <li>Tier 2 validation + BIC/IBAN enrichment</li>
+      <li>Phantom simulator v1</li>
+      <li>Docker Compose local dev stack</li>
+    </ul>
+  </div>
+
+  <!-- Phase 2 -->
+  <div class="glass phase-card phase-2">
+    <div class="phase-number">2</div>
+    <div class="phase-name">Compliance</div>
+    <div class="phase-duration">6 weeks</div>
+    <span class="phase-badge badge-planned">PLANNED</span>
+    <ul class="phase-deliverables">
+      <li>Sanctions engine (OFAC/EU/UN)</li>
+      <li>AML rules engine</li>
+      <li>Fraud ML scoring model</li>
+      <li>PEP screening</li>
+      <li>Async Saga orchestrator</li>
+      <li>Compliance audit trail + investigation UI</li>
+    </ul>
+  </div>
+
+  <!-- Phase 3 -->
+  <div class="glass phase-card phase-3">
+    <div class="phase-number">3</div>
+    <div class="phase-name">Clearing &amp; Settlement</div>
+    <div class="phase-duration">8 weeks</div>
+    <span class="phase-badge badge-planned">PLANNED</span>
+    <ul class="phase-deliverables">
+      <li>FAST adapter (Singapore)</li>
+      <li>MEPS+ adapter (MAS)</li>
+      <li>ACL framework for new regions</li>
+      <li>5-step Accounting Saga</li>
+      <li>Double-entry ledger + Nostro/Vostro</li>
+      <li>Settlement reconciliation engine</li>
+    </ul>
+  </div>
+
+  <!-- Phase 4 -->
+  <div class="glass phase-card phase-4">
+    <div class="phase-number">4</div>
+    <div class="phase-name">Go-Live</div>
+    <div class="phase-duration">4 weeks</div>
+    <span class="phase-badge badge-planned">PLANNED</span>
+    <ul class="phase-deliverables">
+      <li>Grafana operational dashboards</li>
+      <li>EOD reconciliation reports</li>
+      <li>Performance testing (10K TPS)</li>
+      <li>Circuit breaker tuning</li>
+      <li>Deployment runbooks</li>
+      <li>Production readiness review</li>
+    </ul>
+  </div>
+
+</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     INFRASTRUCTURE
+     ═══════════════════════════════════════════════════════ -->
+<section id="infra">
+<div class="section-label reveal">07 &mdash; Infrastructure</div>
+<h2 class="section-title reveal reveal-d1">Development Infrastructure</h2>
+<p class="section-desc reveal reveal-d2">PayoneX runs a heavy local stack &mdash; Kafka, PostgreSQL+Citus, Redis, ClickHouse, 6+ Spring Boot microservices. Development based in Chennai, India.</p>
+
+<div class="infra-callout reveal reveal-d3">
+  <h4>Sizing Disclaimer</h4>
+  <p>Hardware estimates are indicative and will be revisited as the build progresses. These are starting figures based on the planned architecture stack.</p>
+</div>
+
+<div class="reveal reveal-d3">
+<table class="patterns-table">
+<thead>
+<tr>
+  <th>Component</th>
+  <th>Requirement</th>
+  <th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>CPU</td>
+  <td>16+ cores (H-series)</td>
+  <td>Kafka + K8s + multiple JVMs run concurrent on dev machine</td>
+</tr>
+<tr>
+  <td>RAM</td>
+  <td>64 GB DDR5 minimum</td>
+  <td>Kafka 8G + PostgreSQL 8G + Redis 4G + ClickHouse 4G + 6 JVMs + IDE</td>
+</tr>
+<tr>
+  <td>Storage</td>
+  <td>2 TB NVMe Gen4</td>
+  <td>Kafka logs + database writes = heavy sequential I/O</td>
+</tr>
+<tr>
+  <td>Display</td>
+  <td>16" 1440p+</td>
+  <td>Multi-pane development with dashboards and monitoring</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div style="margin-top: 28px;">
+  <div class="section-label reveal" style="margin-bottom: 16px">Power Protection</div>
+  <div class="grid-3">
+    <div class="glass reveal">
+      <h4 style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+        <span style="font-size: 18px;">&#128267;</span> Laptop = Built-in UPS
+      </h4>
+      <p>1&ndash;3 hours battery handles Chennai power outages. Work continues uninterrupted.</p>
+    </div>
+    <div class="glass reveal reveal-d1">
+      <h4 style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+        <span style="font-size: 18px;">&#9889;</span> Mini UPS for Networking
+      </h4>
+      <p>12V UPS keeps router + switch alive during outages (INR 2&ndash;3K investment).</p>
+    </div>
+    <div class="glass reveal reveal-d2">
+      <h4 style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+        <span style="font-size: 18px;">&#128737;</span> Data Protection
+      </h4>
+      <p>Kafka acks=all, PostgreSQL fsync=on, Redis AOF, NVMe with PLP.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     EXPLORE
+     ═══════════════════════════════════════════════════════ -->
+<section id="explore">
+<div class="section-label reveal">08 &mdash; Explore</div>
+<h2 class="section-title reveal reveal-d1">Explore the Design</h2>
+
+<div class="explore-grid">
+
+  <a href="payment-architecture.html" class="explore-card reveal">
+    <h4>System Architecture <span class="arrow">&#8594;</span></h4>
+    <p>Full 6-tier architecture with inbound/outbound flows, metro maps, clearing house matrix, and production SLA targets.</p>
+    <span class="explore-tag">Interactive HTML</span>
+  </a>
+
+  <a href="flow-metro-map.html" class="explore-card reveal reveal-d1">
+    <h4>Payment Metro Map <span class="arrow">&#8594;</span></h4>
+    <p>Transit-style visualization of the complete inbound FAST payment flow with Kafka interchanges and compliance fan-out.</p>
+    <span class="explore-tag">Interactive HTML</span>
+  </a>
+
+  <a href="payark-skilltree-hybrid.html" class="explore-card reveal reveal-d2">
+    <h4>PayArk Skill Tree <span class="arrow">&#8594;</span></h4>
+    <p>44-module training curriculum across 4 certification levels (PAKF, PAKE, PAKSA, PAKA) with interactive module details.</p>
+    <span class="explore-tag">Interactive HTML</span>
+  </a>
+
+  <a href="https://github.com/castroarun/payark-academy" class="explore-card reveal reveal-d3">
+    <h4>PayArk Academy <span class="arrow">&#8594;</span></h4>
+    <p>Live training app &mdash; Module 1 &ldquo;How Payments Work&rdquo; with video lessons, reading articles, hands-on labs, and assessments.</p>
+    <span class="explore-tag" style="background: rgba(16,185,129,.08); color: var(--green); border-color: rgba(16,185,129,.1);">Next.js App</span>
+  </a>
+
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-brand">PayoneX</div>
+  <div class="footer-sub">Enterprise Payment Processing Platform &middot; Architecture v2.0</div>
+  <div class="footer-credit">Designed and built by Castro</div>
+</footer>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════ -->
+<script>
+// ── Smooth scroll ──
+function scrollTo_(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    const offset = 60;
+    const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+    window.scrollTo({ top, behavior: 'smooth' });
+  }
+}
+
+// ── Nav active state via IntersectionObserver ──
+const sections = document.querySelectorAll('section[id]');
+const navBtns = document.querySelectorAll('.nb');
+
+const navObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navBtns.forEach(b => b.classList.remove('active'));
+      const match = document.querySelector(`.nb[onclick*="${e.target.id}"]`);
+      if (match) match.classList.add('active');
+    }
+  });
+}, { threshold: 0.15, rootMargin: '-60px 0px -60% 0px' });
+sections.forEach(s => navObs.observe(s));
+
+// ── Nav shadow on scroll ──
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 20);
+}, { passive: true });
+
+// ── Scroll reveal ──
+const revealEls = document.querySelectorAll('.reveal');
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+revealEls.forEach(el => revealObs.observe(el));
+
+// ── Animated number counters ──
+const counters = document.querySelectorAll('[data-count]');
+const counterObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const target = parseInt(e.target.dataset.count);
+      let current = 0;
+      const step = Math.max(1, Math.floor(target / 20));
+      const interval = setInterval(() => {
+        current += step;
+        if (current >= target) {
+          current = target;
+          clearInterval(interval);
+        }
+        e.target.textContent = current;
+      }, 40);
+      counterObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.5 });
+counters.forEach(c => counterObs.observe(c));
+
+// ── Nav button click handler ──
+navBtns.forEach(b => b.addEventListener('click', function() {
+  navBtns.forEach(x => x.classList.remove('active'));
+  this.classList.add('active');
+}));
+</script>
+</body>
+</html>

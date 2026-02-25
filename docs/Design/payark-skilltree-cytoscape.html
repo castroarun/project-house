@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayArk Training Academy — Skill Tree (Cytoscape)</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"></script>
+<style>
+:root{--bg:#08090d;--bg2:#0f1118;--bg3:#151822;--bg4:#1a1e2e;--bdr:#1f2438;--bdr2:#2a3050;--t1:#e8eaf0;--t2:#8b90a0;--t3:#555a6e;--blue:#3b82f6;--cyan:#06b6d4;--green:#10b981;--amber:#f59e0b;--rose:#f43f5e;--violet:#8b5cf6;--orange:#f97316;--r:10px;--tr:0.3s cubic-bezier(0.4,0,0.2,1);--fd:'Outfit',sans-serif;--fm:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--fd);background:var(--bg);color:var(--t1);line-height:1.65;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px}
+
+/* ═══ Background ═══ */
+.bgx{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(59,130,246,.08),transparent),radial-gradient(circle at 20% 80%,rgba(139,92,246,.05),transparent),linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:100%,100%,60px 60px,60px 60px}
+
+/* ═══ Layout ═══ */
+.c{max-width:1400px;margin:0 auto;padding:0 32px;position:relative;z-index:1}
+
+/* ═══ Header ═══ */
+.hdr{padding:32px 0 24px;border-bottom:1px solid var(--bdr)}
+.hdr-b{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:20px;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.2);font-size:12px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:1.5px;font-family:var(--fm);margin-bottom:16px}
+.hdr-b::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--blue);box-shadow:0 0 8px var(--blue);animation:pd 2s ease-in-out infinite}
+@keyframes pd{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:.8}}
+.hdr h1{font-size:clamp(36px,4.5vw,56px);font-weight:900;letter-spacing:-2px;line-height:1.1;background:linear-gradient(135deg,#fff 0%,var(--blue) 50%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 25px rgba(59,130,246,.25));position:relative;width:fit-content}
+.hdr h1::before{content:'';position:absolute;bottom:-6px;left:0;width:100%;height:2px;background:var(--bdr);border-radius:2px}
+.hdr h1::after{content:'';position:absolute;bottom:-10px;right:-2px;width:10px;height:10px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan),0 0 20px rgba(6,182,212,.4);animation:hdr-glow 2s ease-in-out infinite alternate}
+@keyframes hdr-glow{0%{box-shadow:0 0 8px var(--cyan),0 0 16px rgba(6,182,212,.3)}100%{box-shadow:0 0 14px var(--cyan),0 0 28px rgba(6,182,212,.5)}}
+.hdr-sub{font-size:13px;color:var(--t3);letter-spacing:3px;text-transform:uppercase;font-weight:500;margin-top:16px;font-family:var(--fm)}
+.hdr-stats{display:flex;gap:24px;margin-top:14px;flex-wrap:wrap}
+.hdr-stats span{font-size:13px;font-family:var(--fm);color:var(--t2);display:flex;align-items:center;gap:6px}
+.hdr-stats span::before{content:'';width:4px;height:4px;border-radius:50%}
+.s-blue::before{background:var(--blue)}.s-cyan::before{background:var(--cyan)}.s-violet::before{background:var(--violet)}.s-amber::before{background:var(--amber)}
+
+/* ═══ Tabs ═══ */
+.tabs{display:flex;gap:4px;padding:12px 0;border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:50;background:rgba(8,9,13,.92);backdrop-filter:blur(20px);margin:0 -32px;padding-left:32px;padding-right:32px}
+.tab-btn{flex-shrink:0;padding:8px 18px;border-radius:8px;background:0;border:0;color:var(--t2);font-size:13px;font-family:var(--fd);font-weight:500;cursor:pointer;transition:var(--tr);white-space:nowrap}
+.tab-btn:hover{color:var(--t1);background:var(--bg4)}
+.tab-btn.active{color:var(--blue);background:rgba(59,130,246,.15)}
+.tab-pane{display:none}.tab-pane.active{display:block}
+
+/* ═══ Graph Container ═══ */
+.graph-wrap{position:relative;width:100%;height:calc(100vh - 220px);min-height:500px;margin-top:16px;border-radius:var(--r);border:1px solid var(--bdr);background:var(--bg2);overflow:hidden}
+#cy{width:100%;height:100%}
+
+/* ═══ Graph Controls ═══ */
+.graph-controls{position:absolute;top:12px;left:12px;display:flex;flex-direction:column;gap:6px;z-index:10}
+.ctrl-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--bdr);background:var(--bg3);color:var(--t2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--tr)}
+.ctrl-btn:hover{border-color:var(--bdr2);color:var(--t1);background:var(--bg4)}
+.ctrl-btn.active{border-color:var(--blue);color:var(--blue);background:rgba(59,130,246,.1)}
+.layout-switcher{position:absolute;top:12px;right:12px;display:flex;gap:4px;z-index:10}
+.layout-btn{padding:6px 12px;border-radius:6px;border:1px solid var(--bdr);background:var(--bg3);color:var(--t2);font-size:11px;font-family:var(--fm);cursor:pointer;transition:var(--tr)}
+.layout-btn:hover{border-color:var(--bdr2);color:var(--t1)}
+.layout-btn.active{border-color:var(--blue);color:var(--blue);background:rgba(59,130,246,.1)}
+.graph-legend{position:absolute;bottom:12px;left:12px;display:flex;gap:12px;z-index:10;background:rgba(8,9,13,.85);backdrop-filter:blur(12px);padding:8px 14px;border-radius:8px;border:1px solid var(--bdr)}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;font-family:var(--fm);color:var(--t2)}
+.legend-dot{width:8px;height:8px;border-radius:2px}
+
+/* ═══ Detail Panel ═══ */
+.detail-panel{position:absolute;top:0;right:0;width:340px;height:100%;background:var(--bg2);border-left:1px solid var(--bdr);z-index:20;transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;display:flex;flex-direction:column}
+.detail-panel.open{transform:translateX(0)}
+.detail-header{padding:16px 20px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center}
+.detail-header h3{font-size:14px;font-weight:700;letter-spacing:-.3px}
+.detail-close{width:28px;height:28px;border-radius:6px;border:1px solid var(--bdr);background:var(--bg3);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:var(--tr)}
+.detail-close:hover{color:var(--t1);border-color:var(--bdr2)}
+.detail-body{padding:20px;flex:1}
+.detail-id{font-family:var(--fm);font-size:22px;font-weight:700;margin-bottom:4px}
+.detail-title{font-size:16px;font-weight:600;margin-bottom:12px;color:var(--t1)}
+.detail-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.detail-tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-family:var(--fm);background:var(--bg4);color:var(--t2);border:1px solid var(--bdr);font-weight:500}
+.detail-section{margin-bottom:16px}
+.detail-section h4{font-size:11px;font-family:var(--fm);color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;font-weight:600}
+.detail-section p{font-size:13px;color:var(--t2);line-height:1.7}
+.detail-section ul{list-style:none;padding:0}
+.detail-section li{font-size:13px;color:var(--t2);padding:4px 0;padding-left:14px;position:relative;line-height:1.6}
+.detail-section li::before{content:'';position:absolute;left:0;top:11px;width:4px;height:4px;border-radius:50%;background:var(--t3)}
+.detail-bar{height:3px;border-radius:2px;margin-bottom:16px}
+.detail-bar.l1{background:var(--blue)}.detail-bar.l2{background:var(--cyan)}.detail-bar.l3{background:var(--violet)}.detail-bar.l4{background:var(--amber)}
+
+/* ═══ Exam & Pipeline Tab Content ═══ */
+.content-section{padding:32px 0}
+.section-label{font-size:11px;font-family:var(--fm);color:var(--t3);text-transform:uppercase;letter-spacing:2.5px;font-weight:600;margin-bottom:8px}
+.section-title{font-size:clamp(22px,2.5vw,30px);font-weight:700;letter-spacing:-.5px;margin-bottom:8px}
+.section-desc{font-size:14px;color:var(--t2);max-width:700px;margin-bottom:28px;line-height:1.7}
+.g2{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px}
+.g3{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.g4{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.card{background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:20px;transition:var(--tr)}
+.card:hover{border-color:var(--bdr2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.card h4{font-size:15px;font-weight:700;margin-bottom:4px}.card p{font-size:13px;color:var(--t2);line-height:1.7;margin-top:6px}
+.card-num{font-size:11px;font-family:var(--fm);color:var(--t3);margin-bottom:8px;font-weight:500}
+.card-accent{border-left:3px solid var(--blue);padding-left:16px}
+.card-accent.cyan{border-left-color:var(--cyan)}.card-accent.violet{border-left-color:var(--violet)}.card-accent.amber{border-left-color:var(--amber)}.card-accent.green{border-left-color:var(--green)}.card-accent.rose{border-left-color:var(--rose)}
+.mono{font-family:var(--fm);font-size:12px}
+.dim{color:var(--t3)}.sec{color:var(--t2)}
+.blu{color:var(--blue)}.cyn{color:var(--cyan)}.grn{color:var(--green)}.amb{color:var(--amber)}.ros{color:var(--rose)}.vio{color:var(--violet)}
+
+/* ═══ Tables ═══ */
+table{width:100%;border-collapse:separate;border-spacing:0;border-radius:var(--r);overflow:hidden;border:1px solid var(--bdr);font-size:13px;margin:16px 0}
+th{background:var(--bg4);padding:10px 14px;text-align:left;font-size:11px;font-family:var(--fm);color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;border-bottom:1px solid var(--bdr)}
+td{padding:10px 14px;border-bottom:1px solid var(--bdr);color:var(--t2)}
+tr:last-child td{border-bottom:0}tr:hover{background:rgba(255,255,255,.02)}
+
+/* ═══ Callout ═══ */
+.callout{background:var(--bg2);border:1px solid var(--bdr);border-left:3px solid var(--blue);border-radius:var(--r);padding:20px 24px;margin:20px 0}
+.callout h4{font-size:14px;font-weight:700;margin-bottom:6px;color:var(--blue)}.callout p{font-size:13px;color:var(--t2);line-height:1.7}
+
+/* ═══ Flow Steps ═══ */
+.flow{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}
+.flow-step{flex:1;min-width:160px;background:var(--bg3);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;position:relative}
+.flow-step::after{content:'';position:absolute;right:-8px;top:50%;transform:translateY(-50%);border-left:6px solid var(--bdr2);border-top:5px solid transparent;border-bottom:5px solid transparent}
+.flow-step:last-child::after{display:none}
+.flow-step .step-num{font-size:10px;font-family:var(--fm);color:var(--t3);letter-spacing:1px;font-weight:600;margin-bottom:4px}
+.flow-step h5{font-size:13px;font-weight:600;margin-bottom:2px}
+.flow-step p{font-size:12px;color:var(--t2);line-height:1.5}
+
+/* ═══ Responsive ═══ */
+@media(max-width:768px){
+  .c{padding:0 16px}
+  .graph-wrap{height:calc(100vh - 240px);min-height:400px}
+  .detail-panel{width:100%}
+  .tabs{margin:0 -16px;padding-left:16px;padding-right:16px}
+  .graph-legend{flex-wrap:wrap;gap:8px}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .flow{flex-direction:column}
+  .flow-step::after{display:none}
+}
+</style>
+</head>
+<body>
+<div class="bgx"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- HEADER                                      -->
+<!-- ═══════════════════════════════════════════ -->
+<header class="hdr">
+  <div class="c">
+    <div class="hdr-b">PayArk Training Academy</div>
+    <h1>PayArk</h1>
+    <div class="hdr-sub">From Zero to Payment Architect</div>
+    <div class="hdr-stats">
+      <span class="s-blue">44 Modules</span>
+      <span class="s-cyan">4 Certifications</span>
+      <span class="s-violet">4 Capstone Sprints</span>
+      <span class="s-amber">32 Weeks</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TABS                                        -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="c">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="graph">Certification Path</button>
+    <button class="tab-btn" data-tab="exam">Exam Model</button>
+    <button class="tab-btn" data-tab="pipeline">Content Pipeline</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TAB 1: CYTOSCAPE GRAPH                     -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="tab-pane active" id="tab-graph">
+    <div class="graph-wrap">
+      <div class="graph-controls">
+        <button class="ctrl-btn" id="btn-fit" title="Fit to view">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 6V2h4M14 6V2h-4M2 10v4h4M14 10v4h-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="ctrl-btn" id="btn-zin" title="Zoom in">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 4v8M4 8h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+        <button class="ctrl-btn" id="btn-zout" title="Zoom out">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="layout-switcher">
+        <button class="layout-btn active" data-layout="dagre">Dagre</button>
+        <button class="layout-btn" data-layout="breadthfirst">Tree</button>
+        <button class="layout-btn" data-layout="circle">Circle</button>
+      </div>
+      <div class="graph-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div> Level 1 — PAKF</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div> Level 2 — PAKE</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--violet)"></div> Level 3 — PAKSA</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div> Level 4 — PAKA</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--rose);clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%)"></div> Exam Gate</div>
+      </div>
+      <div id="cy"></div>
+      <div class="detail-panel" id="detail-panel">
+        <div class="detail-header">
+          <h3>Module Details</h3>
+          <button class="detail-close" id="detail-close">&times;</button>
+        </div>
+        <div class="detail-body" id="detail-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TAB 2: EXAM MODEL                          -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="tab-pane" id="tab-exam">
+    <div class="content-section">
+      <div class="section-label">Assessment Framework</div>
+      <div class="section-title">Exam Model</div>
+      <div class="section-desc">A robust, anti-cheat, randomized examination system with question banks 5x the exam size and multi-layered integrity measures.</div>
+
+      <div class="g2" style="margin-bottom:32px">
+        <div class="card card-accent">
+          <div class="card-num">01 / Question Bank</div>
+          <h4>5x Pool Ratio</h4>
+          <p>Each exam draws from a question pool 5 times larger than the exam itself. PAKF: 300 questions in pool for 60-question exam. PAKE: 400 for 80. PAKSA: 300 MCQ + design bank.</p>
+        </div>
+        <div class="card card-accent cyan">
+          <div class="card-num">02 / Randomization</div>
+          <h4>5-Rule Randomization Engine</h4>
+          <p>1. Random question selection from pool. 2. Random answer option ordering. 3. Random question ordering. 4. Category-balanced distribution. 5. Difficulty curve enforcement (easy to hard).</p>
+        </div>
+        <div class="card card-accent violet">
+          <div class="card-num">03 / Anti-Cheat</div>
+          <h4>4-Layer Integrity</h4>
+          <p>1. Browser lockdown (fullscreen, no tab switching). 2. Time per question tracking (anomaly flags). 3. Unique exam instance per attempt. 4. Post-exam similarity analysis between attempts.</p>
+        </div>
+        <div class="card card-accent amber">
+          <div class="card-num">04 / Exam Flow</div>
+          <h4>Structured Progression</h4>
+          <p>Register attempt, generate unique instance, timer starts, section navigation, flag for review, submit, auto-grade MCQ, manual-grade design questions, score report, certificate generation.</p>
+        </div>
+      </div>
+
+      <div class="section-label" style="margin-top:32px">Certification Matrix</div>
+      <table>
+        <thead>
+          <tr><th>Certification</th><th>Level</th><th>Format</th><th>Duration</th><th>Pass %</th><th>Prerequisite</th></tr>
+        </thead>
+        <tbody>
+          <tr><td style="color:var(--blue);font-weight:600">PAKF</td><td>Payment Foundations</td><td>60 MCQ</td><td>90 min</td><td>70%</td><td>None</td></tr>
+          <tr><td style="color:var(--cyan);font-weight:600">PAKE</td><td>Platform Engineer</td><td>80 MCQ</td><td>120 min</td><td>70%</td><td>PAKF</td></tr>
+          <tr><td style="color:var(--violet);font-weight:600">PAKSA</td><td>Systems Architect</td><td>60 MCQ + Design</td><td>180 min</td><td>75%</td><td>PAKE</td></tr>
+          <tr><td style="color:var(--amber);font-weight:600">PAKA</td><td>Payment Architect</td><td>3-Layer Assessment</td><td>8 weeks</td><td>75%</td><td>PAKSA</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout" style="margin-top:32px;border-left-color:var(--amber)">
+        <h4 style="color:var(--amber)">Capstone Assessment — PAKA (3-Layer Model)</h4>
+        <p><strong>Layer 1: Automated Gates</strong> — CI pipeline, test coverage > 80%, build passes, no critical lint errors. <strong>Layer 2: AI Code Review</strong> — Claude Code reviews codebase against rubric (SOLID, hexagonal, patterns, error handling). Score >= 75%. <strong>Layer 3: Architecture Document</strong> — Written design document evaluated against Payment House architecture rubric. Score >= 75%.</p>
+      </div>
+
+      <div class="section-label" style="margin-top:32px">Exam Flow</div>
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">Step 1</div><h5>Register</h5><p>Create exam attempt, verify prerequisites met</p></div>
+        <div class="flow-step"><div class="step-num">Step 2</div><h5>Generate</h5><p>Pull random subset from pool, shuffle answers</p></div>
+        <div class="flow-step"><div class="step-num">Step 3</div><h5>Lockdown</h5><p>Browser fullscreen, timer starts, no tab switching</p></div>
+        <div class="flow-step"><div class="step-num">Step 4</div><h5>Answer</h5><p>Navigate sections, flag questions, review panel</p></div>
+        <div class="flow-step"><div class="step-num">Step 5</div><h5>Grade</h5><p>Auto-grade MCQ, queue design for AI review</p></div>
+        <div class="flow-step"><div class="step-num">Step 6</div><h5>Certify</h5><p>Score report, pass/fail, certificate if passed</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TAB 3: CONTENT PIPELINE                    -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="tab-pane" id="tab-pipeline">
+    <div class="content-section">
+      <div class="section-label">Content Strategy</div>
+      <div class="section-title">Content Pipeline</div>
+      <div class="section-desc">A curate-first, create-second approach to building the training library. External content mapped to modules, then supplemented with custom material.</div>
+
+      <div class="g3" style="margin-bottom:32px">
+        <div class="card card-accent green">
+          <div class="card-num">Phase 1</div>
+          <h4>Curate External Content</h4>
+          <p>Map each module to the best available YouTube, Udemy, Confluent, Spring Academy, and HashiCorp content. Score each source on quality, relevance, and production value.</p>
+        </div>
+        <div class="card card-accent">
+          <div class="card-num">Phase 2</div>
+          <h4>Build Hands-On Labs</h4>
+          <p>For each module, create a structured hands-on project with starter code, acceptance criteria, and automated validation. Labs are the core differentiator.</p>
+        </div>
+        <div class="card card-accent violet">
+          <div class="card-num">Phase 3</div>
+          <h4>Write Question Banks</h4>
+          <p>Author 5x questions per exam. Tag by module, difficulty, category. Peer-review for accuracy. Build answer explanations for every question.</p>
+        </div>
+        <div class="card card-accent cyan">
+          <div class="card-num">Phase 4</div>
+          <h4>Record Custom Videos</h4>
+          <p>Fill gaps where external content falls short. Focus on Payment House architecture walkthroughs, domain-specific concepts, and integration patterns.</p>
+        </div>
+        <div class="card card-accent amber">
+          <div class="card-num">Phase 5</div>
+          <h4>Build Exam Platform</h4>
+          <p>Timer, lockdown, randomization engine, grading, certificate generation. Integrate with module completion tracking and prerequisite enforcement.</p>
+        </div>
+        <div class="card card-accent rose">
+          <div class="card-num">Phase 6</div>
+          <h4>Launch and Iterate</h4>
+          <p>Beta test with 5-10 users. Collect completion rates, exam pass rates, feedback. Iterate on content quality. Add spaced repetition for key concepts.</p>
+        </div>
+      </div>
+
+      <div class="section-label" style="margin-top:32px">Content Sources</div>
+      <table>
+        <thead>
+          <tr><th>Priority</th><th>Source</th><th>Domain</th><th>Cost</th><th>Quality</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td style="font-weight:600">YouTube (curated)</td><td>All domains</td><td>Free</td><td>Variable</td></tr>
+          <tr><td>2</td><td style="font-weight:600">Confluent Developer</td><td>Kafka</td><td>Free tier</td><td>Excellent</td></tr>
+          <tr><td>3</td><td style="font-weight:600">Spring Academy</td><td>Spring Boot</td><td>Free + paid</td><td>Official</td></tr>
+          <tr><td>4</td><td style="font-weight:600">Udemy (sale picks)</td><td>Java, Kafka, K8s</td><td>$10-15</td><td>Good</td></tr>
+          <tr><td>5</td><td style="font-weight:600">HashiCorp Learn</td><td>Vault, Consul</td><td>Free</td><td>Official</td></tr>
+          <tr><td>6</td><td style="font-weight:600">SWIFT Learning</td><td>ISO 20022, payments</td><td>Free</td><td>Authoritative</td></tr>
+          <tr><td>7</td><td style="font-weight:600">Baeldung</td><td>Java, Spring</td><td>Free + Pro</td><td>Best written</td></tr>
+          <tr><td>8</td><td style="font-weight:600">Redis University</td><td>Redis</td><td>Free</td><td>Official</td></tr>
+          <tr><td>9</td><td style="font-weight:600">ClickHouse Academy</td><td>ClickHouse</td><td>Free</td><td>Official</td></tr>
+          <tr><td>10</td><td style="font-weight:600">Self-recorded</td><td>Architecture</td><td>Time</td><td>Custom</td></tr>
+        </tbody>
+      </table>
+
+      <div class="section-label" style="margin-top:32px">Module Completion Structure</div>
+      <div class="flow">
+        <div class="flow-step"><div class="step-num">01</div><h5>Theory</h5><p>Watch curated video + read notes</p></div>
+        <div class="flow-step"><div class="step-num">02</div><h5>Lab</h5><p>Complete hands-on mini-project</p></div>
+        <div class="flow-step"><div class="step-num">03</div><h5>Quiz</h5><p>10-question module quiz</p></div>
+        <div class="flow-step"><div class="step-num">04</div><h5>Review</h5><p>AI code review of lab submission</p></div>
+        <div class="flow-step"><div class="step-num">05</div><h5>Complete</h5><p>Unlock next module</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- JAVASCRIPT                                  -->
+<!-- ═══════════════════════════════════════════ -->
+<script>
+/* ────────────────────────────────────────────
+   MODULE DATA
+   ──────────────────────────────────────────── */
+const moduleData = {
+  M01: { id:'M01', title:'Payments 101', fullTitle:'How Payments Work', week:1, level:1, cert:'PAKF',
+    topics:['Payment lifecycle','Clearing vs settlement','RTGS vs DNS','Correspondent banking','Nostro / Vostro'],
+    handsOn:'Map a real SWIFT MT103 message field by field', component:'All tiers' },
+  M02: { id:'M02', title:'ISO 20022', fullTitle:'ISO 20022 Decoded', week:1, level:1, cert:'PAKF',
+    topics:['MX messages','pacs.008, pacs.002','XML schema','MT to MX migration'],
+    handsOn:'Parse a real pacs.008 XML, extract key fields', component:'All tiers' },
+  M03: { id:'M03', title:'Clearing Houses', fullTitle:'Clearing Houses Around the World', week:2, level:1, cert:'PAKF',
+    topics:['MEPS+, FAST, CHATS','FPS, CHAPS, RTGS India','NEFT, UPI, SWIFT gpi','Operating hours and cutoffs'],
+    handsOn:'Build a clearing house config matrix from scratch', component:'All tiers' },
+  M04: { id:'M04', title:'Compliance', fullTitle:'Compliance & Screening', week:2, level:1, cert:'PAKF',
+    topics:['Sanctions (OFAC/EU/UN)','AML, PEP screening','Fraud detection','STR reporting'],
+    handsOn:'Design a screening decision tree for a sample payment', component:'All tiers' },
+  M05: { id:'M05', title:'Java 21', fullTitle:'Java 21 for Payment Systems', week:3, level:1, cert:'PAKF',
+    topics:['Records, sealed classes','Virtual threads','Pattern matching','BigDecimal (mandatory)','Immutability'],
+    handsOn:'Refactor a mutable Payment class to immutable record', component:'Code quality' },
+  M06: { id:'M06', title:'SOLID', fullTitle:'SOLID Principles (Applied)', week:3, level:1, cert:'PAKF',
+    topics:['SRP, OCP, LSP','ISP, DIP','Payment domain examples'],
+    handsOn:'Identify SOLID violations in a sample payment codebase', component:'Code quality' },
+  M07: { id:'M07', title:'CUPID', fullTitle:'CUPID + Financial Disciplines', week:4, level:1, cert:'PAKF',
+    topics:['Predictability','Domain alignment','Defensive calculations','Auditability'],
+    handsOn:'Write a routing decision that carries its own audit trail', component:'Code quality' },
+  M08: { id:'M08', title:'Strategy Pattern', fullTitle:'Design Patterns I — Strategy & Template', week:4, level:1, cert:'PAKF',
+    topics:['Strategy pattern','Template Method','Clearing adapters'],
+    handsOn:'Build a mini clearing adapter system with 3 adapters', component:'Code quality' },
+  M09: { id:'M09', title:'State Machine', fullTitle:'Design Patterns II — Specification & State Machine', week:5, level:1, cert:'PAKF',
+    topics:['Composable business rules','Payment state machine','Guard conditions'],
+    handsOn:'Implement a payment state machine with valid transitions', component:'Code quality' },
+  M10: { id:'M10', title:'Hexagonal', fullTitle:'Hexagonal Architecture', week:5, level:1, cert:'PAKF',
+    topics:['Ports & adapters','Domain isolation','Zero framework imports in domain/'],
+    handsOn:'Restructure a Spring app into hexagonal layers', component:'Code quality' },
+  M11: { id:'M11', title:'DDD', fullTitle:'Domain-Driven Design', week:6, level:1, cert:'PAKF',
+    topics:['Bounded contexts','Aggregates, entities','Value objects','Ubiquitous language'],
+    handsOn:'Map the 6 Payment House bounded contexts', component:'Code quality' },
+  M12: { id:'M12', title:'12-Factor', fullTitle:'Twelve-Factor App', week:6, level:1, cert:'PAKF',
+    topics:['Config in env','Stateless processes','Port binding','Dev/prod parity','Logs as streams'],
+    handsOn:'12-factor compliance audit on a sample app', component:'Code quality' },
+
+  M13: { id:'M13', title:'Kafka Basics', fullTitle:'Apache Kafka Fundamentals', week:7, level:2, cert:'PAKE',
+    topics:['Producers, consumers','Consumer groups','Partitions, replication','Retention policies'],
+    handsOn:'Set up Kafka locally, produce/consume payment messages', component:'Kafka backbone' },
+  M14: { id:'M14', title:'Kafka Deep', fullTitle:'Kafka Deep Dive', week:7, level:2, cert:'PAKE',
+    topics:['Exactly-once semantics','Transactions','Idempotent producers','Compaction, topic design'],
+    handsOn:'Design the 10 Payment House Kafka topics', component:'Kafka backbone' },
+  M15: { id:'M15', title:'Kafka Streams', fullTitle:'Kafka Streams & Real-Time', week:8, level:2, cert:'PAKE',
+    topics:['Stream processing','Materialized views','Windowing, aggregations'],
+    handsOn:'Build a real-time payment volume dashboard', component:'Kafka backbone' },
+  M16: { id:'M16', title:'Spring Boot', fullTitle:'Spring Boot for Payment Systems', week:8, level:2, cert:'PAKE',
+    topics:['Profiles, externalized config','Actuator, health checks','Dependency injection'],
+    handsOn:'Multi-profile Spring app with region-specific configs', component:'Spring services' },
+  M17: { id:'M17', title:'Spring Kafka', fullTitle:'Spring Kafka Integration', week:9, level:2, cert:'PAKE',
+    topics:['Spring Kafka listeners','Producers, error handlers','DLQ routing'],
+    handsOn:'End-to-end Kafka producer/consumer with retry', component:'Spring services' },
+  M18: { id:'M18', title:'PostgreSQL', fullTitle:'PostgreSQL for Finance', week:9, level:2, cert:'PAKE',
+    topics:['ACID, isolation levels','Partitioning, indexing','pg_stat_statements'],
+    handsOn:'Design payment_master schema with monthly partitions', component:'Databases' },
+  M19: { id:'M19', title:'Citus', fullTitle:'Citus — Horizontal Sharding', week:10, level:2, cert:'PAKE',
+    topics:['Distributed PostgreSQL','Shard key selection','Distributed queries'],
+    handsOn:'Shard the ledger_db by account ID', component:'Databases' },
+  M20: { id:'M20', title:'Redis', fullTitle:'Redis for Payment Systems', week:10, level:2, cert:'PAKE',
+    topics:['Caching, deduplication','Idempotency store (TTL 7d)','Pub/sub'],
+    handsOn:'Build a Redis-backed deduplication gateway', component:'Tier 1' },
+  M21: { id:'M21', title:'ClickHouse', fullTitle:'ClickHouse Analytics', week:11, level:2, cert:'PAKE',
+    topics:['Columnar storage','MergeTree engine','Materialized views','Aggregation queries'],
+    handsOn:'Load 1M payment records, write analytical queries', component:'Tier 6' },
+  M22: { id:'M22', title:'Outbox + CDC', fullTitle:'Transactional Outbox + Debezium', week:11, level:2, cert:'PAKE',
+    topics:['Change data capture','WAL capture','Outbox table design','Exactly-once to Kafka'],
+    handsOn:'Implement outbox pattern with Debezium + PostgreSQL', component:'All producers' },
+  M23: { id:'M23', title:'Event Sourcing', fullTitle:'Event Sourcing in Practice', week:12, level:2, cert:'PAKE',
+    topics:['Immutable events','Event store','State reconstruction','Snapshots'],
+    handsOn:'Build an event-sourced payment aggregate', component:'All tiers' },
+  M24: { id:'M24', title:'Saga Pattern', fullTitle:'Saga Pattern — Distributed Transactions', week:12, level:2, cert:'PAKE',
+    topics:['5-step accounting saga','Compensating transactions','Saga log'],
+    handsOn:'Implement accounting saga with failure compensation', component:'Tier 5' },
+  M25: { id:'M25', title:'ACL', fullTitle:'Anti-Corruption Layer', week:13, level:2, cert:'PAKE',
+    topics:['Per clearing house ACL','External format translation','Domain protection'],
+    handsOn:'Build ACL for simulated SWIFT response format', component:'Tier 4' },
+  M26: { id:'M26', title:'Circuit Breaker', fullTitle:'Circuit Breaker & Resilience', week:13, level:2, cert:'PAKE',
+    topics:['Resilience4j, 3-state breaker','3-tier DLQ','Retry with backoff','Bulkhead'],
+    handsOn:'Simulate clearing house failures with recovery', component:'Tier 4' },
+  M27: { id:'M27', title:'REST + gRPC', fullTitle:'REST & gRPC API Design', week:14, level:2, cert:'PAKE',
+    topics:['API Gateway, rate limiting','Protocol translation','Protobuf'],
+    handsOn:'Build a dual REST/gRPC payment submission API', component:'Tier 1' },
+  M28: { id:'M28', title:'Testing', fullTitle:'Testing Strategies', week:14, level:2, cert:'PAKE',
+    topics:['Unit (AAA pattern)','Integration (Testcontainers)','Contract, E2E, chaos','Performance testing'],
+    handsOn:'Test suites for clearing adapter with > 90% coverage', component:'All tiers' },
+
+  M29: { id:'M29', title:'Docker', fullTitle:'Docker for Payment Microservices', week:15, level:3, cert:'PAKSA',
+    topics:['Multi-stage builds','Single image strategy','Optimization, Compose'],
+    handsOn:'Dockerize 3 payment microservices + Kafka + PG', component:'Infra' },
+  M30: { id:'M30', title:'K8s Basics', fullTitle:'Kubernetes Fundamentals', week:15, level:3, cert:'PAKSA',
+    topics:['Pods, Deployments, Services','ConfigMaps, Secrets','HPA, PDB'],
+    handsOn:'Deploy payment services to local K8s cluster', component:'Infra' },
+  M31: { id:'M31', title:'K8s Advanced', fullTitle:'Kubernetes Advanced', week:16, level:3, cert:'PAKSA',
+    topics:['StatefulSets (Kafka)','Network policies, RBAC','Resource limits, affinity'],
+    handsOn:'Production-grade K8s manifests for Payment House', component:'Infra' },
+  M32: { id:'M32', title:'Istio', fullTitle:'Istio Service Mesh', week:16, level:3, cert:'PAKSA',
+    topics:['mTLS, traffic management','Canary deployments','Fault injection, Kiali'],
+    handsOn:'Canary deploy a clearing adapter with 95/5 split', component:'Infra' },
+  M33: { id:'M33', title:'Vault', fullTitle:'HashiCorp Vault', week:17, level:3, cert:'PAKSA',
+    topics:['Dynamic secrets','Auto-rotation','Encryption-as-a-service','Policies'],
+    handsOn:'Vault-managed database credentials for services', component:'Secrets' },
+  M34: { id:'M34', title:'Consul', fullTitle:'Consul / etcd for Config', week:17, level:3, cert:'PAKSA',
+    topics:['Distributed config','Hot-reload','Service discovery','Country configs'],
+    handsOn:'Hot-reload clearing house cutoff times', component:'Config' },
+  M35: { id:'M35', title:'Prometheus', fullTitle:'Prometheus + Grafana', week:18, level:3, cert:'PAKSA',
+    topics:['Custom metrics','PromQL, golden signals','Alerting rules, Thanos'],
+    handsOn:'Build a Payment House operations dashboard', component:'Observability' },
+  M36: { id:'M36', title:'OpenTelemetry', fullTitle:'OpenTelemetry + Distributed Tracing', week:18, level:3, cert:'PAKSA',
+    topics:['Span propagation','Jaeger, trace sampling','Correlation IDs'],
+    handsOn:'Trace a payment end-to-end across 6 services', component:'Observability' },
+  M37: { id:'M37', title:'ELK Stack', fullTitle:'ELK Stack + Structured Logging', week:19, level:3, cert:'PAKSA',
+    topics:['Structured JSON logs','MDC correlation ID','Filebeat, Logstash, Kibana'],
+    handsOn:'Centralized logging with payment correlation search', component:'Observability' },
+  M38: { id:'M38', title:'Self-Healing', fullTitle:'Self-Healing Infrastructure', week:19, level:3, cert:'PAKSA',
+    topics:['K8s probes','Anomaly detection','Auto-scaling','DLQ auto-replay'],
+    handsOn:'Simulate failures, verify auto-recovery', component:'Cross-cutting' },
+  M39: { id:'M39', title:'Multi-Region', fullTitle:'Multi-Region Deployment', week:20, level:3, cert:'PAKSA',
+    topics:['MirrorMaker 2','Cross-region replication','RPO/RTO, DR failover'],
+    handsOn:'Set up 2-region Kafka replication with failover', component:'Deployment' },
+  M40: { id:'M40', title:'Security', fullTitle:'Security Architecture', week:21, level:3, cert:'PAKSA',
+    topics:['TLS 1.3','Field-level encryption','PII protection, RBAC','Kafka ACLs'],
+    handsOn:'Encrypt PII fields in payment messages', component:'Security' },
+  M41: { id:'M41', title:'CI/CD', fullTitle:'CI/CD Pipeline', week:22, level:3, cert:'PAKSA',
+    topics:['GitLab CI, ArgoCD','GitOps','Conventional commits','Semantic versioning'],
+    handsOn:'Build full CI/CD pipeline for a payment microservice', component:'CI/CD' },
+  M42: { id:'M42', title:'Performance', fullTitle:'Performance Engineering', week:23, level:3, cert:'PAKSA',
+    topics:['Load testing (Gatling/k6)','p99 tuning','JVM optimization','Connection pools'],
+    handsOn:'Load test ingestion gateway to 10K msg/s', component:'SLA' },
+  M43: { id:'M43', title:'Regulatory', fullTitle:'Regulatory Compliance & Reporting', week:24, level:3, cert:'PAKSA',
+    topics:['LVT reports, STR filing','EOD reconciliation','7-year archive, audit'],
+    handsOn:'Build an automated reconciliation engine', component:'Tier 6' },
+  M44: { id:'M44', title:'System Design', fullTitle:'System Design — Payment Platform', week:24, level:3, cert:'PAKSA',
+    topics:['Full system design exercise','Whiteboard complete Payment House','Trade-off analysis'],
+    handsOn:'Design document: 6-tier architecture from scratch', component:'Full arch' },
+
+  S1: { id:'S1', title:'Kafka + Ingestion', fullTitle:'Sprint 1 — Kafka + Ingestion', week:'25-26', level:4, cert:'PAKA',
+    topics:['Kafka cluster setup','Ingestion Gateway','IBM MQ bridge','Deduplication'],
+    handsOn:'Deliver working Kafka + Ingestion Gateway', component:'Tier 1-2' },
+  S2: { id:'S2', title:'Processor + DB', fullTitle:'Sprint 2 — Processor + DB', week:'27-28', level:4, cert:'PAKA',
+    topics:['Message Processor','Enrichment Engine','Payment Master DB'],
+    handsOn:'Deliver Message Processor + Enrichment + DB', component:'Tier 2-3' },
+  S3: { id:'S3', title:'Compliance + Clearing', fullTitle:'Sprint 3 — Compliance + Clearing', week:'29-30', level:4, cert:'PAKA',
+    topics:['Compliance screening (mock)','Clearing adapter (1 country)','Circuit breaker'],
+    handsOn:'Deliver Compliance + Clearing with resilience', component:'Tier 3-4' },
+  S4: { id:'S4', title:'Saga + Reporting', fullTitle:'Sprint 4 — Saga + Reporting', week:'31-32', level:4, cert:'PAKA',
+    topics:['Accounting saga','Reporting dashboard','E2E test suite','Observability'],
+    handsOn:'Deliver Accounting + Reporting + E2E + Observability', component:'Tier 5-6' },
+};
+
+const examData = {
+  EXAM1: { id:'EXAM1', title:'PAKF Exam', format:'60 MCQ', duration:'90 min', pass:'70%', level:1, desc:'Payment Foundations certification. Covers payment domain, Java 21, SOLID, DDD, hexagonal architecture.' },
+  EXAM2: { id:'EXAM2', title:'PAKE Exam', format:'80 MCQ', duration:'120 min', pass:'70%', level:2, desc:'Platform Engineer certification. Covers Kafka, Spring Boot, databases, microservice patterns, testing.' },
+  EXAM3: { id:'EXAM3', title:'PAKSA Exam', format:'60 MCQ + Design', duration:'180 min', pass:'75%', level:3, desc:'Systems Architect certification. Covers infrastructure, observability, multi-region, security, system design.' },
+  FINAL: { id:'FINAL', title:'PAKA', format:'3-Layer Assessment', duration:'8 weeks', pass:'75%', level:4, desc:'Payment Architect certification. Automated gates + AI code review + architecture document evaluation.' },
+};
+
+/* ────────────────────────────────────────────
+   GRAPH ELEMENTS
+   ──────────────────────────────────────────── */
+const levelColors = { 1:'#3b82f6', 2:'#06b6d4', 3:'#8b5cf6', 4:'#f59e0b' };
+const levelNames = { 1:'Level 1: Payment Foundations', 2:'Level 2: Platform Engineer', 3:'Level 3: Systems Architect', 4:'Level 4: Capstone' };
+const levelCerts = { 1:'PAKF', 2:'PAKE', 3:'PAKSA', 4:'PAKA' };
+const levelModules = { 1:'12 modules', 2:'16 modules', 3:'16 modules', 4:'4 sprints' };
+const levelWeeks = { 1:'6 weeks', 2:'8 weeks', 3:'10 weeks', 4:'8 weeks' };
+
+function buildElements() {
+  const nodes = [];
+  const edges = [];
+
+  // Level header compound nodes
+  for (let lv = 1; lv <= 4; lv++) {
+    nodes.push({
+      data: {
+        id: 'L' + lv,
+        label: levelNames[lv] + '\n' + levelCerts[lv] + ' \u00b7 ' + levelModules[lv] + ' \u00b7 ' + levelWeeks[lv]
+      },
+      classes: 'level-header level-' + lv
+    });
+  }
+
+  // Module nodes
+  const allModules = Object.values(moduleData);
+  allModules.forEach(m => {
+    const parentId = 'L' + m.level;
+    nodes.push({
+      data: {
+        id: m.id,
+        parent: parentId,
+        label: m.id + '\n' + m.title,
+        week: m.week,
+        level: m.level
+      },
+      classes: 'module level-' + m.level
+    });
+  });
+
+  // Exam gate nodes
+  Object.values(examData).forEach(ex => {
+    nodes.push({
+      data: {
+        id: ex.id,
+        label: ex.title + '\n' + ex.format + ' \u00b7 ' + ex.duration
+      },
+      classes: 'exam-gate level-' + ex.level
+    });
+  });
+
+  // Sequential edges within Level 1 (M01-M12)
+  for (let i = 1; i <= 11; i++) {
+    const src = 'M' + String(i).padStart(2,'0');
+    const tgt = 'M' + String(i+1).padStart(2,'0');
+    edges.push({ data: { source: src, target: tgt }, classes: 'seq level-1' });
+  }
+
+  // Sequential edges within Level 2 (M13-M28)
+  for (let i = 13; i <= 27; i++) {
+    const src = 'M' + String(i).padStart(2,'0');
+    const tgt = 'M' + String(i+1).padStart(2,'0');
+    edges.push({ data: { source: src, target: tgt }, classes: 'seq level-2' });
+  }
+
+  // Sequential edges within Level 3 (M29-M44)
+  for (let i = 29; i <= 43; i++) {
+    const src = 'M' + String(i).padStart(2,'0');
+    const tgt = 'M' + String(i+1).padStart(2,'0');
+    edges.push({ data: { source: src, target: tgt }, classes: 'seq level-3' });
+  }
+
+  // Sequential edges within Level 4 (S1-S4)
+  for (let i = 1; i <= 3; i++) {
+    edges.push({ data: { source: 'S' + i, target: 'S' + (i+1) }, classes: 'seq level-4' });
+  }
+
+  // Gate transition edges: Level end -> Exam -> Next level start
+  edges.push({ data: { source: 'M12', target: 'EXAM1' }, classes: 'gate-edge' });
+  edges.push({ data: { source: 'EXAM1', target: 'M13' }, classes: 'gate-edge' });
+  edges.push({ data: { source: 'M28', target: 'EXAM2' }, classes: 'gate-edge' });
+  edges.push({ data: { source: 'EXAM2', target: 'M29' }, classes: 'gate-edge' });
+  edges.push({ data: { source: 'M44', target: 'EXAM3' }, classes: 'gate-edge' });
+  edges.push({ data: { source: 'EXAM3', target: 'S1' }, classes: 'gate-edge' });
+  edges.push({ data: { source: 'S4', target: 'FINAL' }, classes: 'gate-edge' });
+
+  return [...nodes, ...edges];
+}
+
+/* ────────────────────────────────────────────
+   CYTOSCAPE STYLES
+   ──────────────────────────────────────────── */
+const cyStyle = [
+  // Module nodes
+  {
+    selector: '.module',
+    style: {
+      'shape': 'round-rectangle',
+      'width': 130,
+      'height': 52,
+      'label': 'data(label)',
+      'text-wrap': 'wrap',
+      'text-max-width': '118px',
+      'font-size': '9px',
+      'font-family': '"JetBrains Mono", monospace',
+      'text-valign': 'center',
+      'text-halign': 'center',
+      'background-color': '#0f1118',
+      'border-width': 2,
+      'color': '#e8eaf0',
+      'overlay-opacity': 0,
+      'transition-property': 'border-width, border-color, background-color',
+      'transition-duration': '0.15s',
+    }
+  },
+  // Level-specific module styles
+  {
+    selector: '.module.level-1',
+    style: { 'border-color': '#3b82f6' }
+  },
+  {
+    selector: '.module.level-2',
+    style: { 'border-color': '#06b6d4' }
+  },
+  {
+    selector: '.module.level-3',
+    style: { 'border-color': '#8b5cf6' }
+  },
+  {
+    selector: '.module.level-4',
+    style: { 'border-color': '#f59e0b' }
+  },
+
+  // Exam gates
+  {
+    selector: '.exam-gate',
+    style: {
+      'shape': 'diamond',
+      'width': 170,
+      'height': 90,
+      'label': 'data(label)',
+      'text-wrap': 'wrap',
+      'text-max-width': '140px',
+      'font-size': '9px',
+      'font-family': '"JetBrains Mono", monospace',
+      'font-weight': 'bold',
+      'text-valign': 'center',
+      'text-halign': 'center',
+      'background-color': '#151822',
+      'border-width': 2,
+      'color': '#e8eaf0',
+      'overlay-opacity': 0,
+    }
+  },
+  {
+    selector: '.exam-gate.level-1',
+    style: { 'border-color': '#3b82f6', 'color': '#3b82f6' }
+  },
+  {
+    selector: '.exam-gate.level-2',
+    style: { 'border-color': '#06b6d4', 'color': '#06b6d4' }
+  },
+  {
+    selector: '.exam-gate.level-3',
+    style: { 'border-color': '#8b5cf6', 'color': '#8b5cf6' }
+  },
+  {
+    selector: '.exam-gate.level-4',
+    style: { 'border-color': '#f59e0b', 'color': '#f59e0b' }
+  },
+
+  // Level headers (compound parent nodes)
+  {
+    selector: '.level-header',
+    style: {
+      'shape': 'round-rectangle',
+      'background-opacity': 0.03,
+      'border-width': 1,
+      'border-opacity': 0.2,
+      'border-style': 'dashed',
+      'padding': '24px',
+      'label': 'data(label)',
+      'text-wrap': 'wrap',
+      'text-max-width': '300px',
+      'font-size': '12px',
+      'font-family': '"Outfit", sans-serif',
+      'font-weight': 'bold',
+      'text-valign': 'top',
+      'text-halign': 'center',
+      'text-margin-y': '-8px',
+      'color': '#555a6e',
+    }
+  },
+  {
+    selector: '.level-header.level-1',
+    style: { 'border-color': 'rgba(59,130,246,0.25)', 'background-color': 'rgba(59,130,246,0.04)', 'color': 'rgba(59,130,246,0.6)' }
+  },
+  {
+    selector: '.level-header.level-2',
+    style: { 'border-color': 'rgba(6,182,212,0.25)', 'background-color': 'rgba(6,182,212,0.04)', 'color': 'rgba(6,182,212,0.6)' }
+  },
+  {
+    selector: '.level-header.level-3',
+    style: { 'border-color': 'rgba(139,92,246,0.25)', 'background-color': 'rgba(139,92,246,0.04)', 'color': 'rgba(139,92,246,0.6)' }
+  },
+  {
+    selector: '.level-header.level-4',
+    style: { 'border-color': 'rgba(245,158,11,0.25)', 'background-color': 'rgba(245,158,11,0.04)', 'color': 'rgba(245,158,11,0.6)' }
+  },
+
+  // Sequential edges
+  {
+    selector: '.seq',
+    style: {
+      'width': 1.5,
+      'curve-style': 'bezier',
+      'target-arrow-shape': 'triangle',
+      'target-arrow-size': 6,
+      'arrow-scale': 0.8,
+    }
+  },
+  {
+    selector: '.seq.level-1',
+    style: { 'line-color': 'rgba(59,130,246,0.35)', 'target-arrow-color': 'rgba(59,130,246,0.5)' }
+  },
+  {
+    selector: '.seq.level-2',
+    style: { 'line-color': 'rgba(6,182,212,0.35)', 'target-arrow-color': 'rgba(6,182,212,0.5)' }
+  },
+  {
+    selector: '.seq.level-3',
+    style: { 'line-color': 'rgba(139,92,246,0.35)', 'target-arrow-color': 'rgba(139,92,246,0.5)' }
+  },
+  {
+    selector: '.seq.level-4',
+    style: { 'line-color': 'rgba(245,158,11,0.35)', 'target-arrow-color': 'rgba(245,158,11,0.5)' }
+  },
+
+  // Gate transition edges (dashed)
+  {
+    selector: '.gate-edge',
+    style: {
+      'line-style': 'dashed',
+      'line-dash-pattern': [6, 4],
+      'width': 2,
+      'line-color': '#2a3050',
+      'target-arrow-shape': 'triangle',
+      'target-arrow-color': '#2a3050',
+      'target-arrow-size': 7,
+      'curve-style': 'bezier',
+    }
+  },
+
+  // Hover / active / selected states for modules
+  {
+    selector: '.module:active',
+    style: {
+      'border-width': 3,
+      'overlay-opacity': 0.08,
+    }
+  },
+  {
+    selector: '.module.highlighted',
+    style: {
+      'border-width': 3,
+      'background-color': '#151822',
+    }
+  },
+  {
+    selector: '.module.highlighted.level-1',
+    style: { 'border-color': '#60a5fa' }
+  },
+  {
+    selector: '.module.highlighted.level-2',
+    style: { 'border-color': '#22d3ee' }
+  },
+  {
+    selector: '.module.highlighted.level-3',
+    style: { 'border-color': '#a78bfa' }
+  },
+  {
+    selector: '.module.highlighted.level-4',
+    style: { 'border-color': '#fbbf24' }
+  },
+
+  // Exam gate hover / selected
+  {
+    selector: '.exam-gate:active',
+    style: {
+      'border-width': 3,
+      'overlay-opacity': 0.08,
+    }
+  },
+  {
+    selector: '.exam-gate.highlighted',
+    style: {
+      'border-width': 3,
+      'background-color': '#1a1e2e',
+    }
+  },
+
+  // Dimmed state for non-selected
+  {
+    selector: '.dimmed',
+    style: {
+      'opacity': 0.2,
+    }
+  },
+  {
+    selector: '.dimmed-edge',
+    style: {
+      'opacity': 0.1,
+    }
+  },
+];
+
+/* ────────────────────────────────────────────
+   LAYOUT CONFIGS
+   ──────────────────────────────────────────── */
+function getLayout(name) {
+  const layouts = {
+    dagre: {
+      name: 'dagre',
+      rankDir: 'TB',
+      nodeSep: 25,
+      rankSep: 50,
+      edgeSep: 10,
+      animate: true,
+      animationDuration: 400,
+      padding: 40,
+    },
+    breadthfirst: {
+      name: 'breadthfirst',
+      directed: true,
+      spacingFactor: 1.1,
+      animate: true,
+      animationDuration: 400,
+      padding: 40,
+    },
+    circle: {
+      name: 'circle',
+      animate: true,
+      animationDuration: 400,
+      padding: 40,
+    }
+  };
+  return layouts[name] || layouts.dagre;
+}
+
+/* ────────────────────────────────────────────
+   INITIALIZE CYTOSCAPE
+   ──────────────────────────────────────────── */
+let cy;
+let currentLayout = 'dagre';
+
+function initCytoscape() {
+  cy = cytoscape({
+    container: document.getElementById('cy'),
+    elements: buildElements(),
+    style: cyStyle,
+    layout: getLayout('dagre'),
+    minZoom: 0.15,
+    maxZoom: 3,
+    wheelSensitivity: 0.3,
+  });
+
+  // Node tap: show detail panel
+  cy.on('tap', 'node.module, node.exam-gate', function(evt) {
+    const node = evt.target;
+    const id = node.data('id');
+    showDetail(id);
+    highlightNode(node);
+  });
+
+  // Background tap: close detail panel, remove highlight
+  cy.on('tap', function(evt) {
+    if (evt.target === cy) {
+      closeDetail();
+      clearHighlight();
+    }
+  });
+
+  // Mouseover cursor
+  cy.on('mouseover', 'node.module, node.exam-gate', function() {
+    document.getElementById('cy').style.cursor = 'pointer';
+  });
+  cy.on('mouseout', 'node.module, node.exam-gate', function() {
+    document.getElementById('cy').style.cursor = 'default';
+  });
+}
+
+/* ────────────────────────────────────────────
+   HIGHLIGHT / DIM
+   ──────────────────────────────────────────── */
+function highlightNode(node) {
+  clearHighlight();
+  const connectedEdges = node.connectedEdges();
+  const connectedNodes = connectedEdges.connectedNodes();
+
+  // Dim everything
+  cy.elements().forEach(el => {
+    if (el.isNode() && !el.hasClass('level-header')) {
+      el.addClass('dimmed');
+    }
+    if (el.isEdge()) {
+      el.addClass('dimmed-edge');
+    }
+  });
+
+  // Un-dim selected + neighbors
+  node.removeClass('dimmed').addClass('highlighted');
+  connectedNodes.forEach(n => {
+    if (!n.hasClass('level-header')) {
+      n.removeClass('dimmed');
+    }
+  });
+  connectedEdges.removeClass('dimmed-edge');
+
+  // Un-dim parent compound node
+  const parent = node.parent();
+  if (parent.length) {
+    parent.removeClass('dimmed');
+  }
+}
+
+function clearHighlight() {
+  cy.elements().removeClass('dimmed dimmed-edge highlighted');
+}
+
+/* ────────────────────────────────────────────
+   DETAIL PANEL
+   ──────────────────────────────────────────── */
+function showDetail(id) {
+  const panel = document.getElementById('detail-panel');
+  const body = document.getElementById('detail-body');
+
+  // Check if it is a module or exam
+  if (moduleData[id]) {
+    const m = moduleData[id];
+    const color = levelColors[m.level];
+    const levelClass = 'l' + m.level;
+    body.innerHTML = `
+      <div class="detail-bar ${levelClass}"></div>
+      <div class="detail-id" style="color:${color}">${m.id}</div>
+      <div class="detail-title">${m.fullTitle}</div>
+      <div class="detail-meta">
+        <span class="detail-tag">Week ${m.week}</span>
+        <span class="detail-tag">Level ${m.level}</span>
+        <span class="detail-tag" style="color:${color};border-color:${color}40">${m.cert}</span>
+      </div>
+      <div class="detail-section">
+        <h4>Topics</h4>
+        <ul>${m.topics.map(t => '<li>' + t + '</li>').join('')}</ul>
+      </div>
+      <div class="detail-section">
+        <h4>Hands-On Project</h4>
+        <p>${m.handsOn}</p>
+      </div>
+      <div class="detail-section">
+        <h4>PayoneX Component</h4>
+        <p style="font-family:var(--fm);font-size:12px;color:${color}">${m.component}</p>
+      </div>
+    `;
+  } else if (examData[id]) {
+    const ex = examData[id];
+    const color = levelColors[ex.level];
+    const levelClass = 'l' + ex.level;
+    body.innerHTML = `
+      <div class="detail-bar ${levelClass}"></div>
+      <div class="detail-id" style="color:${color}">${ex.id}</div>
+      <div class="detail-title">${ex.title}</div>
+      <div class="detail-meta">
+        <span class="detail-tag" style="color:${color};border-color:${color}40">${ex.format}</span>
+        <span class="detail-tag">${ex.duration}</span>
+        <span class="detail-tag">Pass: ${ex.pass}</span>
+      </div>
+      <div class="detail-section">
+        <h4>Description</h4>
+        <p>${ex.desc}</p>
+      </div>
+    `;
+  }
+
+  panel.classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detail-panel').classList.remove('open');
+}
+
+/* ────────────────────────────────────────────
+   TAB SWITCHING
+   ──────────────────────────────────────────── */
+function initTabs() {
+  const btns = document.querySelectorAll('.tab-btn');
+  const panes = document.querySelectorAll('.tab-pane');
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btns.forEach(b => b.classList.remove('active'));
+      panes.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const tabId = 'tab-' + btn.dataset.tab;
+      document.getElementById(tabId).classList.add('active');
+
+      // Re-fit graph if switching to graph tab
+      if (btn.dataset.tab === 'graph' && cy) {
+        setTimeout(() => {
+          cy.resize();
+          cy.fit(undefined, 40);
+        }, 100);
+      }
+    });
+  });
+}
+
+/* ────────────────────────────────────────────
+   GRAPH CONTROLS
+   ──────────────────────────────────────────── */
+function initControls() {
+  document.getElementById('btn-fit').addEventListener('click', () => {
+    cy.animate({ fit: { padding: 40 } }, { duration: 400 });
+  });
+  document.getElementById('btn-zin').addEventListener('click', () => {
+    cy.animate({ zoom: { level: cy.zoom() * 1.3, position: cy.extent().x1 !== undefined ? { x: (cy.extent().x1 + cy.extent().x2) / 2, y: (cy.extent().y1 + cy.extent().y2) / 2 } : cy.pan() } }, { duration: 200 });
+  });
+  document.getElementById('btn-zout').addEventListener('click', () => {
+    cy.animate({ zoom: { level: cy.zoom() / 1.3, position: { x: (cy.extent().x1 + cy.extent().x2) / 2, y: (cy.extent().y1 + cy.extent().y2) / 2 } } }, { duration: 200 });
+  });
+
+  // Layout switcher
+  const layoutBtns = document.querySelectorAll('.layout-btn');
+  layoutBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      layoutBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentLayout = btn.dataset.layout;
+      const layout = cy.layout(getLayout(currentLayout));
+      layout.run();
+    });
+  });
+
+  // Detail close
+  document.getElementById('detail-close').addEventListener('click', () => {
+    closeDetail();
+    clearHighlight();
+  });
+}
+
+/* ────────────────────────────────────────────
+   BOOT
+   ──────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  initTabs();
+  initCytoscape();
+  initControls();
+});
+</script>
+</body>
+</html>
