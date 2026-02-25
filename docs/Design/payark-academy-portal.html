@@ -182,23 +182,23 @@ nav {
 }
 .cert-mock:hover { transform: rotateY(0deg) rotateX(0deg) scale(1.02); }
 .cert-inner {
-  background: linear-gradient(150deg, #fffef8 0%, #fdf8ed 100%);
-  border: 2px solid rgba(180,150,80,.35);
+  background: linear-gradient(150deg, #1a1815 0%, #1e1b16 50%, #18160f 100%);
+  border: 2px solid rgba(180,150,80,.25);
   border-radius: 14px; padding: 32px 28px;
   position: relative; overflow: hidden;
-  box-shadow: 0 0 40px rgba(234,179,8,.06), 0 24px 64px rgba(0,0,0,.4),
-    inset 0 1px 0 rgba(255,255,255,.8);
+  box-shadow: 0 0 40px rgba(234,179,8,.06), 0 24px 64px rgba(0,0,0,.5),
+    inset 0 1px 0 rgba(255,255,255,.04);
 }
 .cert-inner::before {
   content: ''; position: absolute; inset: 0;
-  background: radial-gradient(circle at 15% 15%, rgba(234,179,8,.06), transparent 50%),
-    radial-gradient(circle at 85% 85%, rgba(180,150,80,.04), transparent 50%);
+  background: radial-gradient(circle at 15% 15%, rgba(234,179,8,.04), transparent 50%),
+    radial-gradient(circle at 85% 85%, rgba(180,150,80,.03), transparent 50%);
   pointer-events: none;
 }
 .cert-inner::after {
   content: ''; position: absolute; top: -60%; right: -60%;
   width: 120%; height: 120%;
-  background: linear-gradient(135deg, transparent 40%, rgba(234,179,8,.06) 50%, transparent 60%);
+  background: linear-gradient(135deg, transparent 40%, rgba(234,179,8,.04) 50%, transparent 60%);
   pointer-events: none; animation: shimmer 5s ease-in-out infinite;
 }
 @keyframes shimmer {
@@ -209,33 +209,33 @@ nav {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 20px; position: relative; z-index: 1;
 }
-.cert-logo { font-size: 13px; font-weight: 800; letter-spacing: -0.3px; color: #1a1a2e; }
+.cert-logo { font-size: 13px; font-weight: 800; letter-spacing: -0.3px; color: #d4c9a8; }
 .cert-logo .ark { color: #0891b2; }
 .cert-lvl {
   padding: 3px 12px; border-radius: 6px;
   font-size: 10px; font-family: var(--fm); font-weight: 700; letter-spacing: 2px;
-  background: rgba(180,140,40,.1); color: #8b6914; border: 1px solid rgba(180,140,40,.2);
+  background: rgba(234,179,8,.08); color: #c9a84c; border: 1px solid rgba(234,179,8,.15);
 }
 .cert-body { text-align: center; position: relative; z-index: 1; margin-bottom: 18px; }
 .cert-body .pre {
-  font-size: 9px; font-family: var(--fm); color: #8890a8;
+  font-size: 9px; font-family: var(--fm); color: #7a7568;
   text-transform: uppercase; letter-spacing: 3px; margin-bottom: 6px;
 }
 .cert-body .name {
   font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #8b6914, #b8860b);
+  background: linear-gradient(135deg, #c9a84c, #e6c65a);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   margin-bottom: 3px;
 }
-.cert-body .sub { font-size: 12px; color: #6b7280; }
+.cert-body .sub { font-size: 12px; color: #7a7568; }
 .cert-who { text-align: center; position: relative; z-index: 1; margin-bottom: 18px; }
 .cert-who .label {
-  font-size: 9px; font-family: var(--fm); color: #8890a8;
+  font-size: 9px; font-family: var(--fm); color: #7a7568;
   text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;
 }
 .cert-who .person {
-  font-size: 18px; font-weight: 700; color: #1a1a2e; padding-bottom: 6px;
-  border-bottom: 1px solid rgba(180,140,40,.2); display: inline-block;
+  font-size: 18px; font-weight: 700; color: #d4c9a8; padding-bottom: 6px;
+  border-bottom: 1px solid rgba(234,179,8,.15); display: inline-block;
 }
 .cert-foot {
   display: flex; justify-content: space-between; align-items: flex-end;
@@ -243,23 +243,23 @@ nav {
 }
 .cert-foot-item { display: flex; flex-direction: column; gap: 2px; }
 .cert-foot-label {
-  font-size: 8px; font-family: var(--fm); color: #8890a8;
+  font-size: 8px; font-family: var(--fm); color: #7a7568;
   text-transform: uppercase; letter-spacing: 1.5px;
 }
-.cert-foot-val { font-size: 11px; color: #4b5563; font-weight: 500; }
+.cert-foot-val { font-size: 11px; color: #a09880; font-weight: 500; }
 .cert-seal {
   width: 48px; height: 48px; border-radius: 50%;
-  border: 1.5px solid rgba(180,140,40,.3);
+  border: 1.5px solid rgba(234,179,8,.2);
   display: flex; align-items: center; justify-content: center;
-  background: rgba(180,140,40,.06); box-shadow: 0 0 16px rgba(180,140,40,.08);
+  background: rgba(234,179,8,.06); box-shadow: 0 0 16px rgba(234,179,8,.08);
 }
 .cert-seal span {
   font-size: 15px; font-weight: 900; font-family: var(--fm);
-  color: #8b6914; letter-spacing: -1px;
+  color: #c9a84c; letter-spacing: -1px;
 }
 .cert-bottom {
   text-align: center; margin-top: 14px; position: relative; z-index: 1;
-  font-size: 9px; font-family: var(--fm); color: #8890a8; letter-spacing: 1.5px;
+  font-size: 9px; font-family: var(--fm); color: #7a7568; letter-spacing: 1.5px;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1141,7 +1141,30 @@ section { padding: 72px 0; }
 <section id="explore">
 <div class="section-num reveal">07</div>
 <h2 class="section-title reveal reveal-d1">Dive In</h2>
-<p class="section-desc reveal reveal-d2">PayArk teaches the <a href="payment-architecture.html" style="color:var(--cyan);text-decoration:none;border-bottom:1px solid rgba(6,182,212,.3);transition:var(--tr)">PayoneX architecture</a> &mdash; a 6-tier Kafka-native payment processing pipeline. Explore the full technical deep dive to see what you&rsquo;ll be building.</p>
+<p class="section-desc reveal reveal-d2">PayArk teaches the PayoneX platform &mdash; a 6-tier Kafka-native payment processing pipeline. Explore the architecture and platform overview to see what you&rsquo;ll be building.</p>
+
+<div class="explore-list" style="margin-top:32px;">
+  <a href="payonex-portal.html" class="explore-link card reveal reveal-d3" target="_blank">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <span class="el-tag">Portal</span>
+      <div class="el-left">
+        <div class="el-title">PayoneX Platform</div>
+        <div class="el-desc">Enterprise payment infrastructure &mdash; product overview, capabilities, and integration points</div>
+      </div>
+    </div>
+    <span class="el-arrow">&rarr;</span>
+  </a>
+  <a href="payment-architecture.html" class="explore-link card reveal reveal-d4" target="_blank">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <span class="el-tag" style="background:rgba(139,92,246,.06);color:var(--violet);border-color:rgba(139,92,246,.1);">Arch</span>
+      <div class="el-left">
+        <div class="el-title">Architecture Deep Dive</div>
+        <div class="el-desc">6-tier pipeline, Kafka event mesh, compliance saga, settlement engine &mdash; the full technical blueprint</div>
+      </div>
+    </div>
+    <span class="el-arrow">&rarr;</span>
+  </a>
+</div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
