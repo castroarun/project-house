@@ -182,23 +182,23 @@ nav {
 }
 .cert-mock:hover { transform: rotateY(0deg) rotateX(0deg) scale(1.02); }
 .cert-inner {
-  background: linear-gradient(150deg, #1a1815 0%, #1e1b16 50%, #18160f 100%);
-  border: 2px solid rgba(180,150,80,.25);
+  background: linear-gradient(150deg, #edebe6 0%, #e8e4dc 100%);
+  border: 2px solid rgba(180,150,80,.3);
   border-radius: 14px; padding: 32px 28px;
   position: relative; overflow: hidden;
-  box-shadow: 0 0 40px rgba(234,179,8,.06), 0 24px 64px rgba(0,0,0,.5),
-    inset 0 1px 0 rgba(255,255,255,.04);
+  box-shadow: 0 0 40px rgba(234,179,8,.06), 0 24px 64px rgba(0,0,0,.4),
+    inset 0 1px 0 rgba(255,255,255,.6);
 }
 .cert-inner::before {
   content: ''; position: absolute; inset: 0;
-  background: radial-gradient(circle at 15% 15%, rgba(234,179,8,.04), transparent 50%),
-    radial-gradient(circle at 85% 85%, rgba(180,150,80,.03), transparent 50%);
+  background: radial-gradient(circle at 15% 15%, rgba(234,179,8,.06), transparent 50%),
+    radial-gradient(circle at 85% 85%, rgba(180,150,80,.04), transparent 50%);
   pointer-events: none;
 }
 .cert-inner::after {
   content: ''; position: absolute; top: -60%; right: -60%;
   width: 120%; height: 120%;
-  background: linear-gradient(135deg, transparent 40%, rgba(234,179,8,.04) 50%, transparent 60%);
+  background: linear-gradient(135deg, transparent 40%, rgba(234,179,8,.06) 50%, transparent 60%);
   pointer-events: none; animation: shimmer 5s ease-in-out infinite;
 }
 @keyframes shimmer {
@@ -209,33 +209,33 @@ nav {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 20px; position: relative; z-index: 1;
 }
-.cert-logo { font-size: 13px; font-weight: 800; letter-spacing: -0.3px; color: #d4c9a8; }
+.cert-logo { font-size: 13px; font-weight: 800; letter-spacing: -0.3px; color: #2a2a3a; }
 .cert-logo .ark { color: #0891b2; }
 .cert-lvl {
   padding: 3px 12px; border-radius: 6px;
   font-size: 10px; font-family: var(--fm); font-weight: 700; letter-spacing: 2px;
-  background: rgba(234,179,8,.08); color: #c9a84c; border: 1px solid rgba(234,179,8,.15);
+  background: rgba(180,140,40,.1); color: #8b6914; border: 1px solid rgba(180,140,40,.2);
 }
 .cert-body { text-align: center; position: relative; z-index: 1; margin-bottom: 18px; }
 .cert-body .pre {
-  font-size: 9px; font-family: var(--fm); color: #7a7568;
+  font-size: 9px; font-family: var(--fm); color: #8890a8;
   text-transform: uppercase; letter-spacing: 3px; margin-bottom: 6px;
 }
 .cert-body .name {
   font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #c9a84c, #e6c65a);
+  background: linear-gradient(135deg, #8b6914, #b8860b);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   margin-bottom: 3px;
 }
-.cert-body .sub { font-size: 12px; color: #7a7568; }
+.cert-body .sub { font-size: 12px; color: #6b7280; }
 .cert-who { text-align: center; position: relative; z-index: 1; margin-bottom: 18px; }
 .cert-who .label {
-  font-size: 9px; font-family: var(--fm); color: #7a7568;
+  font-size: 9px; font-family: var(--fm); color: #8890a8;
   text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;
 }
 .cert-who .person {
-  font-size: 18px; font-weight: 700; color: #d4c9a8; padding-bottom: 6px;
-  border-bottom: 1px solid rgba(234,179,8,.15); display: inline-block;
+  font-size: 18px; font-weight: 700; color: #2a2a3a; padding-bottom: 6px;
+  border-bottom: 1px solid rgba(180,140,40,.2); display: inline-block;
 }
 .cert-foot {
   display: flex; justify-content: space-between; align-items: flex-end;
@@ -243,23 +243,23 @@ nav {
 }
 .cert-foot-item { display: flex; flex-direction: column; gap: 2px; }
 .cert-foot-label {
-  font-size: 8px; font-family: var(--fm); color: #7a7568;
+  font-size: 8px; font-family: var(--fm); color: #8890a8;
   text-transform: uppercase; letter-spacing: 1.5px;
 }
-.cert-foot-val { font-size: 11px; color: #a09880; font-weight: 500; }
+.cert-foot-val { font-size: 11px; color: #4b5563; font-weight: 500; }
 .cert-seal {
   width: 48px; height: 48px; border-radius: 50%;
-  border: 1.5px solid rgba(234,179,8,.2);
+  border: 1.5px solid rgba(180,140,40,.3);
   display: flex; align-items: center; justify-content: center;
-  background: rgba(234,179,8,.06); box-shadow: 0 0 16px rgba(234,179,8,.08);
+  background: rgba(180,140,40,.08); box-shadow: 0 0 16px rgba(180,140,40,.1);
 }
 .cert-seal span {
   font-size: 15px; font-weight: 900; font-family: var(--fm);
-  color: #c9a84c; letter-spacing: -1px;
+  color: #8b6914; letter-spacing: -1px;
 }
 .cert-bottom {
   text-align: center; margin-top: 14px; position: relative; z-index: 1;
-  font-size: 9px; font-family: var(--fm); color: #7a7568; letter-spacing: 1.5px;
+  font-size: 9px; font-family: var(--fm); color: #8890a8; letter-spacing: 1.5px;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -621,12 +621,12 @@ section { padding: 72px 0; }
 <nav id="nav">
 <div class="nav-pill">
   <button class="nb active" onclick="scrollTo_('hero')">Overview</button>
-  <button class="nb" onclick="scrollTo_('why')">Why</button>
+  <button class="nb" onclick="scrollTo_('why')">Why PayArk</button>
   <button class="nb" onclick="scrollTo_('curriculum')">Curriculum</button>
-  <button class="nb" onclick="scrollTo_('integrity')">Integrity</button>
+  <button class="nb" onclick="scrollTo_('integrity')">Exams</button>
   <button class="nb" onclick="scrollTo_('sourcing')">Content</button>
-  <button class="nb" onclick="scrollTo_('usps')">USPs</button>
-  <button class="nb" onclick="scrollTo_('levels')">Levels</button>
+  <button class="nb" onclick="scrollTo_('usps')">Difference</button>
+  <button class="nb" onclick="scrollTo_('levels')">Certifications</button>
   <button class="nb" onclick="scrollTo_('explore')">Explore</button>
 </div>
 </nav>
@@ -642,13 +642,13 @@ section { padding: 72px 0; }
   <div class="hero-left">
     <div class="hero-badge reveal">
       <span class="dot"></span>
-      Training Academy
+      Payment Engineering Training
     </div>
 
     <h1 class="reveal reveal-d1">Pay<span class="ark">Ark</span> Academy</h1>
 
     <p class="hero-tagline reveal reveal-d2">
-      <strong>Learn payment engineering</strong> from the developer who built the platform. 44 modules, 4 certifications, zero shortcuts.
+      <strong>Master the PayoneX platform</strong> &mdash; from payment lifecycle basics to building production clearing adapters. Taught by the developer who built it.
     </p>
 
     <div class="hero-metrics reveal reveal-d3">
@@ -704,10 +704,10 @@ section { padding: 72px 0; }
      ═══════════════════════════════════════════════════════ -->
 <section id="why">
 <div class="section-num reveal">01</div>
-<h2 class="section-title reveal reveal-d1">Not Another Tutorial Playlist</h2>
+<h2 class="section-title reveal reveal-d1">Why PayArk</h2>
 
 <div class="big-quote reveal reveal-d2">
-  Most payment training is <strong>slides and theory</strong>. PayArk is different &mdash; every module maps to a <em>real component in the PayoneX codebase</em>. You learn the concept, then see how it&rsquo;s built.
+  Most payment courses teach theory. PayArk maps every module to a <em>real component in the PayoneX codebase</em>. You learn the concept, then see how it&rsquo;s built in production.
 </div>
 
 <div class="g3">
@@ -879,8 +879,8 @@ section { padding: 72px 0; }
      ═══════════════════════════════════════════════════════ -->
 <section id="integrity">
 <div class="section-num reveal">03</div>
-<h2 class="section-title reveal reveal-d1">Can the Builder Cheat?</h2>
-<p class="section-desc reveal reveal-d2">The quiz engine, question bank, and randomization algorithm are all in the source code. The builder has full access. Here&rsquo;s why that doesn&rsquo;t help.</p>
+<h2 class="section-title reveal reveal-d1">Exam Integrity</h2>
+<p class="section-desc reveal reveal-d2">Certifications mean nothing without rigorous assessment. Every exam is designed to validate real knowledge, not memorization.</p>
 
 <div class="integrity-banner reveal reveal-d3">
   <blockquote>
@@ -931,8 +931,8 @@ section { padding: 72px 0; }
      ═══════════════════════════════════════════════════════ -->
 <section id="sourcing">
 <div class="section-num reveal">04</div>
-<h2 class="section-title reveal reveal-d1">Where the Content Comes From</h2>
-<p class="section-desc reveal reveal-d2">We don&rsquo;t reinvent the wheel. The best content already exists. Our job is curation and sequencing.</p>
+<h2 class="section-title reveal reveal-d1">Content Strategy</h2>
+<p class="section-desc reveal reveal-d2">The best payment content already exists. PayArk curates, sequences, and fills the gaps.</p>
 
 <div class="source-split">
 
@@ -990,8 +990,8 @@ section { padding: 72px 0; }
      ═══════════════════════════════════════════════════════ -->
 <section id="usps">
 <div class="section-num reveal">05</div>
-<h2 class="section-title reveal reveal-d1">Why This, Not That</h2>
-<p class="section-desc reveal reveal-d2">What makes PayArk fundamentally different from the thousands of payment courses out there.</p>
+<h2 class="section-title reveal reveal-d1">The PayArk Difference</h2>
+<p class="section-desc reveal reveal-d2">What sets PayArk apart from every other payment course.</p>
 
 <div class="g2">
 
@@ -1065,8 +1065,8 @@ section { padding: 72px 0; }
      ═══════════════════════════════════════════════════════ -->
 <section id="levels">
 <div class="section-num reveal">06</div>
-<h2 class="section-title reveal reveal-d1">4-Level Certification Track</h2>
-<p class="section-desc reveal reveal-d2">32 weeks from zero to architect. Each level gates the next.</p>
+<h2 class="section-title reveal reveal-d1">Certification Path</h2>
+<p class="section-desc reveal reveal-d2">Four progressive levels. 32 weeks from foundations to architect. Each certification unlocks the next.</p>
 
 <div class="cert-track reveal reveal-d3">
 

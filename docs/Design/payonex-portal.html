@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PayoneX — Enterprise Payment Processing Platform</title>
-<meta name="description" content="Production-grade payment processing across Singapore, Hong Kong, UK, and India. Kafka-driven, event-sourced, ISO 20022 native.">
+<title>PayoneX — Enterprise Payment Infrastructure</title>
+<meta name="description" content="Enterprise payment infrastructure for cross-border processing across Singapore, Hong Kong, UK, and India. Real clearing house integration. Production-grade.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -566,13 +566,13 @@ section { padding: 80px 0; }
 <div class="nav-inner">
   <div class="nav-brand">Payone<span>X</span></div>
   <button class="nb active" onclick="scrollTo_('hero')">Overview</button>
-  <button class="nb" onclick="scrollTo_('production')">Production</button>
-  <button class="nb" onclick="scrollTo_('architecture')">Architecture</button>
+  <button class="nb" onclick="scrollTo_('production')">Capabilities</button>
+  <button class="nb" onclick="scrollTo_('architecture')">How It Works</button>
   <button class="nb" onclick="scrollTo_('decisions')">Decisions</button>
-  <button class="nb" onclick="scrollTo_('vocabulary')">Vocabulary</button>
+  <button class="nb" onclick="scrollTo_('vocabulary')">Concepts</button>
   <button class="nb" onclick="scrollTo_('patterns')">Patterns</button>
   <button class="nb" onclick="scrollTo_('roadmap')">Roadmap</button>
-  <button class="nb" onclick="scrollTo_('infra')">Infrastructure</button>
+  <button class="nb" onclick="scrollTo_('infra')">Stack</button>
   <button class="nb" onclick="scrollTo_('explore')">Explore</button>
 </div>
 </nav>
@@ -588,15 +588,15 @@ section { padding: 80px 0; }
 <div class="reveal">
   <div class="hero-badge">
     <span class="pulse"></span>
-    Architecture Portal
+    Enterprise Payment Infrastructure
   </div>
 </div>
 
 <h1 class="reveal reveal-d1">PayoneX</h1>
-<p class="hero-subtitle reveal reveal-d2">Enterprise Payment Processing Platform</p>
+<p class="hero-subtitle reveal reveal-d2">Move money across borders. In real time. At scale.</p>
 
 <p class="hero-desc reveal reveal-d3">
-  A <strong>production-grade</strong> payment processing platform engineered for real clearing house integration across Singapore, Hong Kong, UK, and India. Kafka-driven, event-sourced, ISO 20022 native &mdash; built for go-live, not for demo.
+  PayoneX is an <strong>enterprise payment infrastructure</strong> that connects directly to clearing houses across Singapore, Hong Kong, UK, and India. Real-time settlement, full compliance screening, and double-entry accounting &mdash; one platform, four regions.
 </p>
 
 <div class="hero-stats reveal reveal-d4">
@@ -633,25 +633,25 @@ section { padding: 80px 0; }
      PRODUCTION GO-LIVE
      ═══════════════════════════════════════════════════════ -->
 <section id="production">
-<div class="section-label reveal">01 &mdash; Purpose</div>
-<h2 class="section-title reveal reveal-d1">Built for Production Go-Live</h2>
-<p class="section-desc reveal reveal-d2">Not a proof-of-concept. Not a tutorial project. Engineered end-to-end for live payment processing with real clearing house connectivity.</p>
+<div class="section-label reveal">01 &mdash; Capabilities</div>
+<h2 class="section-title reveal reveal-d1">What PayoneX Does</h2>
+<p class="section-desc reveal reveal-d2">End-to-end payment processing from ingestion to settlement. Every transaction is screened, routed, cleared, and reconciled &mdash; automatically.</p>
 
 <div class="bento">
   <div class="glass bento-item reveal reveal-d1">
     <div class="bento-icon">&#9878;</div>
-    <h4>Real Clearing Integration</h4>
-    <p>Connects to FAST, MEPS+, CHATS, Faster Payments, RTGS, and SWIFT gpi. Each clearing house has its own protocol adapter with operating hour validation, format translation, and minimum amount enforcement.</p>
+    <h4>Multi-Rail Clearing</h4>
+    <p>Connects to FAST, MEPS+, CHATS, Faster Payments, RTGS, and SWIFT gpi. One integration layer handles all rails &mdash; operating hours, format translation, and settlement confirmation are fully automated.</p>
   </div>
   <div class="glass bento-item reveal reveal-d2">
     <div class="bento-icon green">&#9889;</div>
-    <h4>Full Payment Lifecycle</h4>
-    <p>Every payment flows through ingestion, validation, compliance screening, clearing submission, double-entry accounting, and reconciliation. The complete lifecycle &mdash; from pacs.008 in to pacs.002 out.</p>
+    <h4>End-to-End Processing</h4>
+    <p>From payment instruction to settlement confirmation. Validation, compliance screening, clearing, double-entry accounting, and reconciliation &mdash; fully automated, fully auditable.</p>
   </div>
   <div class="glass bento-item reveal reveal-d3">
     <div class="bento-icon amber">&#9881;</div>
-    <h4>Performance Validated</h4>
-    <p>Designed for 10,000 transactions per second with sub-5-second end-to-end latency on real-time rails. Load tested before any line goes to production. Self-healing with circuit breakers and 3-tier DLQ retry.</p>
+    <h4>Built for Volume</h4>
+    <p>Engineered for 10,000 transactions per second with sub-5-second end-to-end latency on real-time rails. Self-healing, auto-scaling, with circuit breakers and intelligent retry across all clearing networks.</p>
   </div>
 </div>
 </section>
@@ -662,9 +662,9 @@ section { padding: 80px 0; }
      ARCHITECTURE
      ═══════════════════════════════════════════════════════ -->
 <section id="architecture">
-<div class="section-label reveal">02 &mdash; Architecture</div>
-<h2 class="section-title reveal reveal-d1">6-Tier Kafka-Driven Pipeline</h2>
-<p class="section-desc reveal reveal-d2">Six bounded contexts connected by Apache Kafka. Each tier owns its data, scales independently, and communicates through immutable events.</p>
+<div class="section-label reveal">02 &mdash; How It Works</div>
+<h2 class="section-title reveal reveal-d1">6-Tier Processing Pipeline</h2>
+<p class="section-desc reveal reveal-d2">Every payment flows through six specialized stages &mdash; each handling one responsibility, connected by an event backbone that guarantees zero message loss.</p>
 
 <div class="tier-grid">
 
@@ -774,9 +774,9 @@ section { padding: 80px 0; }
      ARCHITECTURE DECISIONS
      ═══════════════════════════════════════════════════════ -->
 <section id="decisions">
-<div class="section-label reveal">03 &mdash; Decisions</div>
-<h2 class="section-title reveal reveal-d1">Architecture Decision Records</h2>
-<p class="section-desc reveal reveal-d2">Every significant technical decision is documented with context, alternatives considered, and rationale. No hand-waving.</p>
+<div class="section-label reveal">03 &mdash; Why These Choices</div>
+<h2 class="section-title reveal reveal-d1">Design Decisions</h2>
+<p class="section-desc reveal reveal-d2">Every technical choice was weighed against alternatives. Here&rsquo;s what we picked and why &mdash; documented, not hand-waved.</p>
 
 <div class="adr-grid">
 
@@ -829,9 +829,9 @@ section { padding: 80px 0; }
      PAYONEX VOCABULARY
      ═══════════════════════════════════════════════════════ -->
 <section id="vocabulary">
-<div class="section-label reveal">04 &mdash; Vocabulary</div>
-<h2 class="section-title reveal reveal-d1">PayoneX Vocabulary</h2>
-<p class="section-desc reveal reveal-d2">Concepts we coined to solve real payment engineering problems. Each addresses a gap that no off-the-shelf pattern fully covers.</p>
+<div class="section-label reveal">04 &mdash; Concepts</div>
+<h2 class="section-title reveal reveal-d1">The PayoneX Language</h2>
+<p class="section-desc reveal reveal-d2">Purpose-built concepts that solve real payment engineering problems. Each one addresses a gap no off-the-shelf pattern fully covers.</p>
 
 <div class="vocab-grid">
 
@@ -868,9 +868,9 @@ section { padding: 80px 0; }
      ENGINEERING PATTERNS
      ═══════════════════════════════════════════════════════ -->
 <section id="patterns">
-<div class="section-label reveal">05 &mdash; Patterns</div>
+<div class="section-label reveal">05 &mdash; Under the Hood</div>
 <h2 class="section-title reveal reveal-d1">Engineering Patterns</h2>
-<p class="section-desc reveal reveal-d2">Battle-tested patterns chosen for payment processing. Each solves a specific problem &mdash; no pattern is included for resume points.</p>
+<p class="section-desc reveal reveal-d2">Battle-tested patterns chosen for payment processing. Each solves a specific operational problem.</p>
 
 <div class="reveal reveal-d3">
 <table class="patterns-table">
@@ -939,8 +939,8 @@ section { padding: 80px 0; }
      ═══════════════════════════════════════════════════════ -->
 <section id="roadmap">
 <div class="section-label reveal">06 &mdash; Roadmap</div>
-<h2 class="section-title reveal reveal-d1">Build Roadmap</h2>
-<p class="section-desc reveal reveal-d2">Every phase ends with a deployable deliverable. Sizing is indicative and will be revisited as the build progresses.</p>
+<h2 class="section-title reveal reveal-d1">Product Roadmap</h2>
+<p class="section-desc reveal reveal-d2">From design to go-live. Every phase ends with a deployable deliverable.</p>
 
 <div class="roadmap-track reveal reveal-d3">
 
@@ -1033,9 +1033,9 @@ section { padding: 80px 0; }
      INFRASTRUCTURE
      ═══════════════════════════════════════════════════════ -->
 <section id="infra">
-<div class="section-label reveal">07 &mdash; Infrastructure</div>
-<h2 class="section-title reveal reveal-d1">Development Infrastructure</h2>
-<p class="section-desc reveal reveal-d2">PayoneX runs a heavy local stack &mdash; Kafka, PostgreSQL+Citus, Redis, ClickHouse, 6+ Spring Boot microservices. Development based in Chennai, India.</p>
+<div class="section-label reveal">07 &mdash; Platform Stack</div>
+<h2 class="section-title reveal reveal-d1">Infrastructure</h2>
+<p class="section-desc reveal reveal-d2">PayoneX runs on Kafka, PostgreSQL+Citus, Redis, ClickHouse, and 6+ Spring Boot microservices. Development based in Chennai, India.</p>
 
 <div class="infra-callout reveal reveal-d3">
   <h4>Sizing Disclaimer</h4>
@@ -1108,7 +1108,7 @@ section { padding: 80px 0; }
      ═══════════════════════════════════════════════════════ -->
 <section id="explore">
 <div class="section-label reveal">08 &mdash; Explore</div>
-<h2 class="section-title reveal reveal-d1">Explore the Design</h2>
+<h2 class="section-title reveal reveal-d1">Go Deeper</h2>
 
 <div class="explore-grid">
 
@@ -1130,10 +1130,10 @@ section { padding: 80px 0; }
     <span class="explore-tag">Interactive HTML</span>
   </a>
 
-  <a href="https://github.com/castroarun/payark-academy" class="explore-card reveal reveal-d3">
+  <a href="payark-academy-portal.html" class="explore-card reveal reveal-d3">
     <h4>PayArk Academy <span class="arrow">&#8594;</span></h4>
-    <p>Live training app &mdash; Module 1 &ldquo;How Payments Work&rdquo; with video lessons, reading articles, hands-on labs, and assessments.</p>
-    <span class="explore-tag" style="background: rgba(16,185,129,.08); color: var(--green); border-color: rgba(16,185,129,.1);">Next.js App</span>
+    <p>44-module training program for the PayoneX platform. 4 certification levels, hands-on labs, and assessments built by the platform&rsquo;s developer.</p>
+    <span class="explore-tag" style="background: rgba(234,179,8,.08); color: var(--amber); border-color: rgba(234,179,8,.1);">Training Program</span>
   </a>
 
 </div>
@@ -1144,7 +1144,7 @@ section { padding: 80px 0; }
      ═══════════════════════════════════════════════════════ -->
 <footer class="footer">
   <div class="footer-brand">PayoneX</div>
-  <div class="footer-sub">Enterprise Payment Processing Platform &middot; Architecture v2.0</div>
+  <div class="footer-sub">Enterprise Payment Infrastructure &middot; 4 Regions &middot; 5 Clearing Rails &middot; Production-Grade</div>
   <div class="footer-credit">Designed and built by Castro</div>
 </footer>
 
