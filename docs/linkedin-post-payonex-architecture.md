@@ -56,7 +56,8 @@ and solve real-world problems in clearing, settlement, and compliance —
 I'm looking for collaborators and co-learners.
 The repo is public. The architecture is interactive. Let's build this.
 
-→ Explore the architecture: https://castroarun.github.io/project-house/docs/Design/payment-architecture.html
+→ Explore the architecture: https://castroarun.github.io/project-house/Design/payment-architecture.html
+→ PayoneX platform: https://castroarun.github.io/project-house/Design/payonex.html
 → GitHub: https://github.com/castroarun/project-house
 
 Built using my 9-step development process:
@@ -68,5 +69,13 @@ https://www.linkedin.com/pulse/clarity-clutter-why-ai-assisted-development-needs
 
 ## Visual Recommendations
 
-1. **Image 1:** Screenshot of PayoneX architecture header — gradient title with pulsing dot, "Enterprise Payment Processing Platform" subtitle
-2. **Image 2:** Expanded inbound metro map — transit diagram with glowing ACTC/ACSC dots, Kafka interchanges, Phantom dev callouts
+1. **Image 1:** Screenshot of PayoneX platform page hero — gradient title with pulsing dot, "Move money across borders. In real time. At scale." (`payonex.html`)
+2. **Image 2:** Screenshot of architecture 6-tier pipeline section or inbound metro map (`payment-architecture.html`)
+
+## Live Pages
+
+| Page | URL |
+|------|-----|
+| PayoneX Platform | https://castroarun.github.io/project-house/Design/payonex.html |
+| Architecture Deep Dive | https://castroarun.github.io/project-house/Design/payment-architecture.html |
+| Hub | https://castroarun.github.io/project-house/ |

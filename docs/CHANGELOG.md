@@ -7,6 +7,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### 2026-02-25 — Branding Polish: Rename, Favicons, LinkedIn Links
+- **Changed:** Renamed `payonex-portal.html` → `payonex.html` (cleaner brand URL)
+- **Added:** Browser tab favicons (inline SVG) to all pages:
+  - PX (blue) for PayoneX pages, PA (gold) for PayArk, PH (cyan) for hub
+- **Changed:** LinkedIn posts updated with correct live GitHub Pages URLs
+  - Post 1 (Architecture): added PayoneX platform link
+  - Post 2 (Academy): replaced placeholder with live PayArk Academy link, added all page URLs
+- **Changed:** All cross-references updated (hub, PayArk portal, changelog)
+
 ### 2026-02-25 — Isometric Background Pattern + GitHub Pages Deployment
 - **Changed:** Replaced feTurbulence noise texture with isometric diamond SVG pattern on PayArk Academy portal
   - Clean geometric tessellation at 0.05 opacity, subtle cyan/violet radial overlays
@@ -58,11 +67,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 - **Added:** Same premium design system: scroll-reveal animations, glassmorphism cards, atmospheric background, frosted nav, animated counters
 
 ### 2026-02-25 — PayoneX Portal Branding Fix
-- **Changed:** `docs/Design/payonex-portal.html` — Hero h1 now matches `payment-architecture.html` branding exactly (gradient text white→blue→cyan, underline bar, glowing cyan dot with pulse animation)
+- **Changed:** `docs/Design/payonex.html` — Hero h1 now matches `payment-architecture.html` branding exactly (gradient text white→blue→cyan, underline bar, glowing cyan dot with pulse animation)
 - **Changed:** Hero stat "12 Clearing Houses" → "5 Clearing Rails" (honest count: RTGS, Real-Time, Batch, Cross-Border, UPI)
 
 ### 2026-02-25 — PayoneX Architecture Portal (Premium Rebuild)
-- **Changed:** `docs/Design/payonex-portal.html` — Complete premium rebuild of the front-door landing page for LinkedIn sharing
+- **Changed:** `docs/Design/payonex.html` — Complete premium rebuild of the front-door landing page for LinkedIn sharing
 - **Added:** Scroll-reveal animations (IntersectionObserver fade-in/slide-up with stagger delays) across all sections
 - **Added:** Glassmorphism card design with frosted glass backdrop-filter, subtle inner gradients, and hover lift effects
 - **Added:** Animated number counters on hero stats (count-up on scroll into view)

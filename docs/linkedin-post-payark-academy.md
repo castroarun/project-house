@@ -81,9 +81,11 @@ I'm looking for co-learners and co-curators.
 Learn alongside, suggest better resources, challenge the questions, improve the curriculum.
 Let's build this knowledge base together.
 
-→ Start Module 1: [academy link — to be added when live]
-→ Full curriculum: https://github.com/castroarun/project-house
-→ PayoneX architecture: https://castroarun.github.io/project-house/docs/Design/payment-architecture.html
+→ PayArk Academy: https://castroarun.github.io/project-house/Design/payark-academy-portal.html
+→ Full curriculum: https://castroarun.github.io/project-house/Design/payark-academy-portal.html#curriculum
+→ PayoneX platform: https://castroarun.github.io/project-house/Design/payonex.html
+→ PayoneX architecture: https://castroarun.github.io/project-house/Design/payment-architecture.html
+→ GitHub: https://github.com/castroarun/project-house
 
 Built using my 9-step development process:
 https://www.linkedin.com/pulse/clarity-clutter-why-ai-assisted-development-needs-arun-castromin-hmxzc/
@@ -94,8 +96,17 @@ https://www.linkedin.com/pulse/clarity-clutter-why-ai-assisted-development-needs
 
 ## Visual Recommendations
 
-1. **Image 1:** PayArk Module 1 screenshot — dark theme, module content list, progress indicators (if academy is live by post time). Alternatively, the dashboard wireframe showing the 4-level certification path.
-2. **Image 2:** Certification path visual — PAKF (blue) → PAKE (cyan) → PAKSA (violet) → PAKA (gold) with module counts and week durations. Could be a horizontal timeline or vertical progression diagram.
+1. **Image 1:** Screenshot of PayArk Academy portal hero — certificate mock, metrics bar, "Master the PayoneX platform" tagline (`payark-academy-portal.html`)
+2. **Image 2:** Screenshot of the 4-level certification path section or the full curriculum table (`payark-academy-portal.html#levels` or `#curriculum`)
+
+## Live Pages
+
+| Page | URL |
+|------|-----|
+| PayArk Academy | https://castroarun.github.io/project-house/Design/payark-academy-portal.html |
+| PayoneX Platform | https://castroarun.github.io/project-house/Design/payonex.html |
+| Architecture | https://castroarun.github.io/project-house/Design/payment-architecture.html |
+| Hub | https://castroarun.github.io/project-house/ |
 
 ## Post Checklist
 
@@ -107,6 +118,6 @@ https://www.linkedin.com/pulse/clarity-clutter-why-ai-assisted-development-needs
 - [x] Assessment beyond MCQ (system design document, architecture walkthrough, automated gates)
 - [x] Content sourcing strategy (free + paid)
 - [x] CTA: co-learners + co-curators
-- [x] Module 1 link placeholder
+- [x] PayArk Academy live link
 - [x] 9-step process article link
 - [x] Hashtags
